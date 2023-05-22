@@ -4,24 +4,25 @@ required=("git" "make" "wget" "cmake" "g++" "pkg-config")
 err=0
 for cmd in "${required[@]}"; do
 	if ! command -v "$cmd" &> /dev/null; then
-		echo "'$cmd' não encontrado. Favor instalar."
+		echo "'$cmd' faltando. Favor instalar."
 		err=1
 	fi
 done
 if [ "$err" -eq 1 ]; then exit 1; fi
 
-echo "Baixando dependências"
+echo "Baixando dependencias"
 read -p "Continuar? [S/n] " yn
-case $yn in
-	[SsYy]* ) break;;
-	* ) exit 1;;
-esac
+if [[ $yn != [SsYy]* ]]; then
+	exit 1
+fi
 
 deps=$(mktemp -d)
 mkdir -p $deps/{lib,include}
 download() {
 	set -e
 	dir=$(mktemp -d) && cd "$dir"
+	cleanup+=($dir)
+
 	git init
 	git remote add origin "$1" 2>/dev/null
 	git fetch origin
@@ -31,20 +32,32 @@ download() {
 	mkdir -p build && cd build && cmake ..
 	make -j8
 	cp -r lib/* "$deps/lib"
-
-	rm -rf "$dir"
+}
+abort() {
+	echo "Abortando"
+	rm -r "$deps"
+	for dir in "${cleanup[@]}"; do
+		rm -r "$dir"
+	done
+}
+abort_sfml() {
+	echo "Erro ao configurar o SFML"
+	echo "Procure por 'libsfml-dev' no seu gerenciador de pacotes"
+	abort
 }
 
 if ! pkg-config --exists sfml-graphics sfml-window sfml-system; then
+	trap abort_sfml EXIT
 	download "https://github.com/SFML/SFML" "2.5.x"
-	export CPLUS_INCLUDE_PATH+="$deps/include"
+	export CPLUS_INCLUDE_PATH="$deps/include:$CPLUS_INCLUDE_PATH"&
 fi
+trap abort EXIT
 download "https://github.com/MiguelMJ/Candle" "master"&
 wget -O "$deps/include/doctest.h" "https://github.com/doctest/doctest/releases/download/v2.4.11/doctest.h"&
+wait
 
-if wait;  then
-	mv "$deps" "$base/deps"
-else
-	echo "Abortando"
-	rm -r "$deps"
-fi
+trap - EXIT
+mv "$deps" "$base/deps"
+for dir in "${cleanup[@]}"; do
+	rm -r "$dir"
+done
