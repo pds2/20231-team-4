@@ -9,8 +9,8 @@ int main() {
 	sf::Clock c;
 	float interval = 0;
 
-    sf::Font dosis;
-    dosis.loadFromFile("assets/Dosis-Light.ttf");
+	sf::Font dosis;
+	dosis.loadFromFile("assets/Dosis-Light.ttf");
 
 	sf::Text fps;
 	fps.setFont(dosis);
