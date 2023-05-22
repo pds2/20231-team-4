@@ -1,4 +1,9 @@
 # Grupo 4
+## Integrantes
+- Daniel Vítor Rabelo Rodrigues
+- Iago Nathan Cardoso Araújo
+- Mateus Vitor Mota Vasconcelos
+- Matheus Costa Faria
 ## Projeto
 Um jogo RPG roguelike
 ## User Stories
