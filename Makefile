@@ -1,12 +1,12 @@
-MAKEFLAGS += -j8
 LIB = Candle-s sfml-graphics sfml-window sfml-system
-IDIR = deps/include include
-LDIR = deps/lib
+IDIR = /usr/include /usr/local/include deps/include include
+LDIR = /usr/lib /usr/local/lib deps/lib
 
 SRCS = $(filter-out $(SDIR)/$(EXE).cpp,$(wildcard $(SDIR)/*.cpp))
 FLAG += std=c++20
 OBJS += $(SRCS:$(SDIR)/%.cpp=$(ODIR)/%.o)
 DEPS = $(OBJS:%.o=%.d)
+LINK = -Wl,-rpath='$$ORIGIN/lib'
 -include $(DEPS)
 
 define compile
@@ -30,13 +30,14 @@ $(ODIR)/%.o: $(SDIR)/%.cpp | $(ODIR) deps
 	$(info Compiled object $@)
 
 $(ODIR)/$(EXE): $(SDIR)/$(EXE).cpp $(OBJS) | $(ODIR) deps
-	@$(call compile, $^ -o $@)
+	@$(call compile, $^ -o $@ $(LINK))
 	$(info Compiled executable $@)
 
 $(ODIR):
 	@mkdir -p $(ODIR)
+	@ln -sf ../../deps/lib/ $(ODIR)/lib
 deps:
-	./build_deps.sh
+	./configure
 clean:
 	@$(RM) -r target
 	$(info Cleaned targets)

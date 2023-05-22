@@ -1,0 +1,50 @@
+#!/bin/bash
+base=$(dirname $(readlink -f "$0"))
+required=("git" "make" "wget" "cmake" "g++" "pkg-config")
+err=0
+for cmd in "${required[@]}"; do
+	if ! command -v "$cmd" &> /dev/null; then
+		echo "'$cmd' não encontrado. Favor instalar."
+		err=1
+	fi
+done
+if [ "$err" -eq 1 ]; then exit 1; fi
+
+echo "Baixando dependências"
+read -p "Continuar? [S/n] " yn
+case $yn in
+	[SsYy]* ) break;;
+	* ) exit 1;;
+esac
+
+deps=$(mktemp -d)
+mkdir -p $deps/{lib,include}
+download() {
+	set -e
+	dir=$(mktemp -d) && cd "$dir"
+	git init
+	git remote add origin "$1" 2>/dev/null
+	git fetch origin
+	git reset --hard "origin/$2"
+
+	cp -r include/* "$deps/include"
+	mkdir -p build && cd build && cmake ..
+	make -j8
+	cp -r lib/* "$deps/lib"
+
+	rm -rf "$dir"
+}
+
+if ! pkg-config --exists sfml-graphics sfml-window sfml-system; then
+	download "https://github.com/SFML/SFML" "2.5.x"
+	export CPLUS_INCLUDE_PATH+="$deps/include"
+fi
+download "https://github.com/MiguelMJ/Candle" "master"&
+wget -O "$deps/include/doctest.h" "https://github.com/doctest/doctest/releases/download/v2.4.11/doctest.h"&
+
+if wait;  then
+	mv "$deps" "$base/deps"
+else
+	echo "Abortando"
+	rm -r "$deps"
+fi
