@@ -9,3 +9,15 @@ Um jogo RPG roguelike
 - Como jogador, quero ter diferentes inimigos.
 - Como jogador, quero ter vários locais para visitar.
 - Como jogador, quero poder salvar meu progresso.
+## Compilando
+O Makefile está configurado para baixar e compilar as dependências, isso só acontecerá uma vez.
+
+Para rodar testes:
+```sh
+make test
+```
+Para rodar o programa:
+```sh
+make debug && target/debug/main
+make release && target/release/main
+```
