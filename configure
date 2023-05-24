@@ -1,6 +1,6 @@
 #!/bin/bash
 base=$(dirname $(readlink -f "$0"))
-required=("git" "make" "wget" "cmake" "g++" "pkg-config")
+required=("git" "make" "wget" "cmake" "g++" "pkg-config" "doxygen")
 err=0
 for cmd in "${required[@]}"; do
 	if ! command -v "$cmd" &> /dev/null; then

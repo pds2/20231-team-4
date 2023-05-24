@@ -22,7 +22,7 @@ Menu::~Menu() {}
 
 void Menu::moveKeys(i32 delta) {
 	i32 mod = buttons.size();
-	selected = ((delta % mod) + selected) % mod;
+	selected = (delta + selected + mod) % mod;
 }
 
 void Menu::moveMouse(sf::Vector2i p_mouse) {
