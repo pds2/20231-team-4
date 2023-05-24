@@ -2,6 +2,7 @@
 #define LOADING_H
 #include "types.h"
 
+/// Um ajudante que desenha uma barra de carregamento na tela
 class Loading {
 	private:
 	sf::Text text;
@@ -9,6 +10,7 @@ class Loading {
 
 	public:
 	Loading();
+	/// Renderiza a tela de carregamento na janela
 	void render(sf::RenderWindow& window);
 };
 

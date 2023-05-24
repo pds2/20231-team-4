@@ -4,12 +4,16 @@
 #include <functional>
 #include "state.h"
 
+/// Uma configuração de botão, que armazena um texto e um callback
 struct Button {
+	/// O texto a ser exibido para o botão
 	std::string text;
+	/// A função a ser chamada quando o botão for clicado
 	std::function<void()> click;
 };
 
-class Buttons: public State {
+/// Um Menu padrão, que desenha botões na tela
+class Menu: public State {
 	private:
 	std::vector<Button> buttons;
 	std::vector<sf::Text> texts;
@@ -18,18 +22,17 @@ class Buttons: public State {
 	void moveMouse(sf::Vector2i position);
 	void moveKeys(i32 delta);
 
-	protected:
-	void update();
-
 	public:
-	Buttons(std::initializer_list<Button> buttons);
-	~Buttons();
+	/// Cria um novo Menu com as configurações especificadas
+	Menu(std::initializer_list<Button> buttons);
+	~Menu();
 	void tick();
 	void render(sf::RenderWindow& window);
 	void handleEvent(sf::Event event);
 };
 
-class MainMenu: public Buttons {
+/// Um menu principal, responsável por iniciar o jogo
+class MainMenu: public Menu {
 	private:
 	void handleEvent(sf::Event event);
 

@@ -4,22 +4,28 @@
 #include "assets.h"
 #include <iostream>
 
-Buttons::Buttons(std::initializer_list<Button> buttons):
+Menu::Menu(std::initializer_list<Button> button_list):
 	State(0),
-	buttons(buttons),
+	buttons(button_list),
 	selected(-1)
 {
-	update();
+	texts.resize(buttons.size());
+	for(u32 i = 0; i < buttons.size(); i += 1) {
+		sf::Text& text = texts[i];
+		Button& button = buttons[i];
+		text.setFont(Assets::font);
+		text.setString(button.text);
+	}
 }
 
-Buttons::~Buttons() {}
+Menu::~Menu() {}
 
-void Buttons::moveKeys(i32 delta) {
+void Menu::moveKeys(i32 delta) {
 	i32 mod = buttons.size();
 	selected = ((delta % mod) + selected) % mod;
 }
 
-void Buttons::moveMouse(sf::Vector2i p_mouse) {
+void Menu::moveMouse(sf::Vector2i p_mouse) {
 	selected = -1;
 	for(u32 i = 0; i < buttons.size(); i += 1) {
 		sf::Text& text = texts[i];
@@ -35,19 +41,9 @@ void Buttons::moveMouse(sf::Vector2i p_mouse) {
 	}
 }
 
-void Buttons::update() {
-	texts.resize(buttons.size());
-	for(u32 i = 0; i < buttons.size(); i += 1) {
-		sf::Text& text = texts[i];
-		Button& button = buttons[i];
-		text.setFont(Assets::font);
-		text.setString(button.text);
-	}
-}
+void Menu::tick() {}
 
-void Buttons::tick() {}
-
-void Buttons::render(sf::RenderWindow& window) {
+void Menu::render(sf::RenderWindow& window) {
 	sf::Vector2u s_window = window.getSize();
 	sf::FloatRect v_rect(0, 0, s_window.x, s_window.y);
 	window.setView(sf::View(v_rect));
@@ -76,7 +72,7 @@ void Buttons::render(sf::RenderWindow& window) {
 	}
 }
 
-void Buttons::handleEvent(sf::Event event) {
+void Menu::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::MouseMoved) {
 		sf::Event::MouseMoveEvent p = event.mouseMove;
 		moveMouse({p.x, p.y});
@@ -92,7 +88,7 @@ void Buttons::handleEvent(sf::Event event) {
 }
 
 MainMenu::MainMenu():
-	Buttons({
+	Menu({
 		{
 			.text = "hello",
 			.click = [this]() {
@@ -110,5 +106,5 @@ MainMenu::MainMenu():
 void MainMenu::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
 		message = StateMessage::Pop();
-	Buttons::handleEvent(event);
+	Menu::handleEvent(event);
 }
