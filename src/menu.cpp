@@ -15,8 +15,6 @@ Menu::Menu(Context& ctx, std::vector<Button> button_list, bool opaque):
 	setButtons(buttons);
 }
 
-Menu::~Menu() {}
-
 void Menu::setButtons(std::vector<Button> buttons_) {
 	buttons = buttons_;
 	texts.resize(buttons.size());
@@ -39,18 +37,12 @@ void Menu::moveMouse(sf::Vector2i p_mouse) {
 	for(u32 i = 0; i < buttons.size(); i += 1) {
 		sf::Text& text = texts[i];
 		sf::FloatRect rect = text.getGlobalBounds();
-		bool within = p_mouse.x >= rect.left &&
-			p_mouse.x <= rect.left + rect.width &&
-			p_mouse.y >= rect.top &&
-			p_mouse.y <= rect.top + rect.height;
-		if(within) {
+		if(rect.contains(p_mouse.x, p_mouse.y)) {
 			selected = i;
 			break;
 		}
 	}
 }
-
-void Menu::tick() {}
 
 void Menu::render() {
 	sf::Vector2u s_window = ctx.window.getSize();
@@ -146,12 +138,8 @@ void PauseMenu::resume() {
 	message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
 }
 
-void PauseMenu::render() {
-	Menu::render();
-}
 void PauseMenu::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) 
 		resume();
 	Menu::handleEvent(event);
 }
-PauseMenu::~PauseMenu() {}

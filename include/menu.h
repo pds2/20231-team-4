@@ -28,9 +28,8 @@ class Menu: public State {
 	Menu(Context& ctx, bool opaque = 0);
 	/// Cria um novo Menu com as configurações especificadas
 	Menu(Context& ctx, std::vector<Button> buttons, bool opaque = 0);
+	/// Muda os botões do menu para os especificados
 	void setButtons(std::vector<Button> buttons);
-	~Menu();
-	void tick();
 	void render();
 	void handleEvent(sf::Event event);
 };
@@ -53,10 +52,9 @@ class PauseMenu: public Menu {
 	public:
 	/// Cria um menu de pause para um estado de jogo
 	PauseMenu(Context& ctx, Game* game);
+	/// Retorna ao jogo
 	void resume();
-	void render();
 	void handleEvent(sf::Event event);
-	~PauseMenu();
 };
 
 #endif

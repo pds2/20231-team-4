@@ -14,6 +14,7 @@ class Game: public State {
 	public:
 	/// Cria um novo jogo em um contexto
 	Game(Context& ctx);
+	/// Reinicia o relógio do jogo. Deve ser usado após despausar.
 	void restartClock();
 	void tick();
 	void render();

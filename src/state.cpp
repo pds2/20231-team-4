@@ -5,7 +5,6 @@ State::State(Context& ctx, bool opaque):
 	opaque(opaque),
 	ctx(ctx),
 	message(StateMessage::None()) {}
-State::~State() {}
 
 StateMessage StateMessage::None() {
 	return { StateChange::None, nullptr };

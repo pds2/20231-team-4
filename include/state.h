@@ -71,11 +71,13 @@ struct State {
 	/// Desenha o estado na janela
 	virtual void render() = 0;
 	/// Recebe um evento da janela
-	virtual void handleEvent(sf::Event event) = 0;
-	virtual ~State() = 0;
+	virtual void handleEvent(sf::Event event) {};
+	virtual ~State() {};
 };
 
-/// Um gerenciador de estados de jogo
+/// \brief Um gerenciador de estados de jogo.\n
+/// Contém uma pilha de estados que responde à \ref StateMessage contida no \ref State do topo.\n
+/// Um \ref State pode manipular os estados para navegar pelos menus do jogo.
 class StateManager {
 	private:
 	std::vector<unique_state> stack;
