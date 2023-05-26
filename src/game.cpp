@@ -18,6 +18,10 @@ Game::Game(Context& ctx):
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 }
 
+void Game::restartClock() {
+	clock.restart();
+}
+
 void Game::tick() {
 
 }

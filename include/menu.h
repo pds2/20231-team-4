@@ -53,7 +53,7 @@ class PauseMenu: public Menu {
 	public:
 	/// Cria um menu de pause para um estado de jogo
 	PauseMenu(Context& ctx, Game* game);
-	void tick();
+	void resume();
 	void render();
 	void handleEvent(sf::Event event);
 	~PauseMenu();

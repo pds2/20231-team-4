@@ -1,6 +1,6 @@
 LIB = box2d Candle-s sfml-graphics sfml-window sfml-system
 IDIR = /usr/include /usr/local/include deps/include include
-LDIR = /usr/lib /usr/local/lib deps/lib
+LDIR = deps/lib /usr/lib /usr/local/lib
 
 SRCS = $(filter-out $(SDIR)/$(EXE).cpp,$(wildcard $(SDIR)/*.cpp))
 FLAG += std=c++20

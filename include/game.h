@@ -9,10 +9,12 @@ class Game: public State {
 	private:
 	std::vector<sf::RectangleShape> rects;
 	sf::View camera;
+	sf::Clock clock;
 
 	public:
 	/// Cria um novo jogo em um contexto
 	Game(Context& ctx);
+	void restartClock();
 	void tick();
 	void render();
 	void handleEvent(sf::Event event);

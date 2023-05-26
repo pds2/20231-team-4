@@ -130,7 +130,7 @@ PauseMenu::PauseMenu(Context& ctx_, Game* game_):
 		{
 			.text = "continue",
 			.click = [this]() {
-				message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
+				resume();
 			}
 		},
 		{
@@ -140,13 +140,18 @@ PauseMenu::PauseMenu(Context& ctx_, Game* game_):
 			}
 		}
 	}) {}
-void PauseMenu::tick() {}
+
+void PauseMenu::resume() {
+	game->restartClock();
+	message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
+}
+
 void PauseMenu::render() {
 	Menu::render();
 }
 void PauseMenu::handleEvent(sf::Event event) {
-	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-		message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
+	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) 
+		resume();
 	Menu::handleEvent(event);
 }
 PauseMenu::~PauseMenu() {}
