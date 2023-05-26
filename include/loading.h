@@ -4,7 +4,7 @@
 #include "types.h"
 #include "state.h"
 
-/// Um ajudante que desenha uma barra de carregamento na tela
+/// Um estado que desenha uma barra de carregamento na tela
 class Loading: public State {
 	private:
 	sf::Text text;
@@ -15,6 +15,7 @@ class Loading: public State {
 	Loading(Context& ctx);
 	void tick() {};
 	void render();
+	void handleEvent(sf::Event e) {};
 	~Loading() {};
 };
 

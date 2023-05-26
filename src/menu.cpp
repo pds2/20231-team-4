@@ -5,11 +5,20 @@
 #include "assets.h"
 #include "game.h"
 
-Menu::Menu(Context& ctx, std::initializer_list<Button> button_list):
-	State(ctx, 0),
+Menu::Menu(Context& ctx, bool opaque):
+	Menu(ctx, {}, opaque) {}
+Menu::Menu(Context& ctx, std::vector<Button> button_list, bool opaque):
+	State(ctx, opaque),
 	buttons(button_list),
 	selected(-1)
 {
+	setButtons(buttons);
+}
+
+Menu::~Menu() {}
+
+void Menu::setButtons(std::vector<Button> buttons_) {
+	buttons = buttons_;
 	texts.resize(buttons.size());
 	for(u32 i = 0; i < buttons.size(); i += 1) {
 		sf::Text& text = texts[i];
@@ -17,9 +26,8 @@ Menu::Menu(Context& ctx, std::initializer_list<Button> button_list):
 		text.setFont(Assets::font);
 		text.setString(button.text);
 	}
+	selected = -1;
 }
-
-Menu::~Menu() {}
 
 void Menu::moveKeys(i32 delta) {
 	i32 mod = buttons.size();
@@ -49,11 +57,11 @@ void Menu::render() {
 	sf::FloatRect v_rect(0, 0, s_window.x, s_window.y);
 	ctx.window.setView(sf::View(v_rect));
 	
-	sf::RectangleShape r;
-	r.setPosition({v_rect.left, v_rect.top});
-	r.setSize({v_rect.width, v_rect.height});
-	r.setFillColor(sf::Color(50, 50, 50, 122));
-	ctx.window.draw(r);
+	sf::RectangleShape backg;
+	backg.setPosition({v_rect.left, v_rect.top});
+	backg.setSize({v_rect.width, v_rect.height});
+	backg.setFillColor(sf::Color(50, 50, 50, 122));
+	ctx.window.draw(backg);
 
 	for(sf::Text& text: texts) text.setFillColor(sf::Color::White);
 	if(selected >= 0) texts[selected].setFillColor(sf::Color::Yellow);

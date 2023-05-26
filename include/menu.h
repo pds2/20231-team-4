@@ -24,8 +24,11 @@ class Menu: public State {
 	void moveKeys(i32 delta);
 
 	public:
+	/// Cria um novo Menu vazio
+	Menu(Context& ctx, bool opaque = 0);
 	/// Cria um novo Menu com as configurações especificadas
-	Menu(Context& ctx, std::initializer_list<Button> buttons);
+	Menu(Context& ctx, std::vector<Button> buttons, bool opaque = 0);
+	void setButtons(std::vector<Button> buttons);
 	~Menu();
 	void tick();
 	void render();

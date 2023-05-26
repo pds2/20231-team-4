@@ -25,6 +25,12 @@ void Loading::render() {
 		(wsize.y - size.y) * 0.5f
 	};
 
+	sf::RectangleShape backg;
+	backg.setPosition({v_rect.left, v_rect.top});
+	backg.setSize({v_rect.width, v_rect.height});
+	backg.setFillColor(sf::Color(50, 50, 50, 122));
+	ctx.window.draw(backg);
+
 	sf::RectangleShape loading;
 	loading.setPosition(pos);
 	loading.setSize(size);
