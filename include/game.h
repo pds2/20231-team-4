@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "state.h"
-#include "menu.h"
 
 /// Armazena dados sobre um estado de jogo
 class Game: public State {
@@ -32,20 +31,6 @@ class UserInterface: public State {
 	void render();
 	void handleEvent(sf::Event event);
 	~UserInterface();
-};
-
-/// Armazena um jogo pausado, e mostra um menu
-class PauseMenu: public Menu {
-	private:
-	Game* game;
-
-	public:
-	/// Cria um menu de pause para um estado de jogo
-	PauseMenu(Context& ctx, Game* game);
-	void tick();
-	void render();
-	void handleEvent(sf::Event event);
-	~PauseMenu();
 };
 
 #endif

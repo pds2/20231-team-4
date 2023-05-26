@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <functional>
 #include "state.h"
+#include "game.h"
 
 /// Uma configuração de botão, que armazena um texto e um callback
 struct Button {
@@ -39,6 +40,20 @@ class MainMenu: public Menu {
 	public:
 	/// Cria um novo menu principal em um contexto
 	MainMenu(Context& ctx);
+};
+
+/// Armazena um jogo pausado, e mostra um menu
+class PauseMenu: public Menu {
+	private:
+	Game* game;
+
+	public:
+	/// Cria um menu de pause para um estado de jogo
+	PauseMenu(Context& ctx, Game* game);
+	void tick();
+	void render();
+	void handleEvent(sf::Event event);
+	~PauseMenu();
 };
 
 #endif

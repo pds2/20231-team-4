@@ -1,5 +1,6 @@
 #include <iostream>
 #include "game.h"
+#include "menu.h"
 
 Game::Game(Context& ctx):
 	State(ctx, 1)
@@ -42,30 +43,3 @@ void UserInterface::handleEvent(sf::Event event) {
 	game->handleEvent(event);
 }
 UserInterface::~UserInterface() {}
-
-PauseMenu::PauseMenu(Context& ctx_, Game* game_):
-	game(game_),
-	Menu(ctx_, {
-		{
-			.text = "continue",
-			.click = [this]() {
-				message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
-			}
-		},
-		{
-			.text = "main menu",
-			.click = [this]() {
-				message = StateMessage::Set(std::make_unique<MainMenu>(ctx));
-			}
-		}
-	}) {}
-void PauseMenu::tick() {}
-void PauseMenu::render() {
-	Menu::render();
-}
-void PauseMenu::handleEvent(sf::Event event) {
-	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-		message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
-	Menu::handleEvent(event);
-}
-PauseMenu::~PauseMenu() {}

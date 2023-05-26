@@ -115,3 +115,30 @@ void MainMenu::handleEvent(sf::Event event) {
 		message = StateMessage::Pop();
 	Menu::handleEvent(event);
 }
+
+PauseMenu::PauseMenu(Context& ctx_, Game* game_):
+	game(game_),
+	Menu(ctx_, {
+		{
+			.text = "continue",
+			.click = [this]() {
+				message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
+			}
+		},
+		{
+			.text = "main menu",
+			.click = [this]() {
+				message = StateMessage::Set(std::make_unique<MainMenu>(ctx));
+			}
+		}
+	}) {}
+void PauseMenu::tick() {}
+void PauseMenu::render() {
+	Menu::render();
+}
+void PauseMenu::handleEvent(sf::Event event) {
+	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+		message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
+	Menu::handleEvent(event);
+}
+PauseMenu::~PauseMenu() {}
