@@ -20,26 +20,39 @@ enum class StateChange {
 };
 
 struct State;
+using unique_state = std::unique_ptr<State>;
 
 /// Uma mensagem que altera o estado de jogo
 struct StateMessage {
+	private:
+	union {
+		/// Um estado de destino
+		unique_state state;
+	};
+	public:
 	/// O tipo de mensagem
 	/// Alguns tipos não contém \ref StateMessage.state
 	StateChange type;
-	union {
-		/// Um estado de destino
-		State* state;
-	};
 	/// Uma mensagem vazia
 	static StateMessage None();
 	/// Uma mensagem para adicionar um novo estado de jogo à pilha
-	static StateMessage Push(State* s);
+	static StateMessage Push(unique_state s);
 	/// Uma mensagem para retornar a um estado anterior (Deleta o estado atual)
 	static StateMessage Pop();
 	/// Uma mensagem para transformar o estado atual (Deleta o estado atual)
-	static StateMessage Into(State* s);
+	static StateMessage Into(unique_state s);
 	/// Uma mensagem para limpar a pilha de estados e começar com um novo
-	static StateMessage Set(State* s);
+	static StateMessage Set(unique_state s);
+	/// Uma mensagem com tipo e estado
+	StateMessage(StateChange type, unique_state state);
+	StateMessage(StateMessage& sm) = delete;
+	/// Cria uma mensagem e remove o estado de uma outra existente
+	StateMessage(StateMessage&& sm);
+	/// Remove o estado de uma mensagem existente e coloca nesta
+	StateMessage& operator=(StateMessage&& sm);
+	/// Remove e retorna o estado nessa mensagem
+	unique_state takeState();
+	~StateMessage();
 };
 
 /// \brief Uma interface que representa um estado de jogo.
@@ -65,18 +78,16 @@ struct State {
 /// Um gerenciador de estados de jogo
 class StateManager {
 	private:
-	std::vector<State*> stack;
-	void clear();
+	std::vector<unique_state> stack;
 	Context& ctx;
 
 	public:
 	/// Cria um novo gerenciador de estados com o estado especificado
-	StateManager(Context& ctx, State* initial);
+	StateManager(Context& ctx, unique_state initial);
 	/// Renderiza os estados, em ordem de inserção, obedecendo transparência
 	void render();
 	/// Calcula o próximo estado de jogo
 	void tick();
-	~StateManager();
 };
 
 #endif

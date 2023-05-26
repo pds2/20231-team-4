@@ -99,7 +99,7 @@ MainMenu::MainMenu(Context& ctx_):
 		{
 			.text = "new game",
 			.click = [this]() {
-				message = StateMessage::Into(new Game(ctx));
+				message = StateMessage::Into(std::make_unique<Game>(ctx));
 			}
 		},
 		{

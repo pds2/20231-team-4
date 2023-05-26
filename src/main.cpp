@@ -9,7 +9,7 @@ int main() {
 		sf::RenderWindow(sf::VideoMode(800, 600), "Hello, World!")
 	};
 
-	StateManager manager(ctx, new MainMenu(ctx));
+	StateManager manager(ctx, std::make_unique<MainMenu>(ctx));
 
 	sf::Clock clock;
 	f64 elapsed = 0;

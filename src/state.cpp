@@ -8,29 +8,48 @@ State::State(Context& ctx, bool opaque):
 State::~State() {}
 
 StateMessage StateMessage::None() {
-	return { .type=StateChange::None };
+	return { StateChange::None, nullptr };
 }
-StateMessage StateMessage::Push(State* s) {
-	return { .type=StateChange::Push, .state=s };
+StateMessage StateMessage::Push(unique_state s) {
+	return { StateChange::Push, std::move(s) };
 }
 StateMessage StateMessage::Pop() {
-	return { .type=StateChange::Pop };
+	return { StateChange::Pop, nullptr };
 }
-StateMessage StateMessage::Into(State* s) {
-	return { .type=StateChange::Into, .state=s };
+StateMessage StateMessage::Into(unique_state s) {
+	return { StateChange::Into, std::move(s) };
 }
-StateMessage StateMessage::Set(State* s) {
-	return { .type=StateChange::Set, .state=s };
+StateMessage StateMessage::Set(unique_state s) {
+	return { StateChange::Set, std::move(s) };
+}
+StateMessage::StateMessage(StateChange type, unique_state state):
+	type(type),
+	state(std::move(state)) {}
+StateMessage::StateMessage(StateMessage&& sm):
+	type(StateChange::None),
+	state(nullptr)
+{
+	*this = std::move(sm);
+}
+StateMessage& StateMessage::operator=(StateMessage&& sm) {
+	type = sm.type;
+	std::unique_ptr<State> p = sm.takeState();
+	state.swap(p);
+	return *this;
+}
+std::unique_ptr<State> StateMessage::takeState() {
+	type = StateChange::None;
+	return std::move(state);
+}
+StateMessage::~StateMessage() {
+	type = StateChange::None;
 }
 
-StateManager::StateManager(Context& ctx, State* initial):
-	stack({initial}),
-	ctx(ctx) {}
-StateManager::~StateManager() {
-	clear();
-}
-void StateManager::clear() {
-	for(State* s: stack) delete s;
+StateManager::StateManager(Context& ctx, std::unique_ptr<State> initial):
+	stack(),
+	ctx(ctx)
+{
+	stack.push_back(std::move(initial));
 }
 
 void StateManager::tick() {
@@ -38,7 +57,7 @@ void StateManager::tick() {
 		ctx.window.close();
 		return;
 	}
-	State* state = stack.back();
+	std::unique_ptr<State>& state = stack.back();
 
 	sf::Event event;
 	while(ctx.window.pollEvent(event)) {
@@ -47,23 +66,20 @@ void StateManager::tick() {
 	}
 	state->tick();
 
-	StateMessage msg = state->message;
+	StateMessage msg = std::move(state->message);
 	switch(msg.type) {
 		case StateChange::Push:
-			stack.push_back(msg.state);
-			state->message = StateMessage::None();
+			stack.push_back(std::move(msg.takeState()));
 			break;
 		case StateChange::Pop:
 			stack.pop_back();
-			delete state;
 			break;
 		case StateChange::Into:
-			stack.back() = msg.state;
-			delete state;
+			stack.back() = msg.takeState();
 			break;
 		case StateChange::Set:
-			clear();
-			stack = {msg.state};
+			stack.clear();
+			stack.push_back(std::move(msg.takeState()));
 			break;
 		case StateChange::None:
 			break;

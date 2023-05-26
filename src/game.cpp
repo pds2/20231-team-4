@@ -14,7 +14,7 @@ Game::Game(Context& ctx):
 		r.setSize({50, 50});
 		rects.push_back(r);
 	}
-	message = StateMessage::Push(new UserInterface(ctx, this));
+	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 }
 
 void Game::tick() {
@@ -38,7 +38,7 @@ void UserInterface::tick() {
 void UserInterface::render() {}
 void UserInterface::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-		message = StateMessage::Into(new PauseMenu(ctx, game));
+		message = StateMessage::Into(std::make_unique<PauseMenu>(ctx, game));
 	game->handleEvent(event);
 }
 UserInterface::~UserInterface() {}
@@ -49,13 +49,13 @@ PauseMenu::PauseMenu(Context& ctx_, Game* game_):
 		{
 			.text = "continue",
 			.click = [this]() {
-				message = StateMessage::Into(new UserInterface(ctx, game));
+				message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
 			}
 		},
 		{
 			.text = "main menu",
 			.click = [this]() {
-				message = StateMessage::Set(new MainMenu(ctx));
+				message = StateMessage::Set(std::make_unique<MainMenu>(ctx));
 			}
 		}
 	}) {}
@@ -65,7 +65,7 @@ void PauseMenu::render() {
 }
 void PauseMenu::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-		message = StateMessage::Into(new UserInterface(ctx, game));
+		message = StateMessage::Into(std::make_unique<UserInterface>(ctx, game));
 	Menu::handleEvent(event);
 }
 PauseMenu::~PauseMenu() {}
