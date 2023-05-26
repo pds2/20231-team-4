@@ -1,9 +1,10 @@
 #include <iostream>
 #include "state.h"
 
-State::State(bool opaque):
+State::State(Context& ctx, bool opaque):
 	opaque(opaque),
-	message({ .type=StateChange::None }) {}
+	ctx(ctx),
+	message(StateMessage::None()) {}
 State::~State() {}
 
 StateMessage StateMessage::None() {
@@ -22,9 +23,9 @@ StateMessage StateMessage::Set(State* s) {
 	return { .type=StateChange::Set, .state=s };
 }
 
-StateManager::StateManager(State* initial, sf::RenderWindow& window):
+StateManager::StateManager(Context& ctx, State* initial):
 	stack({initial}),
-	window(window) {}
+	ctx(ctx) {}
 StateManager::~StateManager() {
 	clear();
 }
@@ -34,14 +35,14 @@ void StateManager::clear() {
 
 void StateManager::tick() {
 	if(stack.empty()) {
-		window.close();
+		ctx.window.close();
 		return;
 	}
 	State* state = stack.back();
 
 	sf::Event event;
-	while(window.pollEvent(event)) {
-		if(event.type == sf::Event::Closed) window.close();
+	while(ctx.window.pollEvent(event)) {
+		if(event.type == sf::Event::Closed) ctx.window.close();
 		state->handleEvent(event);
 	}
 	state->tick();
@@ -50,14 +51,15 @@ void StateManager::tick() {
 	switch(msg.type) {
 		case StateChange::Push:
 			stack.push_back(msg.state);
+			state->message = StateMessage::None();
 			break;
 		case StateChange::Pop:
-			delete state;
 			stack.pop_back();
+			delete state;
 			break;
 		case StateChange::Into:
-			delete state;
 			stack.back() = msg.state;
+			delete state;
 			break;
 		case StateChange::Set:
 			clear();
@@ -70,15 +72,15 @@ void StateManager::tick() {
 
 void StateManager::render() {
 	if(stack.empty()) {
-		window.close();
+		ctx.window.close();
 		return;
 	}
-	window.clear(sf::Color::Black);
+	ctx.window.clear(sf::Color::Black);
 
 	u32 i = stack.size() - 1;
 	while(i && !stack[i]->opaque) i -= 1;
 	while(i < stack.size())
-		stack[i++]->render(window);
+		stack[i++]->render();
 
-	window.display();
+	ctx.window.display();
 }

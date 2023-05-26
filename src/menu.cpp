@@ -1,11 +1,12 @@
+#include <iostream>
 #include "state.h"
 #include "menu.h"
 #include "types.h"
 #include "assets.h"
-#include <iostream>
+#include "game.h"
 
-Menu::Menu(std::initializer_list<Button> button_list):
-	State(0),
+Menu::Menu(Context& ctx, std::initializer_list<Button> button_list):
+	State(ctx, 0),
 	buttons(button_list),
 	selected(-1)
 {
@@ -43,10 +44,16 @@ void Menu::moveMouse(sf::Vector2i p_mouse) {
 
 void Menu::tick() {}
 
-void Menu::render(sf::RenderWindow& window) {
-	sf::Vector2u s_window = window.getSize();
+void Menu::render() {
+	sf::Vector2u s_window = ctx.window.getSize();
 	sf::FloatRect v_rect(0, 0, s_window.x, s_window.y);
-	window.setView(sf::View(v_rect));
+	ctx.window.setView(sf::View(v_rect));
+	
+	sf::RectangleShape r;
+	r.setPosition({v_rect.left, v_rect.top});
+	r.setSize({v_rect.width, v_rect.height});
+	r.setFillColor(sf::Color(50, 50, 50, 122));
+	ctx.window.draw(r);
 
 	for(sf::Text& text: texts) text.setFillColor(sf::Color::White);
 	if(selected >= 0) texts[selected].setFillColor(sf::Color::Yellow);
@@ -68,7 +75,7 @@ void Menu::render(sf::RenderWindow& window) {
 		sf::Text& text = texts[i];
 		sf::Vector2f pos = text.getPosition();
 		text.setPosition(pos.x, pos.y += offset);
-		window.draw(text);
+		ctx.window.draw(text);
 	}
 }
 
@@ -87,12 +94,12 @@ void Menu::handleEvent(sf::Event event) {
 		if(selected >= 0) buttons[selected].click();
 }
 
-MainMenu::MainMenu():
-	Menu({
+MainMenu::MainMenu(Context& ctx_):
+	Menu(ctx_, {
 		{
-			.text = "hello",
+			.text = "new game",
 			.click = [this]() {
-				std::cerr << "hello" << std::endl;
+				message = StateMessage::Into(new Game(ctx));
 			}
 		},
 		{

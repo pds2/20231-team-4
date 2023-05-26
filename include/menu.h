@@ -24,10 +24,10 @@ class Menu: public State {
 
 	public:
 	/// Cria um novo Menu com as configurações especificadas
-	Menu(std::initializer_list<Button> buttons);
+	Menu(Context& ctx, std::initializer_list<Button> buttons);
 	~Menu();
 	void tick();
-	void render(sf::RenderWindow& window);
+	void render();
 	void handleEvent(sf::Event event);
 };
 
@@ -37,7 +37,8 @@ class MainMenu: public Menu {
 	void handleEvent(sf::Event event);
 
 	public:
-	MainMenu();
+	/// Cria um novo menu principal em um contexto
+	MainMenu(Context& ctx);
 };
 
 #endif

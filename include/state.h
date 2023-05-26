@@ -5,6 +5,12 @@
 #include <memory>
 #include "types.h"
 
+/// Guarda dados globais, como a janela de jogo
+struct Context {
+	/// A janela na qual o jogo está sendo exibido
+	sf::RenderWindow window;
+};
+
 enum class StateChange {
 	None,
 	Push,
@@ -39,16 +45,18 @@ struct StateMessage {
 /// \brief Uma interface que representa um estado de jogo.
 /// Os estados devem herdar dessa classe, e manter \ref StateMessage "mensagens" para o \ref StateManager "gerenciador"
 struct State {
+	/// Um contexto, que guarda informações globais como a janela
+	Context& ctx;
 	/// A opacidade desse estado. Se o estado for transparente, o estado anterior é renderizado.
 	bool opaque;
 	/// A mensagem a ser lida pelo gerenciador de estados
 	StateMessage message;
 	/// Cria um novo estado com a opacidade especificada
-	State(bool opaque);
+	State(Context& ctx, bool opaque);
 	/// Calcula um próximo estado de jogo
 	virtual void tick() {};
 	/// Desenha o estado na janela
-	virtual void render(sf::RenderWindow& window) = 0;
+	virtual void render() = 0;
 	/// Recebe um evento da janela
 	virtual void handleEvent(sf::Event event) = 0;
 	virtual ~State() = 0;
@@ -58,12 +66,12 @@ struct State {
 class StateManager {
 	private:
 	std::vector<State*> stack;
-	sf::RenderWindow& window;
 	void clear();
+	Context& ctx;
 
 	public:
 	/// Cria um novo gerenciador de estados com o estado especificado
-	StateManager(State* initial, sf::RenderWindow& window);
+	StateManager(Context& ctx, State* initial);
 	/// Renderiza os estados, em ordem de inserção, obedecendo transparência
 	void render();
 	/// Calcula o próximo estado de jogo

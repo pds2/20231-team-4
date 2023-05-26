@@ -1,14 +1,21 @@
 #include <sstream>
 #include <iostream>
-#include "state.h"
 #include "loading.h"
 #include "menu.h"
 using namespace std;
+
 int main() {
-	sf::RenderWindow window(sf::VideoMode(800, 600), "Hello, World!");
-	StateManager manager(new MainMenu(), window);
-	while(window.isOpen()) {
-		manager.tick();
+	Context ctx = {
+		sf::RenderWindow(sf::VideoMode(800, 600), "Hello, World!")
+	};
+
+	StateManager manager(ctx, new MainMenu(ctx));
+
+	sf::Clock clock;
+	f64 elapsed = 0;
+	while(ctx.window.isOpen()) {
+		elapsed += clock.getElapsedTime().asMilliseconds();
+		if(elapsed > 50) manager.tick(), elapsed = 0;
 		manager.render();
 	}
 }

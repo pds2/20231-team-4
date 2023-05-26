@@ -1,17 +1,21 @@
 #ifndef LOADING_H
 #define LOADING_H
+#include <SFML/Graphics.hpp>
 #include "types.h"
+#include "state.h"
 
 /// Um ajudante que desenha uma barra de carregamento na tela
-class Loading {
+class Loading: public State {
 	private:
 	sf::Text text;
 	f32 percent;
 
 	public:
-	Loading();
-	/// Renderiza a tela de carregamento na janela
-	void render(sf::RenderWindow& window);
+	/// Cria uma nova tela de carregamento em um contexto
+	Loading(Context& ctx);
+	void tick() {};
+	void render();
+	~Loading() {};
 };
 
 #endif
