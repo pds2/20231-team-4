@@ -16,7 +16,7 @@ Um jogo RPG roguelike
 - Como jogador, quero poder salvar meu progresso.
 
 ## Sistema
-O jogo será desenvolvido na linguagem c++ com a biblioteca SFML. Teremos personagens, background e animações pixeladas.
+O jogo será desenvolvido na linguagem c++ com as bibliotecas SFML e Box2D. Teremos personagens, background e animações pixeladas.
 
 ### Criação da partida
 Ao iniciar o programa, o usuário deverá ter uma escolha entre criar um novo jogo ou, se houver, continuar de onde salvou anteriormente. 
