@@ -1,7 +1,9 @@
 #!/bin/bash
+set -e
 base=$(dirname $(readlink -f "$0"))
-required=("git" "make" "wget" "cmake" "g++" "pkg-config" "doxygen")
+cores=$(nproc || echo 1)
 err=0
+required=("git" "make" "wget" "cmake" "g++" "doxygen")
 for cmd in "${required[@]}"; do
 	if ! command -v "$cmd" &> /dev/null; then
 		echo "'$cmd' faltando. Favor instalar."
@@ -22,13 +24,10 @@ mkdir -p $deps/{lib,include}
 
 download() {
 	set -e
-	git init
-	git remote add origin "$1" 2>/dev/null
-	git fetch origin
+	git clone "$1" .
 	git reset --hard "origin/$2"
-
 	mkdir -p build && cd build && cmake ..
-	make -j8
+	make -j$cores
 }
 download_box2d() {
 	dir=$(mktemp -d -p $temp) && cd $dir
@@ -53,19 +52,15 @@ abort() {
 	rm -rf "$temp"
 }
 
-if ! pkg-config --exists sfml-graphics sfml-window sfml-system; then
-	trap "abort Erro ao configurar o SFML. Procure por 'libsfml-dev' no seu gerenciador de pacotes" EXIT
-	download_sfml "$sfml_dir"
-	export CPLUS_INCLUDE_PATH="$deps/include:$CPLUS_INCLUDE_PATH"&
-fi
-
 trap "abort Abortando" EXIT
-download_candle&
-download_box2d&
-wget -O "$deps/include/doctest.h" "https://github.com/doctest/doctest/releases/download/v2.4.11/doctest.h"&
-wait
+download_sfml
+export CPLUS_INCLUDE_PATH="$deps/include:$CPLUS_INCLUDE_PATH"
+download_candle
+download_box2d
+wget -O "$deps/include/doctest.h" "https://github.com/doctest/doctest/releases/download/v2.4.11/doctest.h"
 
 trap - EXIT
 rm -rf "$base/deps"
 mv "$deps" "$base/deps"
 rm -rf "$temp"
+echo "Sucesso"

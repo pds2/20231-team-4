@@ -1,3 +1,6 @@
+ifeq (,$(filter -j%,$(MAKEFLAGS)))
+    MAKEFLAGS += -j$(shell nproc || echo 1)
+endif
 LIB = box2d Candle-s sfml-graphics sfml-window sfml-system
 IDIR = /usr/include /usr/local/include deps/include include
 LDIR = deps/lib /usr/lib /usr/local/lib
