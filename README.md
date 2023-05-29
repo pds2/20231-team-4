@@ -22,7 +22,7 @@ O jogo será desenvolvido na linguagem c++ com as bibliotecas SFML e Box2D. Tere
 Ao iniciar o programa, o usuário deverá ter uma escolha entre criar um novo jogo ou, se houver, continuar de onde salvou anteriormente. 
 
 Após isso o usuário será direcionado a uma tela de opções, onde o usuário poderá escolher um personagem. Cada personagem terá propriedades e aparências únicas.
-
+n
 Então o usuário será direcionado a outra tela de opções, onde o usuário poderá escolher uma arma. Cada arma terá uma habilidade única.
 
 Por fim o usuário será direcionado a tela onde a primeira fase do jogo ocorre.
