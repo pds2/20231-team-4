@@ -3,11 +3,19 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "state.h"
+#include "collision.h"
+
+struct Object {
+	CollisionObject collision;
+	sf::RectangleShape rectangle;
+	Object(CollisionObject collision);
+};
 
 /// Armazena dados sobre um estado de jogo
 class Game: public State {
 	private:
-	std::vector<sf::RectangleShape> rects;
+	CollisionWorld cworld;
+	std::vector<Object> objects;
 	sf::View camera;
 	sf::Clock clock;
 
