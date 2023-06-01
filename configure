@@ -1,7 +1,9 @@
 #!/bin/bash
+set -e
 base=$(dirname $(readlink -f "$0"))
-required=("git" "make" "wget" "cmake" "g++" "pkg-config")
+cores=$(nproc || echo 1)
 err=0
+required=("git" "make" "wget" "cmake" "g++" "doxygen")
 for cmd in "${required[@]}"; do
 	if ! command -v "$cmd" &> /dev/null; then
 		echo "'$cmd' faltando. Favor instalar."
@@ -16,48 +18,49 @@ if [[ $yn != [SsYy]* ]]; then
 	exit 1
 fi
 
-deps=$(mktemp -d)
+temp=$(mktemp -d)
+deps=$(mktemp -d -p $temp)
 mkdir -p $deps/{lib,include}
+
 download() {
 	set -e
-	dir=$(mktemp -d) && cd "$dir"
-	cleanup+=($dir)
-
-	git init
-	git remote add origin "$1" 2>/dev/null
-	git fetch origin
+	git clone "$1" .
 	git reset --hard "origin/$2"
-
-	cp -r include/* "$deps/include"
 	mkdir -p build && cd build && cmake ..
-	make -j8
-	cp -r lib/* "$deps/lib"
+	make -j$cores
+}
+download_box2d() {
+	dir=$(mktemp -d -p $temp) && cd $dir
+	download "https://github.com/erincatto/box2d" "main"
+	cp -r "$dir/include"/* "$deps/include"
+	cp -r "$dir/build/bin"/* "$deps/lib"
+}
+download_sfml() {
+	dir=$(mktemp -d -p $temp) && cd $dir
+	download "https://github.com/SFML/SFML" "2.5.x"
+	cp -r "$dir/include"/* "$deps/include"
+	cp -r "$dir/build/lib"/* "$deps/lib"
+}
+download_candle() {
+	dir=$(mktemp -d -p $temp) && cd $dir
+	download "https://github.com/MiguelMJ/Candle" "master"
+	mv "$dir/include"/* "$deps/include"
+	mv "$dir/build/lib"/* "$deps/lib"
 }
 abort() {
-	echo "Abortando"
-	rm -r "$deps"
-	for dir in "${cleanup[@]}"; do
-		rm -r "$dir"
-	done
-}
-abort_sfml() {
-	echo "Erro ao configurar o SFML"
-	echo "Procure por 'libsfml-dev' no seu gerenciador de pacotes"
-	abort
+	echo "$@"
+	rm -rf "$temp"
 }
 
-if ! pkg-config --exists sfml-graphics sfml-window sfml-system; then
-	trap abort_sfml EXIT
-	download "https://github.com/SFML/SFML" "2.5.x"
-	export CPLUS_INCLUDE_PATH="$deps/include:$CPLUS_INCLUDE_PATH"&
-fi
-trap abort EXIT
-download "https://github.com/MiguelMJ/Candle" "master"&
-wget -O "$deps/include/doctest.h" "https://github.com/doctest/doctest/releases/download/v2.4.11/doctest.h"&
-wait
+trap "abort Abortando" EXIT
+download_sfml
+export CPLUS_INCLUDE_PATH="$deps/include:$CPLUS_INCLUDE_PATH"
+download_candle
+download_box2d
+wget -O "$deps/include/doctest.h" "https://github.com/doctest/doctest/releases/download/v2.4.11/doctest.h"
 
 trap - EXIT
+rm -rf "$base/deps"
 mv "$deps" "$base/deps"
-for dir in "${cleanup[@]}"; do
-	rm -r "$dir"
-done
+rm -rf "$temp"
+echo "Sucesso"
