@@ -89,6 +89,6 @@ make release && target/release/main
 
 ## Documentação
 A documentação estará disponível na pasta `target/docs/html`, com a página principal em `index.html`.
-````sh
+```sh
 make docs
 ```
