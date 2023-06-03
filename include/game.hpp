@@ -1,9 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 #include <SFML/Graphics.hpp>
+#include <tmxlite/Map.hpp>
 #include <vector>
-#include "state.h"
-#include "collision.h"
+#include "state.hpp"
+#include "collision.hpp"
+#include "tilemap.hpp"
 
 struct Object {
 	CollisionObject collision;
@@ -18,6 +20,8 @@ class Game: public State {
 	std::vector<Object> objects;
 	sf::View camera;
 	sf::Clock clock;
+	f64 avgFrame;
+	TileMap map;
 
 	public:
 	/// Cria um novo jogo em um contexto

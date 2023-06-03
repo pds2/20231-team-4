@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <memory>
-#include "types.h"
+#include "types.hpp"
 
 /// Guarda dados globais, como a janela de jogo
 struct Context {

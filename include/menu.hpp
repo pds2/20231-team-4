@@ -2,8 +2,8 @@
 #define MENU_H
 #include <SFML/Graphics.hpp>
 #include <functional>
-#include "state.h"
-#include "game.h"
+#include "state.hpp"
+#include "game.hpp"
 
 /// Uma configuração de botão, que armazena um texto e um callback
 struct Button {

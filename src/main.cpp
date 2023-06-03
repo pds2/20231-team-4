@@ -1,12 +1,14 @@
 #include <sstream>
 #include <iostream>
-#include "loading.h"
-#include "menu.h"
+#include "loading.hpp"
+#include "menu.hpp"
 using namespace std;
 
 int main() {
+	auto mode = sf::VideoMode::getDesktopMode();
+	mode.width *= 0.8, mode.height *= 0.8;
 	Context ctx = {
-		sf::RenderWindow(sf::VideoMode(800, 600), "Hello, World!")
+		sf::RenderWindow(mode, "Hello, World!")
 	};
 	ctx.window.setFramerateLimit(60);
 	ctx.window.setVerticalSyncEnabled(true);

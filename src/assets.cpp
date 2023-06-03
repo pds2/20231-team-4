@@ -1,4 +1,4 @@
-#include "assets.h"
+#include "assets.hpp"
 
 sf::Font loadFont() {
 	sf::Font font;

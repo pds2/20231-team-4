@@ -1,8 +1,8 @@
 #ifndef LOADING_H
 #define LOADING_H
 #include <SFML/Graphics.hpp>
-#include "types.h"
-#include "state.h"
+#include "types.hpp"
+#include "state.hpp"
 
 /// Um estado que desenha uma barra de carregamento na tela
 class Loading: public State {

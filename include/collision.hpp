@@ -3,7 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 #include <vector>
-#include "types.h"
+#include <memory>
+#include "types.hpp"
 
 /// Pixels Por Metro
 static const f32 PPM = 64;
@@ -15,6 +16,7 @@ static const f32 RPD = M_PI / 180;
 static const f32 DPR = 180 / M_PI;
 
 enum class Collider {
+	Structure,
 	Player,
 	Enemy,
 	Bullet,
@@ -27,6 +29,7 @@ struct CollisionObject {
 	b2Fixture* collision;
 	b2Fixture* sensor;
 	public:
+	std::shared_ptr<bool> colliding;
 	CollisionObject(
 		b2World& world,
 		b2BodyType type,
@@ -46,6 +49,8 @@ class CollisionWorld {
 	CollisionObject spawnEnemy(sf::Vector2f p);
 	CollisionObject spawnObstacle(sf::Vector2f p);
 	void step(f32 seconds);
+	~CollisionWorld();
 };
+
 
 #endif

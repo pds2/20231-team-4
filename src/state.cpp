@@ -1,5 +1,5 @@
 #include <iostream>
-#include "state.h"
+#include "state.hpp"
 
 State::State(Context& ctx, bool opaque):
 	opaque(opaque),

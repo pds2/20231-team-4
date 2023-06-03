@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <sstream>
 #include <iomanip>
-#include "loading.h"
-#include "assets.h"
+#include "loading.hpp"
+#include "assets.hpp"
 
 Loading::Loading(Context& ctx):
 	State(ctx, 0)

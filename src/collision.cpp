@@ -1,4 +1,23 @@
-#include "collision.h"
+#include "collision.hpp"
+
+struct Callback: b2ContactListener {
+	void BeginContact(b2Contact* contact) override {
+		bool* c;
+		c = (bool*)contact->GetFixtureA()->GetUserData().pointer;
+		*c = true;
+
+		c = (bool*)contact->GetFixtureB()->GetUserData().pointer;
+		*c = true;
+	}
+	void EndContact(b2Contact* contact) override {
+		bool* c;
+		c = (bool*)contact->GetFixtureA()->GetUserData().pointer;
+		*c = false;
+
+		c = (bool*)contact->GetFixtureB()->GetUserData().pointer;
+		*c = false;
+	}
+};
 
 CollisionObject::CollisionObject(
 	b2World& world,
@@ -19,6 +38,8 @@ CollisionObject::CollisionObject(
 	fixtureDef.shape = &boxShape;
 	fixtureDef.density = 1.0f;
 	fixtureDef.friction = 0;
+	colliding = std::make_shared<bool>(false);
+	fixtureDef.userData.pointer = (uintptr_t)colliding.get();
 	collision = body->CreateFixture(&fixtureDef);
 
 	body->SetFixedRotation(false);
@@ -37,8 +58,12 @@ void CollisionObject::updatePosition(sf::Transformable& t) {
 	t.setPosition(pos.x * PPM, pos.y * PPM);
 }
 
+Callback callback = Callback();
 CollisionWorld::CollisionWorld():
-	world({0,0}) {}
+	world({0,0})
+{
+	world.SetContactListener(&callback);
+}
 
 CollisionObject CollisionWorld::spawnEnemy(sf::Vector2f p) {
 	CollisionObject obj(world, b2_dynamicBody, p);
@@ -55,3 +80,5 @@ CollisionObject CollisionWorld::spawnObstacle(sf::Vector2f p) {
 void CollisionWorld::step(f32 seconds) {
 	world.Step(seconds, 1, 10);
 }
+
+CollisionWorld::~CollisionWorld() {}
