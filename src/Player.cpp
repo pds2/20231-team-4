@@ -1,7 +1,7 @@
 #include "../include/GameUtilities.hpp"
 
-Player::Player(float x, float y, Shapeb2* shape, b2BodyType body_type, string texture, b2World* world, playerProperties &&pProperties, weapon weaponType) 
-    : Collidable(x, y, shape, body_type, texture, world), _pProperties(pProperties) {
+Player::Player(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, playerProperties &&pProperties, weapon weaponType) 
+    : Collidable(x, y, world, shape, body_type, texture, Color::Black, _categoryBits, _maskBits), _pProperties(pProperties) {
     
     /*
      * Allocate weapon 

@@ -15,9 +15,13 @@ struct playerProperties {
 
 class Player: public Collidable {
 private:
+    static constexpr const u32 _categoryBits = PLAYER;
+    static constexpr const u32 _maskBits = STATIC|PLAYER|ENEMY;
+
     b2Vec2 velocity;
+
 public:
-    Player(float x, float y, Shapeb2* shape, b2BodyType body_type, string texture, b2World* world, playerProperties &&properties, weapon weaponType);
+    Player(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, playerProperties &&properties, weapon weaponType);
 
     Weapon* get_weapon() {return _weapon;}
 

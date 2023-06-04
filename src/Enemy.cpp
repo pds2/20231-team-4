@@ -1,7 +1,7 @@
 #include "../include/GameUtilities.hpp"
 
-Enemy::Enemy(float x, float y, Shapeb2* shape, b2BodyType body_type, string texture, b2World* world, const enemyProperties &properties) 
-    : Collidable(x, y, shape, body_type, texture, world), _eProperties(properties) {}
+Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, const enemyProperties &properties) 
+    : Collidable(x, y, world, shape, body_type, texture, Color::Black, _categoryBits, _maskBits), _eProperties(properties) {}
 
 void Enemy::_move(Player& player) {
     Vector2f thisPosition = _sprite.getPosition();

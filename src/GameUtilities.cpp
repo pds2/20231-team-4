@@ -16,5 +16,4 @@ void renderMovement(Collidable &obj, RenderWindow &window) {
             
         window.draw(*obj.get_sfml_shape());
     }
-    
 }  

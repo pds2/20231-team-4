@@ -25,7 +25,7 @@ struct Box: public Shapeb2 {
     double width;
     double height;
 
-    Box(double w, double h, double d) : width(w), height(h), Shapeb2(d) {}
+    Box(double w=0, double h=0, double d=0) : width(w), height(h), Shapeb2(d) {}
     virtual b2Shape* getB2Shape() override {return &box_Shape;}
 };
 
@@ -33,7 +33,7 @@ struct Circle: public Shapeb2 {
     b2CircleShape circle_Shape;
     double radius;
 
-    Circle(double r, double d) : radius(r), Shapeb2(d) {}
+    Circle(double r=0, double d=0) : radius(r), Shapeb2(d) {}
     virtual b2Shape* getB2Shape() override {return &circle_Shape;}
 };
 
@@ -45,7 +45,7 @@ struct Circle: public Shapeb2 {
 class Collidable {
 public:
 
-    Collidable(float x, float y, Shapeb2* shape, b2BodyType body_type, string texture, b2World *world);
+    Collidable(float x=0, float y=0, b2World *world=nullptr, Shapeb2* shape=nullptr, b2BodyType body_type=b2_staticBody, string texture="", Color color = Color::Black, u32 categoryBits = 0, u32 maskBits = 0);
 
     b2Body* get_body() {return _body;}
     b2World* get_world() {return _world;}
@@ -65,6 +65,9 @@ protected:
     Sprite _sprite;
     Texture _startingTexture;
     Shape *_sfml_shape; 
+
+    //Collision properties
+    bool collided;
 };
 
 

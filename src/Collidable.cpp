@@ -7,7 +7,7 @@ using namespace sf;
  * Building and configuring bodies
  */
 
-Collidable::Collidable(float x, float y, Shapeb2* shape, b2BodyType body_type, string texture, b2World* world): _world(world) {
+Collidable::Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, Color color, u32 categoryBits, u32 maskBits): _world(world) {
     /*
      * Creating body
      */
@@ -43,9 +43,14 @@ Collidable::Collidable(float x, float y, Shapeb2* shape, b2BodyType body_type, s
         _b2_shape->_FixtureDef.shape = &circle->circle_Shape;
     }
 
+        //Fixture filters for collision management
+    _b2_shape->_FixtureDef.filter.categoryBits = categoryBits;
+    _b2_shape->_FixtureDef.filter.maskBits = maskBits;
+
     //Body created
     _body = _world->CreateBody(&_b2_shape->_BodyDef);
     _body->CreateFixture(&_b2_shape->_FixtureDef);
+    
 
     //angular velocity equal to 0 to stop player from spining whenever it collides
     _body->SetAngularVelocity(0);
@@ -69,14 +74,13 @@ Collidable::Collidable(float x, float y, Shapeb2* shape, b2BodyType body_type, s
         filesystem::path currentPath = filesystem::current_path();
         string currentDirectory = currentPath.string();
         _startingTexture.loadFromFile(currentDirectory + "/imgs/" + texture);
-
         _sprite.setTexture(_startingTexture);
 
         //Setting sprite's scale
         double spriteSize_x = _sprite.getTexture()->getSize().x;
         double spriteSize_y = _sprite.getTexture()->getSize().y;
         _sprite.setScale(bodySize_x/spriteSize_x, bodySize_y/spriteSize_y);
-
+        
         //Setting sprites's origin and initial rotation and position
         _sprite.setOrigin(_sprite.getTexture()->getSize().x/2.0f, _sprite.getTexture()->getSize().y/2.0f);
         _sprite.setRotation(rotation);
@@ -93,7 +97,7 @@ Collidable::Collidable(float x, float y, Shapeb2* shape, b2BodyType body_type, s
                 rectangle->setOrigin(bodySize_x*0.5, bodySize_y*0.5);
                 rectangle->setPosition(bodyPosition_x, bodyPosition_y);
                 rectangle->setRotation(rotation);
-                rectangle->setFillColor(Color::Blue);
+                rectangle->setFillColor(color);
             }
 
         }
@@ -101,10 +105,10 @@ Collidable::Collidable(float x, float y, Shapeb2* shape, b2BodyType body_type, s
             _sfml_shape = new CircleShape();
             if(auto circle = dynamic_cast<CircleShape*>(_sfml_shape)) {
                 circle->setRadius(bodySize_x);
-                circle->setOrigin(circle->getRadius()*0.5, circle->getRadius()*0.5);
+                circle->setOrigin(circle->getRadius(), circle->getRadius());
                 circle->setPosition(bodyPosition_x, bodyPosition_y);
                 circle->setRotation(rotation);
-                circle->setFillColor(Color::Blue);
+                circle->setFillColor(color);
             }
         }
     }
@@ -132,11 +136,19 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 
     b2Body* bodyA = fixtureA->GetBody();
     b2Body* bodyB = fixtureB->GetBody();
+    
 
 }
 
 
 void MyContactListener::EndContact(b2Contact* contact) {
+    b2Fixture *fixtureA = contact->GetFixtureA();
+    b2Fixture *fixtureB = contact->GetFixtureB();
 
-   contact->GetFixtureB()->GetBody()->SetAngularVelocity(0);
+    b2Body* bodyA = fixtureA->GetBody();
+    b2Body* bodyB = fixtureB->GetBody();
+
+    
+    bodyB->SetAngularVelocity(0);
+    bodyB->SetLinearVelocity(b2Vec2(0,0));
 }

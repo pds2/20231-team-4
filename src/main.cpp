@@ -7,7 +7,7 @@ int main() {
     b2World world(b2Vec2(0,0));
     MyContactListener contactListener;
     world.SetContactListener(&contactListener);
-
+    
     /*
      * SFML Window configurations
      */
@@ -19,12 +19,12 @@ int main() {
      * Objects declarations
      */
     //Player
-    Player player(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, new Box(30, 30, 0.f), b2_dynamicBody, "frog.png", &world, playerProperties(100, 10, 3),weapon::GUN);
+    Player player(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, &world, new Box(30, 30, 1.f), b2_dynamicBody, "frog.png", playerProperties(100, 10, 3),weapon::GUN);
     
     //Enemy
-    vector<Enemy*> enemies;
+    vector<shared_ptr<Enemy>> enemies;
     for(int i{0}; i<100; i++) {
-        enemies.push_back(new Enemy(250+(rand()%800-300+1), 50+(rand()%600-50+1), new Box(20, 20, 1.f), b2_dynamicBody, "bugol.png", &world, enemyProperties(100, 10, 10, 1)));
+        enemies.push_back(make_shared<Enemy>(250+(rand()%800-300+1), 50+(rand()%600-50+1), &world, new Box(20, 20, 1.f), b2_dynamicBody, "bugol.png", enemyProperties(100, 10, 10, 1)));
     }
 
     //Start of the window loop
@@ -55,16 +55,14 @@ int main() {
 
 
         renderMovement(player, window);
-        for(weak_ptr projectile: player.get_weapon()->get_cartridge())
-            renderMovement(*projectile.lock(), window);
-        for(auto &enemy: enemies)
-            renderMovement(*enemy, window);
+
+        renderMovements(player.get_weapon()->get_cartridge(), window);
+        renderMovements(enemies, window);
         
         window.display();
     }
 
-    for(auto &enemy: enemies)
-        delete enemy;
+    
 
     return 0;
 }

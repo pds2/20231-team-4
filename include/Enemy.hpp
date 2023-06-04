@@ -15,10 +15,15 @@ struct enemyProperties {
 
 class Enemy: public Collidable {
 private:
+    static constexpr const u32 _categoryBits = ENEMY;
+    static constexpr const u32 _maskBits = STATIC|PLAYER|PROJECTILE|ENEMY;
+
     b2Vec2 velocity;
+
 public:
-    Enemy(float x, float y, Shapeb2* shape, b2BodyType body_type, string texture, b2World* world, const enemyProperties &properties);
+    Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, const enemyProperties &properties);
     void _move(Player& player);
+    
 protected:
     enemyProperties _eProperties;
 };
