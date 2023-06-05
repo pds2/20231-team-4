@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <SFML/Graphics.hpp>
 #include "collidable.hpp"
 #include "weapon.hpp"
@@ -17,7 +18,7 @@ struct PlayerProperties {
 class Player: public Collidable {
 private:
     using enum CollidableType;
-    static constexpr const u32 _categoryBits = 0|PLAYER;
+    static constexpr const u32 _categoryBits = 0|PLAYER|DYNAMIC;
     static constexpr const u32 _maskBits = 0|STATIC|PLAYER|ENEMY;
 
     b2Vec2 velocity;

@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <box2d/box2d.h>
 #include <string>
 #include "collidable.hpp"
@@ -20,7 +21,7 @@ struct EnemyProperties {
 class Enemy: public Collidable {
 private:
     using enum CollidableType;
-    static constexpr const u32 _categoryBits = 0|ENEMY;
+    static constexpr const u32 _categoryBits = 0|ENEMY|DYNAMIC;
     static constexpr const u32 _maskBits = 0|STATIC|PLAYER|PROJECTILE|ENEMY;
 
     b2Vec2 velocity;

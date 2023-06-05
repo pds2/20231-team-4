@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 #include <SFML/Graphics.hpp>
 #include "collidable.hpp"
 
@@ -13,7 +14,7 @@ enum class ProjectileType {
 class Projectile: public Collidable {
 private:
     using enum CollidableType;
-    static constexpr const u32 _categoryBits = 0|PROJECTILE;
+    static constexpr const u32 _categoryBits = 0|PROJECTILE|DYNAMIC;
     static constexpr const u32 _maskBits = 0|STATIC|ENEMY;
 public:
     Projectile(float x, float y, b2World* world, Shapeb2* shape, std::string texture, sf::Color color, float damage);

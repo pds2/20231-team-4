@@ -1,8 +1,10 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <iostream>
 #include <box2d/box2d.h>
 #include "projectile.hpp"
+
 
 /*
  * Weapon has a vector to projectiles 
@@ -16,20 +18,20 @@ enum class WeaponType {
     GUN
 };
 
-struct WeaponProperties {
+struct weaponProperties {
     double _damage;
     double _speed;
     double _fire_rate;
 
-    WeaponProperties(double damage, double speed, double fireRate)
+    weaponProperties(double damage, double speed, double fireRate)
         : _damage(damage), _speed(speed), _fire_rate(fireRate) {}
-    WeaponProperties(const WeaponProperties &properties) 
-        : WeaponProperties(properties._damage, properties._speed, properties._fire_rate) {}
+    weaponProperties(const weaponProperties &properties) 
+        : weaponProperties(properties._damage, properties._speed, properties._fire_rate) {}
 };
 
 class Weapon {
 public:
-    Weapon(const WeaponProperties &properties);
+    Weapon(const weaponProperties &properties);
 
     virtual void fire(ProjectileType projectile, Player &player) {return;}
     
@@ -37,7 +39,7 @@ public:
 
 protected:
     std::vector<std::shared_ptr<Projectile>> cartridge;
-    WeaponProperties _wProperties;
+    weaponProperties _wProperties;
     b2Vec2 velocity;
     
     double counter;
@@ -46,7 +48,7 @@ protected:
 
 class Gun: public Weapon {
 public:
-    Gun(const WeaponProperties &properties);
+    Gun(const weaponProperties &properties);
 
     virtual void fire(ProjectileType projectile, Player &player) override;
 private:

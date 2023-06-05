@@ -1,22 +1,23 @@
 #include "player.hpp"
-using namespace std;
+
 using namespace sf;
+using namespace std;
 
 Player::Player(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, PlayerProperties &&pProperties, WeaponType weaponType) 
-	: Collidable(x, y, world, shape, body_type, texture, Color::Black, _categoryBits, _maskBits), _pProperties(pProperties) {
-	
-	/*
-	 * Allocate weapon 
-	 */
-	switch(weaponType) {
-		case WeaponType::GUN:
-			_weapon = new Gun(WeaponProperties(10,5,10));
-			break;
-	}
+    : Collidable(x, y, world, shape, body_type, texture, Color::Black, _categoryBits, _maskBits), _pProperties(pProperties) {
+    
+    /*
+     * Allocate weapon 
+     */
+    switch(weaponType) {
+        case WeaponType::GUN:
+            _weapon = new Gun(weaponProperties(10,5,10));
+            break;
+    }
 }
 
 Player::~Player() {
-	delete _weapon;
+    delete _weapon;
 }
 
 
@@ -24,32 +25,33 @@ Player::~Player() {
  * Player movement configurations
  */
 void Player::_move(RenderWindow &window) {
-	/*
-	 * Vertical and Horizontal movements
-	 */
-	if(Keyboard::isKeyPressed(Keyboard::W))
-		velocity.y = -_pProperties._agility;
-	else if(Keyboard::isKeyPressed(Keyboard::S))
-		velocity.y = _pProperties._agility;
-	else 
-		velocity.y = 0;
-	if(Keyboard::isKeyPressed(Keyboard::A))
-		velocity.x = -_pProperties._agility;
-	else if(Keyboard::isKeyPressed(Keyboard::D))
-		velocity.x = _pProperties._agility;
-	else 
-		velocity.x = 0;
-	_body->SetLinearVelocity(velocity);
+    /*
+     * Vertical and Horizontal movements
+     */
+    if(Keyboard::isKeyPressed(Keyboard::W))
+        velocity.y = -_pProperties._agility;
+    else if(Keyboard::isKeyPressed(Keyboard::S))
+        velocity.y = _pProperties._agility;
+    else 
+        velocity.y = 0;
+    if(Keyboard::isKeyPressed(Keyboard::A))
+        velocity.x = -_pProperties._agility;
+    else if(Keyboard::isKeyPressed(Keyboard::D))
+        velocity.x = _pProperties._agility;
+    else 
+        velocity.x = 0;
+    _body->SetLinearVelocity(velocity);
 
-	/*
-	 * Rotate player according to mouse position
-	 */
-	Vector2f playerPosition = _sprite.getPosition();
-	Vector2i mousePosition = Mouse::getPosition(window);
-	Vector2f targetVector = Vector2f(mousePosition.x, mousePosition.y) - playerPosition;
-	
-	float angleRadians = atan2(targetVector.x, -targetVector.y);
-	_body->SetTransform(_body->GetPosition(), -angleRadians);
+    /*
+     * Rotate player according to mouse position
+     */
+    Vector2f playerPosition = _sprite.getPosition();
+    Vector2i mousePosition = Mouse::getPosition(window);
+    Vector2f targetVector = Vector2f(mousePosition.x, mousePosition.y) - playerPosition;
+    
+    float angleRadians = atan2(targetVector.x, -targetVector.y);
+    _body->SetTransform(_body->GetPosition(), -angleRadians);
+    
 }
 
 /*
@@ -59,7 +61,7 @@ void Player::_move(RenderWindow &window) {
  */
 
 void Player::_attack() {
-	if(Keyboard::isKeyPressed(Keyboard::Space))
-		_weapon->fire(ProjectileType::NORMAL, *this);
+    if(Keyboard::isKeyPressed(Keyboard::Space))
+        _weapon->fire(ProjectileType::NORMAL, *this);
 }
 

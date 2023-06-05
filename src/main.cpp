@@ -1,6 +1,9 @@
+#include <iostream>
+
 #include "collidable.hpp"
 #include "player.hpp"
 #include "enemy.hpp"
+
 using namespace std;
 using namespace sf;
 
@@ -41,14 +44,17 @@ int main() {
 	 * Objects declarations
 	 */
 	//Player
-	Player player(800/2, 600/2, &world, new Box(30, 30, 1.f), b2_dynamicBody, "frog.png", PlayerProperties(100, 10, 3), WeaponType::GUN);
+	Player player(800/2, 600/2, &world, new Box(30, 30, 100.f), b2_dynamicBody, "frog.png", PlayerProperties(100, 10, 7), WeaponType::GUN);
 	
 	//Enemy
 	vector<shared_ptr<Enemy>> enemies;
 	for(int i{0}; i<100; i++) {
 		enemies.push_back(make_shared<Enemy>(250+(rand()%800-300+1), 50+(rand()%600-50+1), &world, new Box(20, 20, 1.f), b2_dynamicBody, "bugol.png", EnemyProperties(100, 10, 10, 1)));
 	}
-
+	
+	//Static
+	Collidable _static(200, 200, &world, new Box(200, 200, 1.f), b2_staticBody, "", Color::White);
+	
 	//Start of the window loop
 	while(window.isOpen()) {
 		Event event;
@@ -60,6 +66,7 @@ int main() {
 
 		if(window.hasFocus()) {
 			player._move(window);
+			
 			player._attack();
 			for(auto &enemy: enemies)
 				enemy->_move(player);
@@ -75,12 +82,31 @@ int main() {
 		window.clear(Color::Black);
 		world.Step(1/60.f, 6, 3);
 
+		window.draw(*_static.get_sfml_shape());
 
 		renderMovement(player, window);
 
-		for(auto& b: player.get_weapon()->get_cartridge()) renderMovement(*b, window);
-		for(auto& e: enemies) renderMovement(*e, window);
-		
+		auto &cartridge = player.get_weapon()->get_cartridge();
+		auto it = cartridge.begin();
+		while(it != cartridge.end()) {
+			if(auto proj = *it) {
+				renderMovement(*proj, window);
+
+				if(proj->get_body()->GetUserData().pointer == 1) {
+					it->reset();
+					it = cartridge.erase(it);
+				}
+				else
+					it++;
+
+			}
+			else {
+				it = cartridge.erase(it);
+			}
+
+		}			
+		for(auto& enemy: enemies) 
+			renderMovement(*enemy, window);	
 		window.display();
 	}
 
