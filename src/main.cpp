@@ -36,7 +36,7 @@ int main() {
 	/*
 	 * SFML Window configurations
 	 */
-	RenderWindow window(VideoMode(800, 600), "Game Test", Style::Default);
+	RenderWindow window(VideoMode(1600, 900), "Game Test", Style::Fullscreen);
 	window.setFramerateLimit(60);
 
 
@@ -44,23 +44,23 @@ int main() {
 	 * Objects declarations
 	 */
 	//Player
-	Player player(800/2, 600/2, &world, new Box(30, 30, 100.f), b2_dynamicBody, "frog.png", PlayerProperties(100, 10, 7), WeaponType::GUN);
+	Player player(1600/2, 900/2, &world, new Box(30, 30, 100.f), b2_dynamicBody, "frog.png", PlayerProperties(100, 10, 5), WeaponType::GUN);
 	
 	//Enemy
 	vector<shared_ptr<Enemy>> enemies;
-	for(int i{0}; i<100; i++) {
-		enemies.push_back(make_shared<Enemy>(250+(rand()%800-300+1), 50+(rand()%600-50+1), &world, new Box(20, 20, 1.f), b2_dynamicBody, "bugol.png", EnemyProperties(100, 10, 10, 1)));
-	}
+	int counter = 30;
 	
 	//Static
-	Collidable _static(200, 200, &world, new Box(200, 200, 1.f), b2_staticBody, "", Color::White);
-	
+	Collidable _static(500, 500, &world, new Box(200, 200, 1.f), b2_staticBody, "", Color::White);
+	Collidable _static2(1000, 300, &world, new Circle(100, 1.f), b2_staticBody, "", Color::White);
 	//Start of the window loop
 	while(window.isOpen()) {
 		Event event;
 
 		while(window.pollEvent(event)) {
 			if(event.type == Event::Closed)
+				window.close();
+			if(event.type == Event::KeyPressed && Keyboard::isKeyPressed(Keyboard::Escape))
 				window.close();
 		}
 
@@ -77,16 +77,21 @@ int main() {
 			for(weak_ptr projectile: player.get_weapon()->get_cartridge())
 				projectile.lock()->get_body()->SetAwake(false);
 		}
-
-
+		if(counter >= 30) {
+			enemies.push_back(make_shared<Enemy>((rand()%1000), (rand()%900), &world, new Box(20, 20, 1.f), b2_dynamicBody, "bugol.png", EnemyProperties(100, 10, 10, 3+(rand()%6-3+1))));
+			counter = 0;
+		} else 
+			counter++;
 		window.clear(Color::Black);
 		world.Step(1/60.f, 6, 3);
 
 		window.draw(*_static.get_sfml_shape());
+		window.draw(*_static2.get_sfml_shape());
 
 		renderMovement(player, window);
 
 		auto &cartridge = player.get_weapon()->get_cartridge();
+
 		auto it = cartridge.begin();
 		while(it != cartridge.end()) {
 			if(auto proj = *it) {
@@ -98,12 +103,10 @@ int main() {
 				}
 				else
 					it++;
-
 			}
 			else {
 				it = cartridge.erase(it);
 			}
-
 		}			
 		for(auto& enemy: enemies) 
 			renderMovement(*enemy, window);	

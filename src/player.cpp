@@ -11,7 +11,7 @@ Player::Player(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body
      */
     switch(weaponType) {
         case WeaponType::GUN:
-            _weapon = new Gun(weaponProperties(10,5,10));
+            _weapon = new Gun(weaponProperties(10,15,1));
             break;
     }
 }

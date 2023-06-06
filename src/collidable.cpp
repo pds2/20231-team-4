@@ -103,7 +103,7 @@ Collidable::Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyT
         else if(circle) {
             _sfml_shape = new CircleShape();
             if(auto circle = dynamic_cast<CircleShape*>(_sfml_shape)) {
-                circle->setRadius(bodySize_x);
+                circle->setRadius(bodySize_x/2);
                 circle->setOrigin(circle->getRadius(), circle->getRadius());
                 circle->setPosition(bodyPosition_x, bodyPosition_y);
                 circle->setRotation(rotation);
