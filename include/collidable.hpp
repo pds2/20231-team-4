@@ -103,10 +103,13 @@ public:
     bool colliding;
     u32 category;
 
+    int damage_do;
+    int damage_take;
+
     void HandleBeginCollision(u32 category, b2Body *body);
     void HandleEndCollision(u32 category, b2Body *body);
 
-    CollisionData() : colliding(0), category(0) {};
+    CollisionData() : colliding(0), category(0), damage_do(0), damage_take(0) {};
 };
 
 class MyContactListener: public b2ContactListener {

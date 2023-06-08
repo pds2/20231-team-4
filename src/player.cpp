@@ -11,7 +11,7 @@ Player::Player(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body
      */
     switch(weaponType) {
         case WeaponType::GUN:
-            _weapon = new Gun(weaponProperties(10,20,10));
+            _weapon = new Gun(weaponProperties(30,5,10));
             break;
     }
 }
@@ -49,7 +49,7 @@ void Player::_move(RenderWindow &window) {
     Vector2i mousePosition = Mouse::getPosition(window);
     Vector2f targetVector = Vector2f(mousePosition.x, mousePosition.y) - playerPosition;
     
-    float angleRadians = atan2(targetVector.x, -targetVector.y);
+    long double angleRadians = atan2(targetVector.x, -targetVector.y);
     _body->SetTransform(_body->GetPosition(), -angleRadians);
     
 }

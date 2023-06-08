@@ -8,7 +8,9 @@ using namespace std;
 using namespace sf;
 
 Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, const EnemyProperties &properties) 
-    : Collidable(x, y, world, shape, body_type, texture, Color::Black, _categoryBits, _maskBits), _eProperties(properties) {}
+    : Collidable(x, y, world, shape, body_type, texture, Color::Black, _categoryBits, _maskBits), _eProperties(properties) {
+        _data->damage_do = this->get_properties()._damage;
+    }
 
 void Enemy::_move(Player& player) {
     Vector2f thisPosition = _sprite.getPosition();

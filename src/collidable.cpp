@@ -48,6 +48,7 @@ Collidable::Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyT
     _b2_shape->_FixtureDef.filter.maskBits = maskBits;
 
     _b2_shape->_BodyDef.userData.pointer = reinterpret_cast<uintptr_t>(_data);
+
     //Body created
     _body = _world->CreateBody(&_b2_shape->_BodyDef);
     _body->CreateFixture(&_b2_shape->_FixtureDef);
@@ -142,12 +143,13 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 
     if(dataA) {
         dataA->category = (u32) fixtureB->GetFilterData().categoryBits;
+        dataA->damage_take = dataB->damage_do;
         dataA->colliding = 1;
     }
     if(dataB) {
         dataB->category = (u32) fixtureA->GetFilterData().categoryBits;
+        dataB->damage_take = dataA->damage_do;
         dataB->colliding = 1;
-
     }
 }
 

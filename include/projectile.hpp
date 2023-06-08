@@ -18,8 +18,11 @@ private:
     static constexpr const u32 _maskBits = 0|STATIC|ENEMY;
 public:
     Projectile(float x, float y, b2World* world, Shapeb2* shape, std::string texture, sf::Color color, float damage);
+
+    b2Vec2& get_velocity() {return _velocity;}
 protected:
     float _damage;
+    b2Vec2 _velocity;
 };
 
 class NormalProj: public Projectile {
