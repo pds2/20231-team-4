@@ -34,7 +34,7 @@ void Gun::fire(ProjectileType projectile, Player &player) {
                     player.get_sprite().getPosition().x*0.5,
                     player.get_sprite().getPosition().y*0.5,
                     player.get_world(),
-                    new Circle(3, 10000),
+                    new Circle(10,1),
                     "",
                     Color::Red,
                     (*this)._wProperties._damage

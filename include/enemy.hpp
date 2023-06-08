@@ -29,6 +29,8 @@ private:
 public:
     Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, std::string texture, const EnemyProperties &properties);
     void _move(Player& player);
+
+    EnemyProperties& get_properties() {return _eProperties;}
     
 protected:
     EnemyProperties _eProperties;

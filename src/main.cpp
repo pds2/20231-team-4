@@ -36,7 +36,7 @@ int main() {
 	/*
 	 * SFML Window configurations
 	 */
-	RenderWindow window(VideoMode(1600, 900), "Game Test", Style::Fullscreen);
+	RenderWindow window(VideoMode(1300, 1000), "Game Test", Style::Default);
 	window.setFramerateLimit(60);
 
 
@@ -48,7 +48,7 @@ int main() {
 	
 	//Enemy
 	vector<shared_ptr<Enemy>> enemies;
-	int counter = 30;
+	int counter = 100;
 	
 	//Static
 	Collidable _static(500, 500, &world, new Box(200, 200, 1.f), b2_staticBody, "", Color::White);
@@ -78,7 +78,7 @@ int main() {
 				projectile.lock()->get_body()->SetAwake(false);
 		}
 		if(counter >= 30) {
-			enemies.push_back(make_shared<Enemy>((rand()%1000), (rand()%900), &world, new Box(20, 20, 1.f), b2_dynamicBody, "bugol.png", EnemyProperties(100, 10, 10, 3+(rand()%6-3+1))));
+			enemies.push_back(make_shared<Enemy>((rand()%1000), (rand()%900), &world, new Box(20, 20, 1.f), b2_dynamicBody, "bugol.png", EnemyProperties(30, 10, 10, 3+(rand()%6-3+1))));
 			counter = 0;
 		} else 
 			counter++;
@@ -97,7 +97,7 @@ int main() {
 			if(auto proj = *it) {
 				renderMovement(*proj, window);
 
-				if(proj->get_body()->GetUserData().pointer == 1) {
+				if(proj->getCollisionData()->colliding || proj->get_body()->GetLinearVelocity() == b2Vec2(0,0)) {
 					it->reset();
 					it = cartridge.erase(it);
 				}
@@ -107,9 +107,29 @@ int main() {
 			else {
 				it = cartridge.erase(it);
 			}
-		}			
-		for(auto& enemy: enemies) 
-			renderMovement(*enemy, window);	
+		}
+
+		auto it2 = enemies.begin();	
+		while(it2 != enemies.end()) {		
+			if(auto enemy = *it2) {
+				renderMovement(*enemy, window);	
+				if(enemy->getCollisionData()->colliding && (enemy->getCollisionData()->category == ((u32)CollidableType::PROJECTILE|(u32)CollidableType::DYNAMIC))) {
+					enemy->get_properties()._health -= 10;
+					enemy->getCollisionData()->colliding = 0;
+					cout << enemy->get_properties()._health << endl;
+					if(enemy->get_properties()._health <= 0) {
+						it2->reset();
+						it2 = enemies.erase(it2);
+					}
+					else
+						it2++;
+				}
+				else
+					it2++;
+			}
+			else 
+				it2 = enemies.erase(it2);
+		}
 		window.display();
 	}
 

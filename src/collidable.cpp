@@ -7,7 +7,7 @@ using namespace sf;
  * Building and configuring bodies
  */
 
-Collidable::Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, Color color, u32 categoryBits, u32 maskBits): _world(world) {
+Collidable::Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, Color color, u32 categoryBits, u32 maskBits): _world(world), _data(new CollisionData) {
     /*
      * Creating body
      */
@@ -47,7 +47,7 @@ Collidable::Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyT
     _b2_shape->_FixtureDef.filter.categoryBits = categoryBits;
     _b2_shape->_FixtureDef.filter.maskBits = maskBits;
 
-    _b2_shape->_FixtureDef.userData.pointer = 0;
+    _b2_shape->_BodyDef.userData.pointer = reinterpret_cast<uintptr_t>(_data);
     //Body created
     _body = _world->CreateBody(&_b2_shape->_BodyDef);
     _body->CreateFixture(&_b2_shape->_FixtureDef);
@@ -122,6 +122,7 @@ Collidable::~Collidable() {
     _world->DestroyBody(_body);
     delete _b2_shape;
     delete _sfml_shape;
+    delete _data;
 }
 
 
@@ -135,10 +136,19 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 
     b2Body* bodyA = fixtureA->GetBody();
     b2Body* bodyB = fixtureB->GetBody();
-    
-    bodyA->GetUserData().pointer = (uintptr_t)1;
-    bodyB->GetUserData().pointer = (uintptr_t)1;
-    
+   
+    CollisionData* dataA = reinterpret_cast<CollisionData*>(bodyA->GetUserData().pointer);
+    CollisionData* dataB = reinterpret_cast<CollisionData*>(bodyB->GetUserData().pointer);
+
+    if(dataA) {
+        dataA->category = (u32) fixtureB->GetFilterData().categoryBits;
+        dataA->colliding = 1;
+    }
+    if(dataB) {
+        dataB->category = (u32) fixtureA->GetFilterData().categoryBits;
+        dataB->colliding = 1;
+
+    }
 }
 
 
@@ -148,11 +158,10 @@ void MyContactListener::EndContact(b2Contact* contact) {
 
     b2Body* bodyA = fixtureA->GetBody();
     b2Body* bodyB = fixtureB->GetBody();
+    
+    //CollisionData* dataA = reinterpret_cast<CollisionData*>(bodyA->GetUserData().pointer);
+    //CollisionData* dataB = reinterpret_cast<CollisionData*>(bodyB->GetUserData().pointer);
 
-    if(bodyA)
-        bodyA->GetUserData().pointer = (uintptr_t)0;
-    if(bodyB)
-        bodyB->GetUserData().pointer = (uintptr_t)0;  
     bodyB->SetAngularVelocity(0);
     bodyB->SetLinearVelocity(b2Vec2(0,0));
 }

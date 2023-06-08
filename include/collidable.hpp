@@ -11,6 +11,8 @@
 const u32 PPM = 64;
 const f32 DEG_PER_RAD = 180.f/M_PI;
 
+class CollisionData;
+
 /*
  * To be used for collision management
  */
@@ -72,6 +74,8 @@ public:
     sf::Shape* get_sfml_shape() {return _sfml_shape;}
     sf::Sprite& get_sprite() {return _sprite;}
 
+    CollisionData* getCollisionData() {return _data;}
+
 
     ~Collidable();
 protected:
@@ -86,16 +90,28 @@ protected:
     sf::Shape *_sfml_shape; 
 
     //Collision properties
-    bool collided;
+    CollisionData *_data;
 };
 
 
 /* 
  * Here we handle the collisions
  */
+class CollisionData {
+public:
+    //The CollidableType of the body collided with
+    bool colliding;
+    u32 category;
+
+    void HandleBeginCollision(u32 category, b2Body *body);
+    void HandleEndCollision(u32 category, b2Body *body);
+
+    CollisionData() : colliding(0), category(0) {};
+};
 
 class MyContactListener: public b2ContactListener {
 public:
     void BeginContact(b2Contact* contact) override;
     void EndContact(b2Contact* contact) override;
+
 };
