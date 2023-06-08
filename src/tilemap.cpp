@@ -104,6 +104,10 @@ TileAnimation::TileAnimation(TileRender render, tmx::Tileset::Tile::Animation an
 	elapsed = rand() / (f32)RAND_MAX * frames[index].duration;
 }
 
+TileCollision::TileCollision(sf::Vector2u origin, const std::vector<tmx::Object>& objects):
+	origin(origin),
+	objects(objects) {}
+
 TileLayer::TileLayer(const tmx::TileLayer& layer, const tmx::Map& map, const std::map<u32, TileSet>& tilesets):
 	inner(layer),
 	tilesets(tilesets)
@@ -122,6 +126,8 @@ TileLayer::TileLayer(const tmx::TileLayer& layer, const tmx::Map& map, const std
 
 		TileRender render(&tileset, pos, tiles[i].flipFlags, tiles[i].ID);
 		auto tile = tileset.inner.getTile(GID);
+		auto& obj = tile->objectGroup.getObjects();
+		if(!obj.empty()) collisions.emplace_back(pos, obj);
 		if(tile->animation.frames.size())
 			animations.push_back({ render, tile->animation });
 		else

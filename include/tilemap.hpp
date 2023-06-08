@@ -36,10 +36,17 @@ struct TileAnimation: TileRender {
 	TileAnimation(TileRender render, tmx::Tileset::Tile::Animation animation);
 };
 
+struct TileCollision {
+	sf::Vector2u origin;
+	const std::vector<tmx::Object>& objects;
+	TileCollision(sf::Vector2u origin, const std::vector<tmx::Object>& objects);
+};
+
 class TileLayer: public sf::Drawable {
 	private:
 	const std::map<u32, TileSet>& tilesets;
 	std::vector<TileAnimation> animations;
+	std::vector<TileCollision> collisions;
 	std::unique_ptr<sf::RenderTexture> t_static, t_dynamic;
 	sf::Sprite s_static, s_dynamic;
 	void draw(sf::RenderTarget& rt, sf::RenderStates states) const;

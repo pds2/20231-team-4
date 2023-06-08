@@ -2,4 +2,4 @@
 .ccls*
 target
 deps
-.tiled-session
+*.tiled-session
