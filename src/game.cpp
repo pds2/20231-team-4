@@ -52,15 +52,17 @@ void Game::tick() {
 		speed.x *= t, speed.y *= t;
 	}
 
-	sf::Vector2f ppos = testPlayer.getPosition() + speed;
-	sf::Vector2f pcenter = ppos + testPlayer.getSize() * 0.5f;
-	testPlayer.setPosition(ppos);
+	sf::Vector2f ps = testPlayer.getSize();
+	sf::Vector2f pp = testPlayer.getPosition() + speed;
+	sf::Vector2f pc = pp + ps * 0.5f;
+	testPlayer.setPosition(pp);
 
-	sf::Vector2f csize = camera.getSize();
-	sf::Vector2f ccenter = camera.getCenter();
-	ccenter.x = std::clamp(ccenter.x, pcenter.x - csize.x * 0.2f, pcenter.x + csize.x * 0.2f);
-	ccenter.y = std::clamp(ccenter.y, pcenter.y - csize.y * 0.2f, pcenter.y + csize.y * 0.2f);
-	camera.setCenter(ccenter);
+	sf::Vector2f cs = camera.getSize();
+	sf::Vector2f cc = camera.getCenter();
+	sf::Vector2f tol = (cs - ps) * 0.5f - sf::Vector2f(32, 32);
+	cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
+	cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
+	camera.setCenter(cc);
 }
 
 void Game::render() {
