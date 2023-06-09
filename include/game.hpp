@@ -4,21 +4,12 @@
 #include <tmxlite/Map.hpp>
 #include <vector>
 #include "state.hpp"
-#include "collision.hpp"
 #include "tilemap.hpp"
-
-struct Object {
-	CollisionObject collision;
-	sf::RectangleShape rectangle;
-	Object(CollisionObject collision);
-};
 
 /// Armazena dados sobre um estado de jogo
 class Game: public State {
 	private:
-	CollisionWorld cworld;
 	ZRenderer renderer;
-	std::vector<Object> objects;
 	sf::View camera;
 	sf::Clock clock;
 	f64 avgFrame;

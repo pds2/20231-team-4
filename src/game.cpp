@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cmath>
 #include "game.hpp"
 #include "menu.hpp"
 #include "assets.hpp"
@@ -29,17 +30,10 @@ void Game::restartClock() {
 	clock.restart();
 }
 
-Object::Object(CollisionObject collision):
-	collision(collision)
-{
-	rectangle.setSize({50, 50});
-}
-
 void Game::tick() {
 	auto elapsed = clock.getElapsedTime();
 	clock.restart();
 	avgFrame = avgFrame * 0.1 + elapsed.asSeconds() * 0.9;
-	cworld.step(elapsed.asSeconds());
 	map.update(elapsed);
 
 	sf::Vector2f speed;
@@ -90,8 +84,6 @@ void Game::render() {
 		<< pos.x << ' ' << pos.y << std::endl
 		<< (1 / avgFrame) << " fps" << std::endl;
 	debug.setString(ss.str());
-
-	for(auto& o: objects) ctx.window.draw(o.rectangle);
 
 	sf::View v;
 	v.setViewport({{0, 0}, {1, 1}});
