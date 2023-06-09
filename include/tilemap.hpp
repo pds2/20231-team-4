@@ -6,6 +6,7 @@
 #include <array>
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
+#include "render.hpp"
 #include "types.hpp"
 
 /// Guarda um tileset e as texturas utilizadas por ele
@@ -83,7 +84,7 @@ class TileLayer: public sf::Drawable {
 };
 
 /// Guarda um mapa de tiles e as camadas associadas
-class TileMap: public sf::Drawable {
+class TileMap {
 	friend class TileLayer;
 	private:
 	tmx::Map inner;
@@ -94,6 +95,8 @@ class TileMap: public sf::Drawable {
 	public:
 	/// Atualiza animações
 	void update(sf::Time time);
+	/// Adiciona o mapa ao renderizador
+	void render(ZRenderer& renderer) const;
 	/// Cria um novo tilemap a partir do tipo interior do tmxlite
 	TileMap(tmx::Map&& map);
 };

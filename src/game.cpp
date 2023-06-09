@@ -20,7 +20,8 @@ Game::Game(Context& ctx):
 {
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
-	camera.setSize(ws.x, ws.y);
+	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
+	testPlayer.setSize({ 32, 64 });
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 }
 
@@ -53,19 +54,28 @@ void Game::tick() {
 	if(isPressed(Key::Right) || isPressed(Key::D))
 		speed.x += 1;
 	if(speed.x || speed.y) {
-		f32 t = 512 * elapsed.asSeconds() / hypot(speed.x, speed.y);
+		f32 t = 128 * elapsed.asSeconds() / hypot(speed.x, speed.y);
 		speed.x *= t, speed.y *= t;
 	}
 
-	sf::Vector2f center = camera.getCenter();
-	center.x += speed.x;
-	center.y += speed.y;
-	camera.setCenter(center);
+	sf::Vector2f ppos = testPlayer.getPosition() + speed;
+	sf::Vector2f pcenter = ppos + testPlayer.getSize() * 0.5f;
+	testPlayer.setPosition(ppos);
+
+	sf::Vector2f csize = camera.getSize();
+	sf::Vector2f ccenter = camera.getCenter();
+	ccenter.x = std::clamp(ccenter.x, pcenter.x - csize.x * 0.2f, pcenter.x + csize.x * 0.2f);
+	ccenter.y = std::clamp(ccenter.y, pcenter.y - csize.y * 0.2f, pcenter.y + csize.y * 0.2f);
+	camera.setCenter(ccenter);
 }
 
 void Game::render() {
+	renderer.clear();
+	map.render(renderer);
+	renderer.insert(0, testPlayer);
+
 	ctx.window.setView(camera);
-	ctx.window.draw(map);
+	ctx.window.draw(renderer);
 
 	ctx.window.setView(camera);
 	auto mp = sf::Mouse::getPosition(ctx.window);

@@ -17,11 +17,13 @@ struct Object {
 class Game: public State {
 	private:
 	CollisionWorld cworld;
+	ZRenderer renderer;
 	std::vector<Object> objects;
 	sf::View camera;
 	sf::Clock clock;
 	f64 avgFrame;
 	TileMap map;
+	sf::RectangleShape testPlayer;
 
 	public:
 	/// Cria um novo jogo em um contexto

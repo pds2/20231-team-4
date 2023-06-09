@@ -194,7 +194,7 @@ void TileMap::update(sf::Time time) {
 	for(TileLayer& l: layers) l.update(time);
 }
 
-void TileMap::draw(sf::RenderTarget& rt, sf::RenderStates states) const {
-	for(const TileLayer& l: layers)
-		rt.draw(l, states);
+void TileMap::render(ZRenderer& renderer) const {
+	for(u32 i = 0; i < layers.size(); i += 1)
+		renderer.insert(i, std::cref(layers[i]));
 }
