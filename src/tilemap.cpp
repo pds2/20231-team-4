@@ -190,6 +190,13 @@ TileMap::TileMap(tmx::Map&& map): inner(std::move(map)) {
 	}
 }
 
+std::vector<const TileCollision*> TileMap::collisions() const {
+	std::vector<const TileCollision*> v;
+	for(const TileLayer& l: layers)
+		for(auto& c: l.getCollisions()) v.push_back(&c);
+	return v;
+}
+
 void TileMap::update(sf::Time time) {
 	for(TileLayer& l: layers) l.update(time);
 }

@@ -79,6 +79,10 @@ class TileLayer: public sf::Drawable {
 	const tmx::TileLayer& inner;
 	/// Atualiza animações
 	void update(sf::Time time);
+	/// Lista as colisões da camada
+	const std::vector<TileCollision>& getCollisions() const {
+		return collisions;
+	}
 	/// Cria uma nova layer de tiles a partir de um tipo interior e dos tilesets associados a um mapa
 	TileLayer(const tmx::TileLayer& layer, const tmx::Map& map, const std::map<u32, TileSet>& tilesets);
 };
@@ -97,6 +101,8 @@ class TileMap {
 	void update(sf::Time time);
 	/// Adiciona o mapa ao renderizador
 	void render(ZRenderer& renderer) const;
+	/// Lista as colisões do mapa
+	std::vector<const TileCollision*> collisions() const;
 	/// Cria um novo tilemap a partir do tipo interior do tmxlite
 	TileMap(tmx::Map&& map);
 };

@@ -23,6 +23,7 @@ Game::Game(Context& ctx):
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 	testPlayer.setSize({ 32, 64 });
+	for(auto& c: map.collisions()) ff.addObstacle(c->origin.x, c->origin.y, 32, 32);
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 }
 
@@ -47,10 +48,7 @@ void Game::tick() {
 		speed.x -= 1;
 	if(isPressed(Key::Right) || isPressed(Key::D))
 		speed.x += 1;
-	if(speed.x || speed.y) {
-		f32 t = 128 * elapsed.asSeconds() / hypot(speed.x, speed.y);
-		speed.x *= t, speed.y *= t;
-	}
+	if(speed.x || speed.y) speed *= 128 * elapsed.asSeconds() / hypotf(speed.x, speed.y);
 
 	sf::Vector2f ps = testPlayer.getSize();
 	sf::Vector2f pp = testPlayer.getPosition() + speed;
@@ -63,15 +61,26 @@ void Game::tick() {
 	cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
 	cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
 	camera.setCenter(cc);
+
+	ff.calculate(pc.x, pc.y, ps.x, ps.y);
+	for(auto& e: testEnemies) {
+		auto es = e.getSize();
+		auto ep = e.getPosition();
+		auto s = ff.query(ep.x, ep.y, es.x, es.y);
+		s *= 64 * elapsed.asSeconds();
+		e.setPosition(ep + s);
+	}
 }
 
 void Game::render() {
 	renderer.clear();
 	map.render(renderer);
+	for(auto& e: testEnemies) renderer.insert(0, e);
 	renderer.insert(0, testPlayer);
 
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
+	ctx.window.draw(ff);
 
 	ctx.window.setView(camera);
 	auto mp = sf::Mouse::getPosition(ctx.window);
@@ -103,7 +112,10 @@ void Game::handleEvent(sf::Event event) {
 		ctx.window.setView(camera);
 		auto mp = sf::Mouse::getPosition(ctx.window);
 		auto pos = ctx.window.mapPixelToCoords(mp);
-		camera.setCenter(pos);
+		sf::RectangleShape rect;
+		rect.setPosition(pos);
+		rect.setSize({32, 32});
+		testEnemies.push_back(rect);
 	}
 	if(event.type == sf::Event::Resized) {
 		sf::Vector2u ws = ctx.window.getSize();

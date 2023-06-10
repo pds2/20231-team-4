@@ -4,6 +4,7 @@
 #include <tmxlite/Map.hpp>
 #include <vector>
 #include "state.hpp"
+#include "flowfield.hpp"
 #include "tilemap.hpp"
 
 /// Armazena dados sobre um estado de jogo
@@ -14,7 +15,9 @@ class Game: public State {
 	sf::Clock clock;
 	f64 avgFrame;
 	TileMap map;
+	std::vector<sf::RectangleShape> testEnemies;
 	sf::RectangleShape testPlayer;
+	FlowField ff;
 
 	public:
 	/// Cria um novo jogo em um contexto
