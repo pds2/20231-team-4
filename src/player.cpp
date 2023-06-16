@@ -11,7 +11,7 @@ Player::Player(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body
      */
     switch(weaponType) {
         case WeaponType::GUN:
-            _weapon = new Gun(weaponProperties(30,5,10));
+            _weapon = new Gun(weaponProperties(10,10,10));
             break;
     }
 }
@@ -51,7 +51,7 @@ void Player::_move(RenderWindow &window) {
     
     long double angleRadians = atan2(targetVector.x, -targetVector.y);
     _body->SetTransform(_body->GetPosition(), -angleRadians);
-    
+    this->get_sprite().setRotation(angleRadians*DEG_PER_RAD);
 }
 
 /*

@@ -71,8 +71,10 @@ int main() {
 			for(auto &enemy: enemies)
 				enemy->_move(player);
 
-			if(counter >= 100) {
-				enemies.push_back(make_shared<Enemy>((rand()%1000), (rand()%900), &world, new Box(20, 20, 1.f), b2_dynamicBody, "bugol.png", EnemyProperties(30, 10, 10, 3+(rand()%6-3+1))));
+			int size;
+			if(counter >= 10000 && enemies.size()<=430) {
+				size = 10+rand()%50;
+				enemies.push_back(make_shared<Enemy>((rand()%1000), (rand()%900), &world, new Box(size, size, 1.f), b2_dynamicBody, "bugol.png", EnemyProperties(100, 10, 10, 3+(rand()%6-3+1))));
 				counter = 0;
 			} else 
 				counter++;
@@ -93,7 +95,7 @@ int main() {
 					proj->get_body()->SetLinearVelocity(proj->get_velocity());
 					renderMovement(*proj, window);
 
-					if(proj->getCollisionData()->colliding || proj->get_body()->GetLinearVelocity() == b2Vec2(0,0)) {
+					if(proj->getCollisionData()->colliding || proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) || proj->_distance() >= proj->get_range()) {
 						it->reset();
 						it = cartridge.erase(it);
 					}
@@ -138,8 +140,6 @@ int main() {
 			}
 		}
 	}
-
-	
 
 	return 0;
 }

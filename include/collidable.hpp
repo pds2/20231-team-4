@@ -106,9 +106,6 @@ public:
     int damage_do;
     int damage_take;
 
-    void HandleBeginCollision(u32 category, b2Body *body);
-    void HandleEndCollision(u32 category, b2Body *body);
-
     CollisionData() : colliding(0), category(0), damage_do(0), damage_take(0) {};
 };
 

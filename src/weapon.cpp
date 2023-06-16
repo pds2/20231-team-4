@@ -31,13 +31,14 @@ void Gun::fire(ProjectileType projectile, Player &player) {
             
             case ProjectileType::NORMAL:
                 cartridge.push_back(make_shared<NormalProj>(
-                    player.get_sprite().getPosition().x*0.5,
-                    player.get_sprite().getPosition().y*0.5,
+                    player.get_sprite().getPosition().x,
+                    player.get_sprite().getPosition().y,
                     player.get_world(),
-                    new Circle(10,1),
+                    new Circle(5,1),
                     "",
                     Color::Red,
-                    (*this)._wProperties._damage
+                    (*this)._wProperties._damage,
+                    1000
                 ));
 
                 cartridge.back()->get_body()->SetTransform(
