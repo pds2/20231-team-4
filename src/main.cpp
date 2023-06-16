@@ -72,7 +72,7 @@ int main() {
 				enemy->_move(player);
 
 			int size;
-			if(counter >= 0 && enemies.size()<=400) {
+			if(counter >= 100 && enemies.size()<=300) {
 				size = 10+rand()%20;
 				enemies.push_back(make_shared<Enemy>((rand()%1000), (rand()%900), &world, new Box(size, size, 1.f), b2_dynamicBody, "bugol.png", EnemyProperties(10, 10, 10, 3+(rand()%6-3+1))));
 				counter = 0;
