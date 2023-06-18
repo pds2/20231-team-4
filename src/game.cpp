@@ -23,7 +23,7 @@ Game::Game(Context& ctx):
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 	testPlayer.setSize({ 32, 64 });
-	for(auto& c: map.collisions()) ff.addObstacle(c->origin.x, c->origin.y, 32, 32);
+	for(auto& c: map.collisions()) ff.addObstacle(c->origin, {32, 32});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 }
 
@@ -31,10 +31,11 @@ void Game::restartClock() {
 	clock.restart();
 }
 
+f32 ffCalcTime = 0;
 void Game::tick() {
 	auto elapsed = clock.getElapsedTime();
 	clock.restart();
-	avgFrame = avgFrame * 0.1 + elapsed.asSeconds() * 0.9;
+	avgFrame = avgFrame * 0.9 + elapsed.asSeconds() * 0.1;
 	map.update(elapsed);
 
 	sf::Vector2f speed;
@@ -62,11 +63,14 @@ void Game::tick() {
 	cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
 	camera.setCenter(cc);
 
-	ff.calculate(pc.x, pc.y, ps.x, ps.y);
+	sf::Clock ffClock;
+	for(auto& e: testEnemies) ff.addEnemy(e.getPosition(), e.getSize());
+	ff.calculate(pc, ps);
+	ffCalcTime = ffCalcTime * 0.9 + 0.1 * ffClock.getElapsedTime().asMilliseconds();
 	for(auto& e: testEnemies) {
 		auto es = e.getSize();
 		auto ep = e.getPosition();
-		auto s = ff.query(ep.x, ep.y, es.x, es.y);
+		auto s = ff.query(ep, es);
 		s *= 64 * elapsed.asSeconds();
 		e.setPosition(ep + s);
 	}
@@ -93,7 +97,8 @@ void Game::render() {
 	std::stringstream ss;
 	ss << std::fixed << std::setprecision(2)
 		<< pos.x << ' ' << pos.y << std::endl
-		<< (1 / avgFrame) << " fps" << std::endl;
+		<< (1 / avgFrame) << " fps" << std::endl
+		<< ffCalcTime << "ms ff calc" << std::endl;
 	debug.setString(ss.str());
 
 	sf::View v;

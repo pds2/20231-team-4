@@ -4,88 +4,164 @@
 #include <numeric>
 #include "assets.hpp"
 #include "flowfield.hpp"
+
 const i32 SCALE = 16;
-const i32 MAX16 = std::numeric_limits<i16>::max();
-FlowField::FlowField() {
-	coll[0].fill(0);
-	coll.fill(coll[0]);
-	distances[0].fill(MAX16);
-	distances.fill(distances[0]);
+const i32 INF = std::numeric_limits<i16>::max();
+
+template <typename T, size_t S>
+Array2<T, S>::Array2(const T& initial) {
+	fill(initial);
 }
 
-bool FlowField::invalid(i32 x, i32 y) const {
-	return x < 0 || x >= FFieldM || y < 0 || y >= FFieldN;
+template <typename T, size_t S>
+void Array2<T, S>::fill(const T& initial) {
+	for(auto& a: *this) a.fill(initial);
 }
 
-void FlowField::addObstacle(i32 x, i32 y, i32 w, i32 h) {
-	x /= SCALE, y /= SCALE, w /= SCALE, h /= SCALE;
-	for(i32 i = x; i < x+w; i += 1)
-		for(i32 j = y; j < y+w; j += 1)
-			if(!invalid(i, j)) coll[i][j] = 1;
+template <typename T, size_t S>
+template <typename I>
+T& Array2<T, S>::operator[](sf::Vector2<I> pos) {
+	return this->at(pos.x).at(pos.y);
 }
 
-sf::Vector2f FlowField::direction(i32 x, i32 y) const {
+template <typename T, size_t S>
+template <typename I>
+const T& Array2<T, S>::operator[](sf::Vector2<I> pos) const {
+	return this->at(pos.x).at(pos.y);
+}
+
+template <typename T, size_t S>
+template <typename I>
+std::array<T, S>& Array2<T, S>::operator[](I index) {
+	return this->at(index);
+}
+
+template <typename T, size_t S>
+template <typename I>
+const std::array<T, S>& Array2<T, S>::operator[](I index) const {
+	return this->at(index);
+}
+
+FlowField::FlowField(): coll(false), version(0), currentVersion(0), distances(INF), enemies(0), enemyCount(0) {}
+
+std::array<sf::Vector2i, 2> bounds(sf::Vector2f a, sf::Vector2f b) {
+	sf::Vector2i v(a.x, a.y), w(b.x, b.y);
+	v.x = std::clamp(v.x, 0, FieldSize);
+	v.y = std::clamp(v.y, 0, FieldSize);
+	w.x = std::clamp(w.x, 0, FieldSize);
+	w.y = std::clamp(w.y, 0, FieldSize);
+	return { v, w };
+}
+
+template <>
+void FlowField::addObstacle<f32>(sf::Vector2f pos, sf::Vector2f size) {
+	pos /= (f32)SCALE, size /= (f32)SCALE;
+	auto [v, w] = bounds(pos, pos + size);
+	for(i32 i = v.x; i < w.x; i += 1)
+		for(i32 j = v.y; j < w.y; j += 1)
+			coll[i][j] = 1;
+}
+template <>
+void FlowField::addObstacle<u32>(sf::Vector2u pos, sf::Vector2u size) {
+	addObstacle(sf::Vector2f(pos.x, pos.y), sf::Vector2f(size.x, size.y));
+}
+
+constexpr bool invalid(const sf::Vector2i& pos) {
+	auto& [x, y] = pos;
+	return x < 0 || y < 0 || x >= FieldSize || y >= FieldSize;
+}
+
+i16 FlowField::distance(sf::Vector2i tile) const {
+	if(invalid(tile) || version[tile] != currentVersion) return INF;
+	return distances[tile];
+}
+
+sf::Vector2f FlowField::direction(sf::Vector2i tile) const {
 	sf::Vector2f v;
-	v.x += invalid(x-1, y) ? MAX16 : distances[x-1][y];
-	v.x -= invalid(x+1, y) ? MAX16 : distances[x+1][y];
-	v.y += invalid(x, y-1) ? MAX16 : distances[x][y-1];
-	v.y -= invalid(x, y+1) ? MAX16 : distances[x][y+1];
+	auto [x, y] = tile;
+	v.x += distance({x-1, y});
+	v.x -= distance({x+1, y});
+	v.y += distance({x, y-1});
+	v.y -= distance({x, y+1});
 	if(v.x || v.y) v /= hypotf(v.x, v.y);
 	return v;
 }
 
-void FlowField::calculate(i32 x, i32 y, i32 w, i32 h) {
-	x /= SCALE, y /= SCALE, w /= SCALE, h /= SCALE;
-	distances[0].fill(MAX16);
-	distances.fill(distances[0]);
-
-	std::multimap<f32, std::pair<i32, i32>> queue;
-	for(i32 i = x; i < x+w; i += 1)
-		for(i32 j = y; j < y+w; j += 1)
-			queue.insert({0, {i, j}});
-	while(!queue.empty()) {
-		auto it = queue.begin();
-		auto [d, p] = *it;
-		queue.erase(it);
-		auto [x, y] = p;
-
-		if(invalid(x, y) || coll[x][y]) continue;
-		bool worse = distances[x][y] != -1 && d >= distances[x][y];
-		bool tooFar = d > 20;
-		if(worse || tooFar) continue;
-
-		distances[x][y] = d;
-		if(!invalid(x-1, y)) queue.insert({d+1, {x-1, y}});
-		if(!invalid(x, y-1)) queue.insert({d+1, {x, y-1}});
-		if(!invalid(x+1, y)) queue.insert({d+1, {x+1, y}});
-		if(!invalid(x, y+1)) queue.insert({d+1, {x, y+1}});
+template <>
+void FlowField::addEnemy<f32>(sf::Vector2f pos, sf::Vector2f size) {
+	pos /= (f32)SCALE, size /= (f32)SCALE;
+	auto [v, w] = bounds(pos, pos+size);
+	for(i32 i = v.x; i < w.x; i += 1) {
+		for(i32 j = v.y; j < w.y; j += 1) {
+			if(coll[i][j]) continue;
+			if(enemies[i][j] == 0) enemyPositions.push_back({i, j});
+			enemies[i][j] += 1;
+			enemyCount += 1;
+		}
 	}
-	for(i32 i = 0; i < FFieldM; i += 1)
-		for(i32 j = 0; j < FFieldN; j += 1)
-			if(!invalid(i, j)) vectors[i][j] = direction(i, j);
 }
 
-sf::Vector2f FlowField::query(i32 x, i32 y, i32 w, i32 h) const {
-	x /= SCALE, y /= SCALE, w /= SCALE, h /= SCALE;
+template <>
+void FlowField::calculate<f32>(sf::Vector2f pos, sf::Vector2f size) {
+	static std::vector<sf::Vector2i> now, next;
+	now.clear(), next.clear();
+
+	pos /= (f32)SCALE, size /= (f32)SCALE;
+	auto [v, w] = bounds(pos, pos + size);
+	for(i32 i = v.x; i < w.x; i += 1)
+		for(i32 j = v.y; j < w.y; j += 1)
+			now.push_back({ i, j });
+
+	i32 d = 0;
+	currentVersion += 1;
+	while(!now.empty() && enemyCount > 0) {
+		for(auto& p: now) {
+			if(invalid(p) || coll[p] || distance(p) <= d) continue;
+			distances[p] = d;
+			version[p] = currentVersion;
+			enemyCount -= enemies[p], enemies[p] = 0;
+			for(auto q: {
+				sf::Vector2i(p.x, p.y-1),
+				sf::Vector2i(p.x, p.y+1),
+				sf::Vector2i(p.x-1, p.y),
+				sf::Vector2i(p.x+1, p.y)
+			}) next.push_back(q);
+		}
+		d += 1;
+		now.clear();
+		swap(now, next);
+	}
+	for(auto& p: enemyPositions) enemies[p] = 0;
+	enemyPositions.clear();
+	enemyCount = 0;
+}
+
+template <>
+sf::Vector2f FlowField::query<f32>(sf::Vector2f pos, sf::Vector2f size) const {
+	pos /= (f32)SCALE, size /= (f32)SCALE;
 	sf::Vector2f v;
-	for(i32 i = x; i < x+w; i += 1)
-		for(i32 j = y; j < y+h; j += 1)
-			v += vectors[i][j];
+	for(i32 i = pos.x; i < pos.x + size.x; i += 1)
+		for(i32 j = pos.y; j < pos.y + size.y; j += 1)
+			v += direction({i, j});
 	if(v.x || v.y) v /= hypotf(v.x, v.y);
 	return v;
+}
+template <>
+sf::Vector2f FlowField::query<i32>(sf::Vector2i pos, sf::Vector2i size) const {
+	return query(sf::Vector2f(pos.x, pos.y), sf::Vector2f(size.x, size.y));
 }
 
 void FlowField::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	auto v = target.getView();
 	auto s = v.getSize();
 	auto p = v.getCenter() - s * 0.5f;
-	i32 x = p.x / SCALE, y = p.y / SCALE, w = s.x / SCALE, h = s.y / SCALE;
-	for(i32 i = x; i < x+w; i += 1) {
-		for(i32 j = y; j < y+h; j += 1) {
-			if(invalid(i, j)) continue;
+	p /= (f32)SCALE, s /= (f32)SCALE;
+	auto [a, b] = bounds(p, p+s);
+	for(i32 i = a.x; i <= b.x; i += 1) {
+		for(i32 j = a.y; j <= b.y; j += 1) {
 			sf::Text text;
 			text.setFont(Assets::font);
-			text.setString(std::to_string(distances[i][j]));
+			text.setString(std::to_string(distance({i, j})));
 			text.setPosition(i*SCALE, j*SCALE);
 			text.setScale(0.2, 0.2);
 			target.draw(text, states);
