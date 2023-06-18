@@ -45,7 +45,7 @@ const std::array<T, S>& Array2<T, S>::operator[](I index) const {
 FlowField::FlowField(): coll(false), version(0), currentVersion(0), distances(INF), enemies(0), enemyCount(0) {}
 
 std::array<sf::Vector2i, 2> bounds(sf::Vector2f a, sf::Vector2f b) {
-	sf::Vector2i v(a.x, a.y), w(b.x, b.y);
+	sf::Vector2i v(a.x, a.y), w(ceil(b.x), ceil(b.y));
 	v.x = std::clamp(v.x, 0, FieldSize);
 	v.y = std::clamp(v.y, 0, FieldSize);
 	w.x = std::clamp(w.x, 0, FieldSize);

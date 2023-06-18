@@ -112,6 +112,8 @@ TileLayer::TileLayer(const tmx::TileLayer& layer, const tmx::Map& map, const std
 	inner(layer),
 	tilesets(tilesets)
 {
+	for(auto& prop: inner.getProperties())
+		if(prop.getName() == "z") z = prop.getIntValue();
 	auto& tiles = inner.getTiles();
 	auto& size = inner.getSize();
 	for(u32 i = 0; i < tiles.size(); i += 1) {
@@ -179,21 +181,35 @@ TileMap::TileMap(tmx::Map&& map): inner(std::move(map)) {
 			case tmx::Layer::Type::Tile:
 				layers.emplace_back(layer->getLayerAs<tmx::TileLayer>(), inner, tilesets);
 				break;
+			case tmx::Layer::Type::Object:
+				appendObjects(layer->getLayerAs<tmx::ObjectGroup>().getObjects());
+				break;
 			// TODO
 			case tmx::Layer::Type::Group:
 				break;
 			case tmx::Layer::Type::Image:
 				break;
-			case tmx::Layer::Type::Object:
-				break;
 		}
 	}
 }
 
-std::vector<const TileCollision*> TileMap::collisions() const {
-	std::vector<const TileCollision*> v;
-	for(const TileLayer& l: layers)
-		for(auto& c: l.getCollisions()) v.push_back(&c);
+void TileMap::appendObjects(const std::vector<tmx::Object>& objs) {
+	objects.insert(objects.end(), objs.begin(), objs.end());
+}
+
+std::vector<tmx::FloatRect> TileMap::collisions() const {
+	std::vector<tmx::FloatRect> v;
+	for(const TileLayer& l: layers) {
+		for(auto& c: l.getCollisions()) {
+			for(auto& o: c.objects) {
+				auto& r = v.emplace_back(o.getAABB());
+				r.left += c.origin.x;
+				r.top += c.origin.y;
+			}
+		}
+	}
+	for(const tmx::Object& o: objects)
+		v.push_back(o.getAABB()), std::cerr << o.getAABB().width << std::endl;
 	return v;
 }
 
@@ -202,6 +218,6 @@ void TileMap::update(sf::Time time) {
 }
 
 void TileMap::render(ZRenderer& renderer) const {
-	for(u32 i = 0; i < layers.size(); i += 1)
-		renderer.insert(i, std::cref(layers[i]));
+	for(const auto& l: layers)
+		renderer.insert(l.getZ(), std::cref(l));
 }

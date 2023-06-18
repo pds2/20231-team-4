@@ -11,7 +11,7 @@
 
 tmx::Map loadMap() {
 	tmx::Map map;
-	map.load("assets/forest.tmx");
+	map.load("assets/cave.tmx");
 	return map;
 }
 Game::Game(Context& ctx):
@@ -23,7 +23,7 @@ Game::Game(Context& ctx):
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 	testPlayer.setSize({ 32, 64 });
-	for(auto& c: map.collisions()) ff.addObstacle(c->origin, {32, 32});
+	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 }
 
