@@ -26,7 +26,7 @@ test: debug
 	@$(call submake,O0 g,tests,target/test,tester,$(wildcard target/debug/*.o))
 	target/test/tester
 flamegraph: debug
-	perf record -g -o target/perf.data target/debug/main
+	perf record -g -o target/perf.data -F997 --call-graph=dwarf,16000 target/debug/main
 	flamegraph --perfdata target/perf.data -o target/flamegraph.svg
 debug:
 	@$(call submake,O0 g,src,target/debug,main)

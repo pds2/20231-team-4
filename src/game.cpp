@@ -84,7 +84,7 @@ void Game::render() {
 
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
-	ctx.window.draw(ff);
+	// ctx.window.draw(ff);
 
 	ctx.window.setView(camera);
 	auto mp = sf::Mouse::getPosition(ctx.window);
