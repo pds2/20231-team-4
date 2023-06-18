@@ -73,10 +73,18 @@ Todo **inimigo** terá as seguintes propriedades:
 - Espaço - atira projeteis;
 - Ponteiro do mouse - ajusta a direção dos projeteis.
 
+## Dependências
+O SFML precisa de `xorg`, `udev`, `openal`, `vorbis` e `flac` para compilar.
+```sh
+sudo apt update
+sudo apt install xorg-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev
+```
+Então as dependências podem ser compiladas com:
+```sh
+./configure
+```
 
 ## Compilando
-O Makefile está configurado para baixar e compilar as dependências, isso só acontecerá uma vez.
-
 Para rodar testes:
 ```sh
 make test

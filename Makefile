@@ -7,7 +7,7 @@ LDIR = deps/lib /usr/lib /usr/local/lib
 
 ifneq (,$(SDIR))
 	SRCS = $(shell find "$(SDIR)" -type f -name "*.cpp" | xargs grep -L "int main")
-	FLAG += std=c++20
+	FLAG += std=c++2a
 	OBJS += $(SRCS:$(SDIR)/%.cpp=$(ODIR)/%.o)
 	DEPS = $(OBJS:%.o=%.d)
 	LINK = -Wl,-rpath='$$ORIGIN/lib'
