@@ -3,12 +3,12 @@
  <image source="Outside Objects.png" width="1024" height="1024"/>
  <tile id="481">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="7.84314" y="21.0526" width="18.2951" height="7.2322"/>
+   <object id="2" x="0" y="0" width="32" height="32"/>
   </objectgroup>
  </tile>
  <tile id="484">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="7.76058" y="19.8142" width="18.0805" height="8.83385"/>
+   <object id="2" x="0" y="0" width="32" height="32"/>
   </objectgroup>
  </tile>
  <tile id="487">

@@ -11,7 +11,7 @@
 
 tmx::Map loadMap() {
 	tmx::Map map;
-	map.load("assets/cave.tmx");
+	map.load("assets/isle.tmx");
 	return map;
 }
 Game::Game(Context& ctx):
@@ -84,7 +84,8 @@ void Game::render() {
 
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
-	// ctx.window.draw(ff);
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+		ctx.window.draw(ff);
 
 	ctx.window.setView(camera);
 	auto mp = sf::Mouse::getPosition(ctx.window);

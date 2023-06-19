@@ -187,9 +187,9 @@
 1216,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1370,1215
 </data>
  </layer>
- <objectgroup id="10" name="collide">
-  <object id="1" x="-2" y="33" width="22" height="897"/>
-  <object id="2" x="23" y="937" width="933" height="27"/>
+ <objectgroup id="10" name="collisions">
+  <object id="1" x="-2" y="10.6667" width="22" height="937.697"/>
+  <object id="2" x="2.09091" y="937" width="953.909" height="27"/>
   <object id="3" x="940" y="16" width="19" height="936"/>
   <object id="4" x="544.5" y="288.5" width="13.5" height="35"/>
  </objectgroup>

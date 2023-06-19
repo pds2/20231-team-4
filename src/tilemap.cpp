@@ -178,12 +178,17 @@ TileMap::TileMap(tmx::Map&& map): inner(std::move(map)) {
 	tmx::Vector2u tileSize = inner.getTileSize();
 	for(auto& layer: inner.getLayers()) {
 		switch(layer->getType()) {
-			case tmx::Layer::Type::Tile:
+			case tmx::Layer::Type::Tile: {
 				layers.emplace_back(layer->getLayerAs<tmx::TileLayer>(), inner, tilesets);
 				break;
-			case tmx::Layer::Type::Object:
-				appendObjects(layer->getLayerAs<tmx::ObjectGroup>().getObjects());
+			}
+			case tmx::Layer::Type::Object: {
+				if(layer->getName() == "collisions") {
+					auto objs = layer->getLayerAs<tmx::ObjectGroup>().getObjects();
+					objects.insert(objects.end(), objs.begin(), objs.end());
+				}
 				break;
+			}
 			// TODO
 			case tmx::Layer::Type::Group:
 				break;
@@ -191,10 +196,6 @@ TileMap::TileMap(tmx::Map&& map): inner(std::move(map)) {
 				break;
 		}
 	}
-}
-
-void TileMap::appendObjects(const std::vector<tmx::Object>& objs) {
-	objects.insert(objects.end(), objs.begin(), objs.end());
 }
 
 std::vector<tmx::FloatRect> TileMap::collisions() const {
@@ -209,7 +210,7 @@ std::vector<tmx::FloatRect> TileMap::collisions() const {
 		}
 	}
 	for(const tmx::Object& o: objects)
-		v.push_back(o.getAABB()), std::cerr << o.getAABB().width << std::endl;
+		v.push_back(o.getAABB());
 	return v;
 }
 
