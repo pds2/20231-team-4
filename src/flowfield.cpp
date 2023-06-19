@@ -42,7 +42,33 @@ const std::array<T, S>& Array2<T, S>::operator[](I index) const {
 	return this->at(index);
 }
 
-FlowField::FlowField(): coll(false), version(0), currentVersion(0), distances(INF), enemies(0), enemyCount(0) {}
+template <typename T, size_t S>
+VArray2<T, S>::VArray2(const T& initial): versions(0), version(0), inner(initial), def(initial) {}
+
+template <typename T, size_t S>
+void VArray2<T, S>::fill(const T& initial) {
+	def = initial;
+	version += 1;
+}
+
+template <typename T, size_t S>
+template <typename I>
+T& VArray2<T, S>::operator[](sf::Vector2<I> pos) {
+	if(versions[pos] != version) {
+		versions[pos] = version;
+		return inner[pos] = def;
+	}
+	return inner[pos];
+}
+
+
+template <typename T, size_t S>
+template <typename I>
+const T& VArray2<T, S>::operator[](sf::Vector2<I> pos) const {
+	return versions[pos] == version ? inner[pos] : def;
+}
+
+FlowField::FlowField(): coll(false), distances(INF), enemies(0), enemyCount(0) {}
 
 std::array<sf::Vector2i, 2> bounds(sf::Vector2f a, sf::Vector2f b) {
 	sf::Vector2i v(a.x, a.y), w(ceil(b.x), ceil(b.y));
@@ -71,18 +97,13 @@ constexpr bool invalid(const sf::Vector2i& pos) {
 	return x < 0 || y < 0 || x >= FieldSize || y >= FieldSize;
 }
 
-i16 FlowField::distance(sf::Vector2i tile) const {
-	if(invalid(tile) || version[tile] != currentVersion) return INF;
-	return distances[tile];
-}
-
 sf::Vector2f FlowField::direction(sf::Vector2i tile) const {
 	sf::Vector2f v;
 	auto [x, y] = tile;
-	v.x += distance({x-1, y});
-	v.x -= distance({x+1, y});
-	v.y += distance({x, y-1});
-	v.y -= distance({x, y+1});
+	v.x += distances[sf::Vector2u(x-1, y)];
+	v.x -= distances[sf::Vector2u(x+1, y)];
+	v.y += distances[sf::Vector2u(x, y-1)];
+	v.y -= distances[sf::Vector2u(x, y+1)];
 	if(v.x || v.y) v /= hypotf(v.x, v.y);
 	return v;
 }
@@ -91,14 +112,9 @@ template <>
 void FlowField::addEnemy<f32>(sf::Vector2f pos, sf::Vector2f size) {
 	pos /= (f32)SCALE, size /= (f32)SCALE;
 	auto [v, w] = bounds(pos, pos+size);
-	for(i32 i = v.x; i < w.x; i += 1) {
-		for(i32 j = v.y; j < w.y; j += 1) {
-			if(coll[i][j]) continue;
-			if(enemies[i][j] == 0) enemyPositions.push_back({i, j});
-			enemies[i][j] += 1;
-			enemyCount += 1;
-		}
-	}
+	for(i32 i = v.x; i < w.x; i += 1)
+		for(i32 j = v.y; j < w.y; j += 1)
+			if(!coll[i][j]) enemies[sf::Vector2u(i,j)] += 1, enemyCount += 1;
 }
 
 template <>
@@ -113,12 +129,11 @@ void FlowField::calculate<f32>(sf::Vector2f pos, sf::Vector2f size) {
 			now.push_back({ i, j });
 
 	i32 d = 0;
-	currentVersion += 1;
+	distances.fill(INF);
 	while(!now.empty() && enemyCount > 0) {
 		for(auto& p: now) {
-			if(invalid(p) || coll[p] || distance(p) <= d) continue;
+			if(invalid(p) || coll[p] || distances[p] <= d) continue;
 			distances[p] = d;
-			version[p] = currentVersion;
 			enemyCount -= enemies[p], enemies[p] = 0;
 			for(auto q: {
 				sf::Vector2i(p.x, p.y-1),
@@ -131,8 +146,7 @@ void FlowField::calculate<f32>(sf::Vector2f pos, sf::Vector2f size) {
 		now.clear();
 		swap(now, next);
 	}
-	for(auto& p: enemyPositions) enemies[p] = 0;
-	enemyPositions.clear();
+	enemies.fill(0);
 	enemyCount = 0;
 }
 
@@ -161,7 +175,7 @@ void FlowField::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 		for(i32 j = a.y; j <= b.y; j += 1) {
 			sf::Text text;
 			text.setFont(Assets::font);
-			text.setString(std::to_string(distance({i, j})));
+			text.setString(std::to_string(distances[sf::Vector2u(i, j)]));
 			text.setPosition(i*SCALE, j*SCALE);
 			text.setScale(0.2, 0.2);
 			target.draw(text, states);

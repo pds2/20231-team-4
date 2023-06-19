@@ -97,7 +97,6 @@ class TileMap {
 	std::vector<tmx::Object> objects;
 	std::map<u32, TileSet> tilesets;
 	void draw(sf::RenderTarget& rt, sf::RenderStates states) const;
-	void appendObjects(const std::vector<tmx::Object>& objects);
 
 	public:
 	/// Atualiza animações
