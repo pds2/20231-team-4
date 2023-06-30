@@ -105,8 +105,8 @@ class TileMap {
 	void render(ZRenderer& renderer) const;
 	/// Lista as colisões do mapa
 	std::vector<tmx::FloatRect> collisions() const;
-	/// Cria um novo tilemap a partir do tipo interior do tmxlite
-	TileMap(tmx::Map&& map);
+	/// Cria um novo tilemap a partir do caminho de um arquivo
+	TileMap(std::string location);
 };
 
 #endif

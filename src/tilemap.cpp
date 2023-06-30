@@ -1,6 +1,7 @@
 #include <iostream>
 #include "assets.hpp"
 #include "tilemap.hpp"
+#include "error.hpp"
 
 struct VertexPool: sf::Drawable {
 	static std::map<const sf::Texture*, sf::VertexArray> map;
@@ -19,7 +20,8 @@ TileSet::TileSet(const tmx::Tileset& inner):
 	inner(inner)
 {
 	sf::Image img;
-	img.loadFromFile(inner.getImagePath());
+	if(!img.loadFromFile(inner.getImagePath()))
+		throw ImageLoadError();
 
 	if(inner.hasTransparency()) {
 		tmx::Colour transparency = inner.getTransparencyColour();
@@ -167,7 +169,9 @@ void TileLayer::update(sf::Time time) {
 	}
 }
 
-TileMap::TileMap(tmx::Map&& map): inner(std::move(map)) {
+TileMap::TileMap(std::string location) {
+	if(!inner.load(location))
+		throw MapLoadError();
 	if(inner.getOrientation() != tmx::Orientation::Orthogonal)
 		throw std::string("Not orthogonal");
 

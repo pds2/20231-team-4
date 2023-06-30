@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include "types.hpp"
+#include "assets.hpp"
 
 /// Guarda dados globais, como a janela de jogo
 struct Context {

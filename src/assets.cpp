@@ -1,8 +1,9 @@
 #include "assets.hpp"
+#include "error.hpp"
 
-sf::Font loadFont() {
-	sf::Font font;
-	font.loadFromFile("assets/Dosis-Light.ttf");
-	return font;
+void Assets::init() {
+	if(!font.loadFromFile("assets/Dosis-Light.ttf"))
+		throw FontLoadError();
 }
-sf::Font Assets::font = loadFont();
+
+sf::Font Assets::font;

@@ -9,14 +9,9 @@
 #include "menu.hpp"
 #include "assets.hpp"
 
-tmx::Map loadMap() {
-	tmx::Map map;
-	map.load("assets/isle.tmx");
-	return map;
-}
 Game::Game(Context& ctx):
 	State(ctx, 1),
-	map(loadMap()),
+	map("assets/isle.tmx"),
 	avgFrame(0)
 {
 	sf::Vector2u ws = ctx.window.getSize();

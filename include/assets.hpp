@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 namespace Assets {
+	void init();
 	extern sf::Font font;
 }
 
