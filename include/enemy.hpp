@@ -24,11 +24,10 @@ private:
     static constexpr const u32 _categoryBits = 0|ENEMY|DYNAMIC;
     static constexpr const u32 _maskBits = 0|STATIC|PLAYER|PROJECTILE|ENEMY;
 
-    b2Vec2 velocity;
-
 public:
     Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, std::string texture, const EnemyProperties &properties);
     void _move(sf::Vector2f& direction);
+    void _move(Player& player);
 
     EnemyProperties& get_properties() {return _eProperties;}
     
