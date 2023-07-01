@@ -135,14 +135,16 @@ void Game::tick() {
 	for(std::weak_ptr e: enemies_.enemies_) {
 		auto es = e.lock()->getSize_();
 		auto ep = e.lock()->getPosition_();
-		auto s = ff.query(ep, es);
+		auto s_ = ff.query(ep, es);
+		sf::Vector2f s;
+		if(s_.x || s_.y)
+			s = s_;
 		//s *= 64 * elapsed.asSeconds();
 		//e.setPosition(ep + s);
 		
-		if(s != sf::Vector2f(0,0)) {
-			e.lock()->_move(s);
-			updateMovement(*e.lock(), ctx.window);
-		}
+		
+		e.lock()->_move(s);
+		updateMovement(*e.lock(), ctx.window);
 	}
 
 	handleEnemies(enemies_.enemies_, ctx.window);
