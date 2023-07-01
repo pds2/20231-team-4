@@ -70,6 +70,9 @@ Collidable::Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyT
     double bodyPosition_y = _body->GetPosition().y*PPM;
     double rotation = -1*_body->GetAngle() * DEG_PER_RAD;
 
+    position_ = Vector2f(bodyPosition_x, bodyPosition_y);
+    size_ = Vector2f(bodySize_x, bodySize_y);
+
     if(!texture.empty()) {
 
         //Obtaining and setting texture path
@@ -126,6 +129,18 @@ Collidable::~Collidable() {
     delete _data;
 }
 
+void Collidable::setPosition_(sf::Vector2f& new_position, double rotation) {
+   
+    if(_sfml_shape != nullptr) {
+        _sfml_shape->setPosition(new_position);
+        _sfml_shape->setRotation(rotation);
+    }
+    else {
+        _sprite.setPosition(new_position);
+        _sprite.setRotation(rotation);
+    }
+    this->position_ = new_position;
+}
 
 /*
  * Collision handling

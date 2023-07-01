@@ -47,6 +47,14 @@ download_candle() {
 	mv "$dir/include"/* "$deps/include"
 	mv "$dir/build/lib"/* "$deps/lib"
 }
+download_tmxlite() {
+	dir=$(mktemp -d -p $temp) && cd $dir
+	git clone "https://github.com/mateusvmv/tmxlite" .
+	mkdir -p tmxlite/build && cd tmxlite/build
+	cmake .. && make -j$cores
+	mv "$dir/tmxlite/include"/* "$deps/include"
+	mv "$dir/tmxlite/build"/*.so "$deps/lib"
+}
 abort() {
 	echo "$@"
 	rm -rf "$temp"
@@ -57,6 +65,7 @@ download_sfml
 export CPLUS_INCLUDE_PATH="$deps/include:$CPLUS_INCLUDE_PATH"
 download_candle
 download_box2d
+download_tmxlite
 wget -O "$deps/include/doctest.h" "https://github.com/doctest/doctest/releases/download/v2.4.11/doctest.h"
 
 trap - EXIT

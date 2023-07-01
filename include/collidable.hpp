@@ -6,7 +6,7 @@
 #include <iostream>
 #include <box2d/box2d.h>
 #include <SFML/Graphics.hpp>
-#include "types.h"
+#include "types.hpp"
 
 const u32 PPM = 64;
 const f32 DEG_PER_RAD = 180.f/M_PI;
@@ -76,7 +76,11 @@ public:
 
     CollisionData* getCollisionData() {return _data;}
 
+    sf::Vector2f& getPosition_() {return position_;}
+    sf::Vector2f& getSize_() {return size_;}
 
+    void setPosition_(sf::Vector2f& new_position, double rotation = 0);
+ 
     ~Collidable();
 protected:
     //Physical properties
@@ -88,6 +92,9 @@ protected:
     sf::Sprite _sprite;
     sf::Texture _startingTexture;
     sf::Shape *_sfml_shape; 
+
+    sf::Vector2f position_;
+    sf::Vector2f size_;
 
     //Collision properties
     CollisionData *_data;

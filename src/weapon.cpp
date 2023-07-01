@@ -34,9 +34,9 @@ void Gun::fire(ProjectileType projectile, Player &player) {
                     player.get_sprite().getPosition().x,
                     player.get_sprite().getPosition().y,
                     player.get_world(),
-                    new Circle(5,1),
+                    new Circle(3,1),
                     "",
-                    Color::Red,
+                    Color::Blue,
                     (*this)._wProperties._damage,
                     1000
                 ));
@@ -48,7 +48,8 @@ void Gun::fire(ProjectileType projectile, Player &player) {
         } 
 
         //Set projectile tragectory
-        double rotation = player.get_sprite().getRotation()*static_cast<float>(M_PI)/180.f - static_cast<float>(M_PI)/2.f;
+        double rotation = player.get_sprite().getRotation() *   
+        static_cast<float>(M_PI)/180.f - static_cast<float>(M_PI)/2.f;
         double cosine = cos(rotation);
         double sine = sin(rotation);
         double norm = sqrt(pow(cosine, 2) + pow(sine, 2));

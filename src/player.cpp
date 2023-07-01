@@ -11,7 +11,7 @@ Player::Player(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body
      */
     switch(weaponType) {
         case WeaponType::GUN:
-            _weapon = new Gun(weaponProperties(10,10,0));
+            _weapon = new Gun(weaponProperties(5,5,10));
             break;
     }
 }
@@ -24,34 +24,39 @@ Player::~Player() {
 /*
  * Player movement configurations
  */
-void Player::_move(RenderWindow &window) {
+void Player::_move(RenderWindow &window, View& camera) {
     /*
      * Vertical and Horizontal movements
      */
-    if(Keyboard::isKeyPressed(Keyboard::W))
-        velocity.y = -_pProperties._agility;
-    else if(Keyboard::isKeyPressed(Keyboard::S))
-        velocity.y = _pProperties._agility;
+    
+    auto isPressed = sf::Keyboard::isKeyPressed;
+    using Key = sf::Keyboard::Key;
+    if(isPressed(Key::Up) || isPressed(Key::W))
+		velocity.y = -_pProperties._agility;
+	else if(isPressed(Key::Down) || isPressed(Key::S))
+		velocity.y = _pProperties._agility;
     else 
         velocity.y = 0;
-    if(Keyboard::isKeyPressed(Keyboard::A))
-        velocity.x = -_pProperties._agility;
-    else if(Keyboard::isKeyPressed(Keyboard::D))
-        velocity.x = _pProperties._agility;
-    else 
+	if(isPressed(Key::Left) || isPressed(Key::A))
+		velocity.x = -_pProperties._agility;
+	else if(isPressed(Key::Right) || isPressed(Key::D))
+		velocity.x = _pProperties._agility;
+    else
         velocity.x = 0;
-    _body->SetLinearVelocity(velocity);
+	
 
+    _body->SetLinearVelocity(velocity);
+    
     /*
      * Rotate player according to mouse position
      */
+    window.setView(camera);
     Vector2f playerPosition = _sprite.getPosition();
-    Vector2i mousePosition = Mouse::getPosition(window);
+    Vector2i mp = Mouse::getPosition(window);
+    Vector2f mousePosition = window.mapPixelToCoords(mp);
     Vector2f targetVector = Vector2f(mousePosition.x, mousePosition.y) - playerPosition;
-    
     long double angleRadians = atan2(targetVector.x, -targetVector.y);
     _body->SetTransform(_body->GetPosition(), -angleRadians);
-    this->get_sprite().setRotation(angleRadians*DEG_PER_RAD);
 }
 
 /*
@@ -65,3 +70,6 @@ void Player::_attack() {
         _weapon->fire(ProjectileType::NORMAL, *this);
 }
 
+void Player::operator=(Player&& player) {
+    
+}

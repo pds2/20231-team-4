@@ -22,7 +22,7 @@ O jogo será desenvolvido na linguagem c++ com as bibliotecas SFML e Box2D. Tere
 Ao iniciar o programa, o usuário deverá ter uma escolha entre criar um novo jogo ou, se houver, continuar de onde salvou anteriormente. 
 
 Após isso o usuário será direcionado a uma tela de opções, onde o usuário poderá escolher um personagem. Cada personagem terá propriedades e aparências únicas.
-n
+
 Então o usuário será direcionado a outra tela de opções, onde o usuário poderá escolher uma arma. Cada arma terá uma habilidade única.
 
 Por fim o usuário será direcionado a tela onde a primeira fase do jogo ocorre.
@@ -73,10 +73,18 @@ Todo **inimigo** terá as seguintes propriedades:
 - Espaço - atira projeteis;
 - Ponteiro do mouse - ajusta a direção dos projeteis.
 
+## Dependências
+O SFML precisa de `xorg`, `udev`, `openal`, `vorbis` e `flac` para compilar.
+```sh
+sudo apt update
+sudo apt install xorg-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev
+```
+Então as dependências podem ser compiladas com:
+```sh
+./configure
+```
 
 ## Compilando
-O Makefile está configurado para baixar e compilar as dependências, isso só acontecerá uma vez.
-
 Para rodar testes:
 ```sh
 make test
@@ -89,6 +97,6 @@ make release && target/release/main
 
 ## Documentação
 A documentação estará disponível na pasta `target/docs/html`, com a página principal em `index.html`.
-````sh
+```sh
 make docs
 ```

@@ -4,7 +4,7 @@
 #include <string>
 #include "collidable.hpp"
 #include "player.hpp"
-#include "types.h"
+#include "types.hpp"
 
 struct EnemyProperties {
     double _health;
@@ -28,10 +28,15 @@ private:
 
 public:
     Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, std::string texture, const EnemyProperties &properties);
-    void _move(Player& player);
+    void _move(sf::Vector2f& direction);
 
     EnemyProperties& get_properties() {return _eProperties;}
     
 protected:
     EnemyProperties _eProperties;
+};
+
+struct Enemies {
+    std::vector<std::shared_ptr<Enemy>> enemies_;
+    int spawn_delay {0};
 };

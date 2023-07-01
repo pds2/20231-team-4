@@ -21,16 +21,20 @@ private:
     static constexpr const u32 _categoryBits = 0|PLAYER|DYNAMIC;
     static constexpr const u32 _maskBits = 0|STATIC|PLAYER|ENEMY;
 
+public:
     b2Vec2 velocity;
 
-public:
     Player(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, std::string texture, PlayerProperties &&properties, WeaponType weaponType);
 
     Weapon* get_weapon() {return _weapon;}
 
 
-    void _move(sf::RenderWindow &window);
+    void _move(sf::RenderWindow &window, sf::View& camera);
     void _attack();
+
+    PlayerProperties& get_properties() {return _pProperties;}
+
+    void operator=(Player&& player);
 
     ~Player();
 protected:

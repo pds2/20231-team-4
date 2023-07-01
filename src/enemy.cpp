@@ -12,16 +12,13 @@ Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_t
         _data->damage_do = this->get_properties()._damage;
     }
 
-void Enemy::_move(Player& player) {
-    Vector2f thisPosition = _sprite.getPosition();
-    Vector2f otherPosition = player.get_sprite().getPosition();
+void Enemy::_move(Vector2f& flow_direction) {
 
-    Vector2f tangentVector = thisPosition - otherPosition;
-    double norm = sqrt(pow(tangentVector.x, 2) + pow(tangentVector.y, 2));
-    double angleRadians = atan2(tangentVector.x, -tangentVector.y);
+    double angleRadians = atan2(flow_direction.x, -flow_direction.y);
     
-    b2Vec2 velocityVector = b2Vec2((tangentVector.x*_eProperties._agility)/norm, (tangentVector.y*_eProperties._agility)/norm);
+    b2Vec2 velocityVector = b2Vec2(flow_direction.x*_eProperties._agility, flow_direction.y*_eProperties._agility);
 
-    _body->SetLinearVelocity(-velocityVector);
+    _body->SetLinearVelocity(velocityVector);
     _body->SetTransform(_body->GetPosition(), -angleRadians);
+    
 }
