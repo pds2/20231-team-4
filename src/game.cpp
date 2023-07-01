@@ -61,7 +61,7 @@ void handleEnemies(std::vector<std::shared_ptr<Enemy>>& enemies, sf::RenderWindo
 
 Game::Game(Context& ctx):
 	State(ctx, 1),
-	map("assets/forest.tmx"),
+	map("assets/cave.tmx"),
 	avgFrame(0)
 {
 	sf::Vector2u ws = ctx.window.getSize();
@@ -75,8 +75,6 @@ Game::Game(Context& ctx):
 									  "frog.png",
 									  PlayerProperties(100, 10, 3),
 									  WeaponType::GUN);
-	//testPlayer.setSize({ 32, 64 });
-	
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
@@ -95,20 +93,6 @@ void Game::tick() {
 
 	player_->_move(ctx.window, camera);
 	player_->_attack();
-	/*
-	sf::Vector2f speed;
-	auto isPressed = sf::Keyboard::isKeyPressed;
-	using Key = sf::Keyboard::Key;
-	if(isPressed(Key::Up) || isPressed(Key::W))
-		speed.y -= 1;
-	if(isPressed(Key::Down) || isPressed(Key::S))
-		speed.y += 1;
-	if(isPressed(Key::Left) || isPressed(Key::A))
-		speed.x -= 1;
-	if(isPressed(Key::Right) || isPressed(Key::D))
-		speed.x += 1;
-	if(speed.x || speed.y) speed *= 128 * elapsed.asSeconds() / hypotf(speed.x, speed.y);
-	*/
 	updateMovement(*player_, ctx.window);
 	handleAttack(player_->get_weapon()->get_cartridge(), ctx.window);
 	
@@ -141,8 +125,6 @@ void Game::tick() {
 			e.lock()->_move(s);
 		else
 			e.lock()->_move(*player_);
-		//s *= 64 * elapsed.asSeconds();
-		//e.setPosition(ep + s);
 		
 		updateMovement(*e.lock(), ctx.window);
 	}
@@ -160,9 +142,7 @@ void Game::render() {
 	for(std::weak_ptr projectile: player_->get_weapon()->get_cartridge()) 	
 		renderer.insert(0, *projectile.lock()->get_sfml_shape());
 
-	//renderer.insert(0, testPlayer);
 	renderer.insert(0, player_->get_sprite());
-
 
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
@@ -199,13 +179,7 @@ void Game::handleEvent(sf::Event event) {
 		ctx.window.setView(camera);
 		auto mp = sf::Mouse::getPosition(ctx.window);
 		auto pos = ctx.window.mapPixelToCoords(mp);
-		
-		/*
-		sf::RectangleShape rect;
-		rect.setPosition(pos);
-		rect.setSize({32, 32});
-		testEnemies.push_back(rect);
-		*/
+
 		enemies_.enemies_.push_back(std::make_shared<Enemy>(
 									pos.x, pos.y, 
 									&ctx.world, 

@@ -14,12 +14,12 @@ Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_t
 
 void Enemy::_move(sf::Vector2f& direction) {
 
-    double angleRadians = atan2(direction.x, -direction.y);
+    double angleRadians = atan2(direction.x, direction.y);
     
     b2Vec2 velocityVector = b2Vec2(direction.x*_eProperties._agility, direction.y*_eProperties._agility);
 
     _body->SetLinearVelocity(velocityVector);
-    _body->SetTransform(_body->GetPosition(), -angleRadians);
+    _body->SetTransform(_body->GetPosition(), angleRadians);
     
 }
 
