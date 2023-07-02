@@ -3,11 +3,20 @@
 using namespace std;
 using namespace sf;
 
-Projectile::Projectile(float x, float y, b2World* world, Shapeb2* shape, string texture, Color color, float damage, float range)
-    : Collidable(x, y, world, shape, b2_dynamicBody, texture, color, _categoryBits, _maskBits), _damage(damage), _range(range), _starting_position(Vector2f(x, y)) {
-        _body->SetBullet(true);
-        _data->damage_do = _damage;
+void Projectile::default_config() {
+    _body->SetBullet(true);
+    _data->damage_do = _damage;
 }
+
+Projectile::Projectile(float x, float y, b2World* world, Shapeb2* shape, string texture, float damage, float range)
+    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _damage(damage), _range(range), _starting_position(Vector2f(x, y)) {
+    default_config();
+}
+Projectile::Projectile(float x, float y, b2World* world, Shapeb2* shape, Color color, float damage, float range)
+    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _damage(damage), _range(range), _starting_position(Vector2f(x, y)) {
+    default_config();
+}
+
 
 double Projectile::_distance() {
     b2Vec2 pos = this->get_body()->GetPosition();
@@ -20,7 +29,9 @@ double Projectile::_distance() {
 }
 
 
-NormalProj::NormalProj(float x, float y, b2World* world, Shapeb2* shape, string texture, Color color, float damage, float range)
-    : Projectile(x, y, world, shape, texture, color, damage, range) {}
+NormalProj::NormalProj(float x, float y, b2World* world, Shapeb2* shape, string texture, float damage, float range)
+    : Projectile(x, y, world, shape, texture, damage, range) {}
+NormalProj::NormalProj(float x, float y, b2World* world, Shapeb2* shape, Color color, float damage, float range)
+    : Projectile(x, y, world, shape, color, damage, range) {}
 
 

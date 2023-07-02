@@ -24,18 +24,17 @@ Gun::Gun(const weaponProperties &properties)
  */
 void Gun::fire(ProjectileType projectile, Player &player) {
     if(counter >= (*this)._wProperties._fire_rate) {
-        float position_x = player.get_sprite().getPosition().x;
-        float position_y = player.get_sprite().getPosition().y;
+        float position_x = player.getPosition_().x;
+        float position_y = player.getPosition_().y;
 
         switch(projectile) { 
             
             case ProjectileType::NORMAL:
                 cartridge.push_back(make_shared<NormalProj>(
-                    player.get_sprite().getPosition().x,
-                    player.get_sprite().getPosition().y,
+                    player.getPosition_().x,
+                    player.getPosition_().y,
                     player.get_world(),
                     new Circle(3,1),
-                    "",
                     Color::Blue,
                     (*this)._wProperties._damage,
                     1000
@@ -48,7 +47,7 @@ void Gun::fire(ProjectileType projectile, Player &player) {
         } 
 
         //Set projectile tragectory
-        double rotation = player.get_sprite().getRotation() *   
+        double rotation = player.getRotation_() *   
         static_cast<float>(M_PI)/180.f - static_cast<float>(M_PI)/2.f;
         double cosine = cos(rotation);
         double sine = sin(rotation);

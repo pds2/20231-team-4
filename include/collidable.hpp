@@ -35,51 +35,53 @@ struct Shapeb2 {
     b2BodyDef _BodyDef;
     b2FixtureDef _FixtureDef;
     double density;
+    double height;
+    double width;
 
-    Shapeb2(double d): density(d) {}
+    Shapeb2(double w, double h, double d): width(w), height(h), density(d) {}
     virtual b2Shape* getB2Shape() {return nullptr;}
 };
 
 struct Box: public Shapeb2 {
     b2PolygonShape box_Shape;
-    double width;
-    double height;
 
-    Box(double w=0, double h=0, double d=0) : width(w), height(h), Shapeb2(d) {}
+    Box(double w=0, double h=0, double d=0) : Shapeb2(w, h, d) {}
     virtual b2Shape* getB2Shape() override {return &box_Shape;}
 };
 
 struct Circle: public Shapeb2 {
     b2CircleShape circle_Shape;
-    double radius;
 
-    Circle(double r=0, double d=0) : radius(r), Shapeb2(d) {}
+    Circle(double r=0, double d=0) : Shapeb2(r, r, d) {}
     virtual b2Shape* getB2Shape() override {return &circle_Shape;}
 };
 
-
-/*
- * Collidable class
- */
 
 class Collidable {
 public:
 
     using enum CollidableType;
-    Collidable(float x=0, float y=0, b2World *world=nullptr, Shapeb2* shape=nullptr, b2BodyType body_type=b2_staticBody, std::string texture="", sf::Color color = sf::Color::Black, u32 categoryBits = 0|STATIC, u32 maskBits = 0|DYNAMIC|STATIC);
+    Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, u32 categoryBits, u32 maskBits);
+    Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, std::string texture, u32 categoryBits, u32 maskBits);
+    Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, sf::Color color, u32 categoryBits, u32 maskBits);
 
     b2Body* get_body() {return _body;}
     b2World* get_world() {return _world;}
 
-    sf::Shape* get_sfml_shape() {return _sfml_shape;}
-    sf::Sprite& get_sprite() {return _sprite;}
+    sf::Drawable& get_drawable() {
+        if(_sfml_shape != nullptr)
+            return *_sfml_shape;
+        else    
+            return _sprite;
+    }
 
     CollisionData* getCollisionData() {return _data;}
 
     sf::Vector2f& getPosition_() {return position_;}
     sf::Vector2f& getSize_() {return size_;}
+    double& getRotation_() {return rotation_;}
 
-    void setPosition_(sf::Vector2f& new_position, double rotation = 0);
+    void setPosition_(sf::Vector2f& new_position);
  
     ~Collidable();
 protected:
@@ -88,13 +90,16 @@ protected:
     b2Body *_body;
     Shapeb2 *_b2_shape;
 
-    //Graphic properties
-    sf::Sprite _sprite;
-    sf::Texture _startingTexture;
-    sf::Shape *_sfml_shape; 
-
     sf::Vector2f position_;
     sf::Vector2f size_;
+    double rotation_;
+
+    //Graphic properties
+    std::string _texture;
+    sf::Texture _defaultTexture;
+    sf::Sprite _sprite;
+
+    sf::Shape *_sfml_shape; 
 
     //Collision properties
     CollisionData *_data;

@@ -18,8 +18,11 @@ private:
     static constexpr const u32 _maskBits = 0|STATIC|ENEMY;
 
     sf::Vector2f _starting_position;
+
+    void default_config();
 public:
-    Projectile(float x, float y, b2World* world, Shapeb2* shape, std::string texture, sf::Color color, float damage, float range);
+    Projectile(float x, float y, b2World* world, Shapeb2* shape, std::string texture, float damage, float range);
+    Projectile(float x, float y, b2World* world, Shapeb2* shape, sf::Color texture, float damage, float range);
 
     b2Vec2& get_velocity() {return _velocity;}
     float get_damage() {return _damage;}
@@ -36,6 +39,7 @@ protected:
 
 class NormalProj: public Projectile {
 public:
-    NormalProj(float x, float y, b2World* world, Shapeb2* shape, std::string texture, sf::Color color, float damage, float range);
+    NormalProj(float x, float y, b2World* world, Shapeb2* shape, std::string texture, float damage, float range);
+    NormalProj(float x, float y, b2World* world, Shapeb2* shape, sf::Color texture, float damage, float range);
 
 };

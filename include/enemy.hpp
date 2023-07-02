@@ -24,8 +24,11 @@ private:
     static constexpr const u32 _categoryBits = 0|ENEMY|DYNAMIC;
     static constexpr const u32 _maskBits = 0|STATIC|PLAYER|PROJECTILE|ENEMY;
 
+    void default_config();
 public:
-    Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, std::string texture, const EnemyProperties &properties);
+    Enemy(float x, float y, b2World* world, Shapeb2* shape, std::string texture, EnemyProperties &&properties);
+    Enemy(float x, float y, b2World* world, Shapeb2* shape, sf::Color texture, EnemyProperties &&properties); 
+    
     void _move(sf::Vector2f& direction);
     void _move(Player& player);
 

@@ -7,10 +7,18 @@
 using namespace std;
 using namespace sf;
 
-Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, string texture, const EnemyProperties &properties) 
-    : Collidable(x, y, world, shape, body_type, texture, Color::Black, _categoryBits, _maskBits), _eProperties(properties) {
-        _data->damage_do = this->get_properties()._damage;
-    }
+void Enemy::default_config() {
+    _data->damage_do = this->get_properties()._damage;
+}
+
+Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, string texture, EnemyProperties &&properties) 
+    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _eProperties(properties) {
+    default_config();
+}
+Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, Color color, EnemyProperties &&properties) 
+    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _eProperties(properties) {
+    default_config();
+}
 
 void Enemy::_move(sf::Vector2f& direction) {
 
@@ -24,8 +32,8 @@ void Enemy::_move(sf::Vector2f& direction) {
 }
 
 void Enemy::_move(Player& player) {
-    Vector2f thisPosition = _sprite.getPosition();
-    Vector2f otherPosition = player.get_sprite().getPosition();
+    Vector2f thisPosition = this->getPosition_();
+    Vector2f otherPosition = player.getPosition_();
 
     Vector2f tangentVector = thisPosition - otherPosition;
     double norm = sqrt(pow(tangentVector.x, 2) + pow(tangentVector.y, 2));

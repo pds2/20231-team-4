@@ -13,9 +13,9 @@
 void updateMovement(Collidable &obj, sf::RenderWindow &window) {
 	sf::Vector2f new_position (obj.get_body()->GetPosition().x*PPM, 
 							   obj.get_body()->GetPosition().y*PPM);
-	double rotation = -1*obj.get_body()->GetAngle() * DEG_PER_RAD;
+	obj.getRotation_() = -1*obj.get_body()->GetAngle() * DEG_PER_RAD;
 
-	obj.setPosition_(new_position, rotation);
+	obj.setPosition_(new_position);
 }
 
 void handleAttack(std::vector<std::shared_ptr<Projectile>>& cartridge, sf::RenderWindow& window) {
@@ -61,7 +61,7 @@ void handleEnemies(std::vector<std::shared_ptr<Enemy>>& enemies, sf::RenderWindo
 
 Game::Game(Context& ctx):
 	State(ctx, 1),
-	map("assets/cave.tmx"),
+	map("assets/forest.tmx"),
 	avgFrame(0)
 {
 	sf::Vector2u ws = ctx.window.getSize();
@@ -70,10 +70,9 @@ Game::Game(Context& ctx):
 	
 	player_ = std::make_unique<Player>(0,0,
 									  &ctx.world,
-									  new Box(10,10,100.f),
-									  b2_dynamicBody,
+									  new Box(10, 10, 100.f),
 									  "frog.png",
-									  PlayerProperties(100, 10, 3),
+									  PlayerProperties(100, 10, 1),
 									  WeaponType::GUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
@@ -100,16 +99,16 @@ void Game::tick() {
 
 
 	sf::Vector2f ps = player_->getSize_();
-	sf::Vector2f pp = player_->getPosition_(); //+ speed;
+	sf::Vector2f pp = player_->getPosition_();
 	sf::Vector2f pc = pp + ps * 0.5f;
-	//testPlayer.setPosition(pp);
+	
 
 	sf::Vector2f cs = camera.getSize();
 	sf::Vector2f cc = camera.getCenter();
 	sf::Vector2f tol = (cs - ps) * 0.5f - sf::Vector2f(32, 32);
-	cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
-	cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
-	camera.setCenter(cc);
+	// cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
+	// cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
+	camera.setCenter(sf::Vector2f(pp.x, pp.y));
 
 	sf::Clock ffClock;
 	for(std::weak_ptr e: enemies_.enemies_) ff.addEnemy(e.lock()->getPosition_(), e.lock()->getSize_());
@@ -137,12 +136,12 @@ void Game::render() {
 	map.render(renderer);
 
 	for(std::weak_ptr e: enemies_.enemies_) 
-		renderer.insert(0, e.lock()->get_sprite());
+		renderer.insert(0, e.lock()->get_drawable());
 	
 	for(std::weak_ptr projectile: player_->get_weapon()->get_cartridge()) 	
-		renderer.insert(0, *projectile.lock()->get_sfml_shape());
+		renderer.insert(0, projectile.lock()->get_drawable());
 
-	renderer.insert(0, player_->get_sprite());
+	renderer.insert(0, player_->get_drawable());
 
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
@@ -183,9 +182,9 @@ void Game::handleEvent(sf::Event event) {
 		enemies_.enemies_.push_back(std::make_shared<Enemy>(
 									pos.x, pos.y, 
 									&ctx.world, 
-									new Box(8, 8, 1.f), 
-									b2_dynamicBody, "bugol.png", 
-									EnemyProperties(10,10,10, 1)));
+									new Box(8, 8, 1.f),  
+									"bugol.png", 
+									EnemyProperties(10,10,10, 1+rand()%1)));
 	}
 	if(event.type == sf::Event::Resized) {
 		sf::Vector2u ws = ctx.window.getSize();
