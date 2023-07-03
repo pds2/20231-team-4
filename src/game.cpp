@@ -8,10 +8,11 @@
 #include "game.hpp"
 #include "menu.hpp"
 #include "assets.hpp"
+#include "error.hpp"
 
 Game::Game(Context& ctx):
 	State(ctx, 1),
-	map("assets/isle.tmx"),
+	map("assets/cave.tmx"),
 	avgFrame(0)
 {
 	sf::Vector2u ws = ctx.window.getSize();
@@ -127,11 +128,29 @@ Game::~Game() {}
 
 UserInterface::UserInterface(Context& ctx, Game* game):
 	game(game),
-	State(ctx, 0) {}
+	State(ctx, 0)
+{
+	if(!heart.loadFromFile("assets/GUI/PNG/HUD/CHARACTER HUD/HP Icon.png"))
+		throw ImageLoadError();
+	for(sf::Sprite& s: hearts) s.setTexture(heart);
+}
 void UserInterface::tick() {
 	game->tick();
 }
-void UserInterface::render() {}
+void UserInterface::render() {
+	f32 x = 10;
+	for(sf::Sprite& s: hearts) {
+		s.setPosition(x, 10);
+		x += 28;
+		s.setScale(2,2);
+		ctx.window.draw(s);
+	}
+	f32 hp = 0.6;
+	for(u32 i = 0; i < 10*hp; i += 1)
+		hearts[i].setColor(sf::Color::White);
+	for(u32 i = 10*hp; i < 10; i += 1)
+		hearts[i].setColor(sf::Color(0,0,0));
+}
 void UserInterface::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
 		message = StateMessage::Into(std::make_unique<PauseMenu>(ctx, game));
