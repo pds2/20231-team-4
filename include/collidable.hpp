@@ -75,6 +75,7 @@ public:
             return _sprite;
     }
     void setPosition_(sf::Vector2f& new_position);
+    void updateMovement(sf::RenderWindow &window);
 
 
     CollisionData* getCollisionData() {return _data;}
@@ -131,3 +132,5 @@ public:
     void EndContact(b2Contact* contact) override;
 
 };
+
+
