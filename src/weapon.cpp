@@ -56,7 +56,7 @@ void Gun::fire(ProjectileType projectile, Player &player) {
         velocity.x = vec.x * (*this)._wProperties._speed/norm;
         velocity.y = vec.y * (*this)._wProperties._speed/norm;
 
-        cartridge.back()->set_velocity(b2Vec2(velocity.x, velocity.y));
+        cartridge.back()->get_velocity() = b2Vec2(velocity.x, velocity.y);
         cartridge.back()->get_body()->SetLinearVelocity(cartridge.back()->get_velocity());
         counter = 0;
     } else {

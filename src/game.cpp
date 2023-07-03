@@ -9,6 +9,33 @@
 #include "menu.hpp"
 #include "assets.hpp"
 
+
+void updateMovement(Collidable &obj, sf::RenderWindow &window) {
+	sf::Vector2f new_position (obj.get_body()->GetPosition().x*PPM, 
+							   obj.get_body()->GetPosition().y*PPM);
+	obj.getRotation_() = -1*obj.get_body()->GetAngle() * DEG_PER_RAD;
+
+	obj.setPosition_(new_position);
+}
+
+void handleAttack(std::vector<std::shared_ptr<Projectile>>& cartridge, sf::RenderWindow& window) {
+	auto it = cartridge.begin();
+	while(it != cartridge.end()) {
+		if(auto proj = *it) {
+			proj->get_body()->SetLinearVelocity(proj->get_velocity());
+			updateMovement(*proj, window);
+
+			if(proj->getCollisionData()->colliding || proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) || proj->_distance() >= proj->get_range()) {
+				it->reset();
+				it = cartridge.erase(it);
+			} else
+				it++;
+		} else {
+			it = cartridge.erase(it);
+		}
+	}
+}
+
 Game::Game(Context& ctx):
 	State(ctx, 1),
 	map("assets/forest.tmx"),
@@ -20,7 +47,7 @@ Game::Game(Context& ctx):
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 	
 	player_ = std::make_unique<Player>(0,0, &ctx.world, new Box(10, 10, 100.f), "frog.png",
-	PlayerProperties(100, 10, 3), WeaponType::GUN);
+	PlayerProperties(100, 10, 5), WeaponType::GUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
@@ -38,7 +65,10 @@ void Game::tick() {
 	map.update(elapsed);
 
 	player_->_move(ctx.window, camera);
-	player_->_attack(ctx.window);
+	player_->_attack();
+	updateMovement(*player_, ctx.window);
+	handleAttack(player_->get_weapon()->get_cartridge(), ctx.window);
+	
 
 	enemies_.spawnEnemy(ctx.window, ctx.world, camera, *player_);
 
@@ -65,9 +95,11 @@ void Game::tick() {
 		auto s = ff.query(ep, es);
 
 		if(s != sf::Vector2f(0,0))
-			e.lock()->_move(s, ctx.window);
+			e.lock()->_move(s);
 		else
-			e.lock()->_move(*player_, ctx.window);
+			e.lock()->_move(*player_);
+		
+		updateMovement(*e.lock(), ctx.window);
 	}
 
 	enemies_.handleEnemies(ctx.window);
@@ -77,18 +109,18 @@ void Game::render() {
 	renderer.clear();
 	map.render(renderer);
 
-	for(std::weak_ptr enemy: enemies_.enemies_) {
-		renderer.insert(0, enemy.lock()->get_drawable());
-		enemy.lock()->getGUI().renderHPBar(renderer);
+	for(std::weak_ptr e: enemies_.enemies_) {
+		renderer.insert(0, e.lock()->get_drawable());
+		e.lock()->getGUI().renderHPBar(renderer);
 	}
 	
 	for(std::weak_ptr projectile: player_->get_weapon()->get_cartridge()) 	
 		renderer.insert(0, projectile.lock()->get_drawable());
 
-	renderer.insert(0, player_->get_drawable());
-	player_->getGUI().renderHPBar(renderer);
+	for(auto& drawable: player_->get_drawables())
+		renderer.insert(0, *drawable);
 	
-	
+
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
