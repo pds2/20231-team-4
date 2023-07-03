@@ -68,13 +68,12 @@ public:
     b2Body* get_body() {return _body;}
     b2World* get_world() {return _world;}
     
-    sf::Drawable& get_drawable() {
+    virtual sf::Drawable& get_drawable() {
         if(_sfml_shape != nullptr)
             return *_sfml_shape;
         else    
             return _sprite;
     }
-
     void setPosition_(sf::Vector2f& new_position);
 
 

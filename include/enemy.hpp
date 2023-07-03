@@ -71,5 +71,11 @@ protected:
 
 struct Enemies {
     std::vector<std::shared_ptr<Enemy>> enemies_;
-    int spawn_delay {0};
+    int spawn_delay;
+    int counter;
+
+    Enemies(int delay);
+
+    void spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& camera, const Player& player);
+    void handleEnemies(sf::RenderWindow& window);
 };

@@ -76,3 +76,59 @@ void EnemyGUI::renderHPBar(ZRenderer& renderer) {
     renderer.insert(0, this->hpBarBack);
     renderer.insert(0, this->hpBarInner);
 }
+
+Enemies::Enemies(int delay) : spawn_delay(delay), counter(0) {}
+
+void Enemies::handleEnemies(sf::RenderWindow& window) {
+    auto it = enemies_.begin();
+	while(it != enemies_.end()) {
+		if(auto enemy = *it) {
+			if(enemy->getCollisionData()->colliding && 
+			   enemy->getCollisionData()->category == ((u32) CollidableType::PROJECTILE|(u32)CollidableType::DYNAMIC)) {
+
+				enemy->get_properties()._health -= enemy->getCollisionData()->damage_take;
+				enemy->getCollisionData()->colliding = 0;
+
+				if(enemy->get_properties()._health <= 0) {
+					it->reset();
+					it = enemies_.erase(it);
+				} else 
+					it++;
+			} else	
+				it++;
+		} else
+			it = enemies_.erase(it);
+	}
+}
+
+void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& camera, const Player& player) {
+    if(counter >= spawn_delay && enemies_.size() < 300) {
+        window.setView(camera);
+        sf::Vector2f pp = player.getPosition_();
+        sf::Vector2u ws = window.getSize();
+
+        auto isInsidePlayerBounds = [&](sf::Vector2f pos) -> bool {
+            double distance = std::sqrt(std::pow(pos.x - pp.x, 2) + std::pow(pos.y - pp.y, 2));
+            return distance > 500;
+        };
+
+        auto isOutsideWindowBounds = [&](sf::Vector2f pos) -> bool {
+            return (pos.x < (100) || pos.x > (ws.x) || pos.y < (100) || pos.y > (ws.y));
+        };
+
+        sf::Vector2f pos (100 + rand()%(ws.x), 100 + rand()%(ws.y));
+        while(isInsidePlayerBounds(pos) || isOutsideWindowBounds(pos))
+            pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
+        //auto mp = sf::Mouse::getPosition(window);
+        //auto pos = window.mapPixelToCoords(mp);
+
+        enemies_.push_back(std::make_shared<Enemy>(
+                            pos.x, pos.y, 
+                            &world, 
+                            new Box(8, 8, 1.f),  
+                            "bugol.png", 
+                            EnemyProperties(30,10,10, 1+rand()%1)));
+        counter = 0;
+    } else
+        counter++;
+}
