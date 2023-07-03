@@ -36,33 +36,11 @@ void handleAttack(std::vector<std::shared_ptr<Projectile>>& cartridge, sf::Rende
 	}
 }
 
-void handleEnemies(std::vector<std::shared_ptr<Enemy>>& enemies, sf::RenderWindow& window) {
-	auto it = enemies.begin();
-	while(it != enemies.end()) {
-		if(auto enemy = *it) {
-			if(enemy->getCollisionData()->colliding && 
-			   enemy->getCollisionData()->category == ((u32) CollidableType::PROJECTILE|(u32)CollidableType::DYNAMIC)) {
-
-				enemy->get_properties()._health -= enemy->getCollisionData()->damage_take;
-				enemy->getCollisionData()->colliding = 0;
-
-				if(enemy->get_properties()._health <= 0) {
-					it->reset();
-					it = enemies.erase(it);
-				} else 
-					it++;
-			} else	
-				it++;
-		} else
-			it = enemies.erase(it);
-	}
-}
-
-
 Game::Game(Context& ctx):
 	State(ctx, 1),
 	map("assets/forest.tmx"),
-	avgFrame(0)
+	avgFrame(0),
+	enemies_(100)
 {
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
@@ -96,7 +74,7 @@ void Game::tick() {
 	handleAttack(player_->get_weapon()->get_cartridge(), ctx.window);
 	
 
-
+	enemies_.spawnEnemy(ctx.window, ctx.world, camera, *player_);
 
 	sf::Vector2f ps = player_->getSize_();
 	sf::Vector2f pp = player_->getPosition_();
@@ -128,7 +106,7 @@ void Game::tick() {
 		updateMovement(*e.lock(), ctx.window);
 	}
 
-	handleEnemies(enemies_.enemies_, ctx.window);
+	enemies_.handleEnemies(ctx.window);
 }
 
 void Game::render() {
