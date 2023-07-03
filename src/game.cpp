@@ -72,7 +72,7 @@ Game::Game(Context& ctx):
 									  &ctx.world,
 									  new Box(10, 10, 100.f),
 									  "frog.png",
-									  PlayerProperties(100, 10, 1),
+									  PlayerProperties(100, 10, 5),
 									  WeaponType::GUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
@@ -135,13 +135,17 @@ void Game::render() {
 	renderer.clear();
 	map.render(renderer);
 
-	for(std::weak_ptr e: enemies_.enemies_) 
+	for(std::weak_ptr e: enemies_.enemies_) {
 		renderer.insert(0, e.lock()->get_drawable());
+		e.lock()->getGUI().renderHPBar(renderer);
+	}
 	
 	for(std::weak_ptr projectile: player_->get_weapon()->get_cartridge()) 	
 		renderer.insert(0, projectile.lock()->get_drawable());
 
-	renderer.insert(0, player_->get_drawable());
+	for(auto& drawable: player_->get_drawables())
+		renderer.insert(0, *drawable);
+	
 
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
@@ -184,7 +188,7 @@ void Game::handleEvent(sf::Event event) {
 									&ctx.world, 
 									new Box(8, 8, 1.f),  
 									"bugol.png", 
-									EnemyProperties(10,10,10, 1+rand()%1)));
+									EnemyProperties(20,10,10, 1+rand()%1)));
 	}
 	if(event.type == sf::Event::Resized) {
 		sf::Vector2u ws = ctx.window.getSize();

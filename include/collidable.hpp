@@ -59,15 +59,15 @@ struct Circle: public Shapeb2 {
 
 class Collidable {
 public:
-
     using enum CollidableType;
     Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, u32 categoryBits, u32 maskBits);
     Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, std::string texture, u32 categoryBits, u32 maskBits);
     Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, sf::Color color, u32 categoryBits, u32 maskBits);
 
+
     b2Body* get_body() {return _body;}
     b2World* get_world() {return _world;}
-
+    
     sf::Drawable& get_drawable() {
         if(_sfml_shape != nullptr)
             return *_sfml_shape;
@@ -75,14 +75,19 @@ public:
             return _sprite;
     }
 
-    CollisionData* getCollisionData() {return _data;}
+    void setPosition_(sf::Vector2f& new_position);
 
+
+    CollisionData* getCollisionData() {return _data;}
     sf::Vector2f& getPosition_() {return position_;}
     sf::Vector2f& getSize_() {return size_;}
     double& getRotation_() {return rotation_;}
+    
+    const CollisionData& getCollisionData() const {return *_data;}
+    const sf::Vector2f& getPosition_() const {return position_;}
+    const sf::Vector2f& getSize_() const {return size_;}
+    const double& getRotation_() const {return rotation_;}
 
-    void setPosition_(sf::Vector2f& new_position);
- 
     ~Collidable();
 protected:
     //Physical properties

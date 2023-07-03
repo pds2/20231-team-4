@@ -25,9 +25,6 @@ class Game: public State {
 	std::unique_ptr<Player> player_;
 	Enemies enemies_;
 
-
-	std::vector<sf::RectangleShape> testEnemies;
-	sf::RectangleShape testPlayer;
 	FlowField ff;
 
 	public:
