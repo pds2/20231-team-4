@@ -10,9 +10,11 @@ Menu::Menu(Context& ctx, bool opaque):
 Menu::Menu(Context& ctx, std::vector<Button> button_list, bool opaque):
 	State(ctx, opaque),
 	buttons(button_list),
+	backgrounds(button_list.size()),
 	selected(-1)
 {
 	setButtons(buttons);
+	for(sf::Sprite &s: backgrounds) s.setTexture(Assets::buttonBackground);
 }
 
 void Menu::setButtons(std::vector<Button> buttons_) {
@@ -21,7 +23,7 @@ void Menu::setButtons(std::vector<Button> buttons_) {
 	for(u32 i = 0; i < buttons.size(); i += 1) {
 		sf::Text& text = texts[i];
 		Button& button = buttons[i];
-		text.setFont(Assets::font);
+		text.setFont(Assets::terminal);
 		text.setString(button.text);
 	}
 	selected = -1;
@@ -45,6 +47,8 @@ void Menu::moveMouse(sf::Vector2i p_mouse) {
 }
 
 void Menu::render() {
+	std::vector<sf::Vector2f> centers(texts.size());
+
 	sf::Vector2u s_window = ctx.window.getSize();
 	sf::FloatRect v_rect(0, 0, s_window.x, s_window.y);
 	ctx.window.setView(sf::View(v_rect));
@@ -55,26 +59,40 @@ void Menu::render() {
 	backg.setFillColor(sf::Color(50, 50, 50, 122));
 	ctx.window.draw(backg);
 
-	for(sf::Text& text: texts) text.setFillColor(sf::Color::White);
+	for(sf::Text& text: texts) text.setFillColor(sf::Color(100,100,50));
 	if(selected >= 0) texts[selected].setFillColor(sf::Color::Yellow);
 
 	f32 size_y = 0;
+	f32 backgroundy = Assets::buttonBackground.getSize().y;
 	for(u32 i = 0; i < texts.size(); i += 1) {
 		sf::Text& text = texts[i];
 		sf::FloatRect rect = text.getLocalBounds();
+		centers[i] = {
+			s_window.x * 0.5f,
+			size_y
+		};
 		text.setPosition({
 			(s_window.x - rect.width) * 0.5f,
-			size_y
+			size_y - backgroundy/2
 		});
-		size_y += text.getCharacterSize() + 8;
+		size_y += backgroundy + 8;
 	}
 	size_y -= 8;
 
 	f32 offset = (s_window.y - size_y) * 0.5f;
 	for(u32 i = 0; i < texts.size(); i += 1) {
+		sf::Sprite& background = backgrounds[i];
+		sf::Vector2f center = centers[i];
+		sf::Vector2u size = background.getTexture()->getSize();
+		ctx.window.draw(background);
+		background.setOrigin(size.x/2, size.y/2);
+		background.setPosition(center.x, center.y += offset);
+	}
+	for(u32 i = 0; i < texts.size(); i += 1) {
 		sf::Text& text = texts[i];
 		sf::Vector2f pos = text.getPosition();
-		text.setPosition(pos.x, pos.y += offset);
+		pos.y += offset;
+		text.setPosition(pos.x, pos.y);
 		ctx.window.draw(text);
 	}
 }

@@ -18,6 +18,7 @@ class Menu: public State {
 	private:
 	std::vector<Button> buttons;
 	std::vector<sf::Text> texts;
+	std::vector<sf::Sprite> backgrounds;
 	i32 selected;
 
 	void moveMouse(sf::Vector2i position);
