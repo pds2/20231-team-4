@@ -122,12 +122,8 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
         //auto mp = sf::Mouse::getPosition(window);
         //auto pos = window.mapPixelToCoords(mp);
 
-        enemies_.push_back(std::make_shared<Enemy>(
-                            pos.x, pos.y, 
-                            &world, 
-                            new Box(8, 8, 1.f),  
-                            "bugol.png", 
-                            EnemyProperties(30,10,10, 1+rand()%1)));
+        enemies_.push_back(std::make_shared<Enemy>(pos.x, pos.y, &world, new Box(8, 8, 1.f),  
+        "bugol.png", EnemyProperties(30,10,10, 1+rand()%1)));
         counter = 0;
     } else
         counter++;
