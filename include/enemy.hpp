@@ -49,20 +49,21 @@ private:
     static constexpr const u32 _categoryBits = 0|ENEMY|DYNAMIC;
     static constexpr const u32 _maskBits = 0|STATIC|PLAYER|PROJECTILE|ENEMY;
 
+    b2Vec2 velocity;
     EnemyGUI _gui;
-
+    
     void default_config();
 public:
-    b2Vec2 velocity;
 
     Enemy(float x, float y, b2World* world, Shapeb2* shape, std::string texture, EnemyProperties &&properties);
     Enemy(float x, float y, b2World* world, Shapeb2* shape, sf::Color texture, EnemyProperties &&properties); 
     
-    void _move(sf::Vector2f& direction);
-    void _move(Player& player);
+    void _move(sf::Vector2f& direction, sf::RenderWindow& window);
+    void _move(Player& player, sf::RenderWindow& window);
 
     EnemyProperties& get_properties() {return _eProperties;}
     const EnemyProperties& get_properties() const {return _eProperties;}
+    const b2Vec2& get_velocity() const {return velocity;}
     EnemyGUI& getGUI() {return _gui;}
     
 protected:

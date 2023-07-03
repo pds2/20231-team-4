@@ -9,15 +9,6 @@ void Player::default_config(WeaponType& weaponType) {
             _weapon = new Gun(weaponProperties(5,20,10));
             break;
     }
-
-    if(_sfml_shape != nullptr)
-        _drawables.push_back(_sfml_shape);
-    else 
-        _drawables.push_back(&_sprite);
-    
-    for(auto& drawable: _gui.get_gui_drawables())
-        _drawables.push_back(drawable);
-    
 }
 
 Player::Player(float x, float y, b2World* world, Shapeb2* shape, string texture, PlayerProperties &&pProperties, WeaponType weaponType) 
@@ -70,7 +61,9 @@ void Player::_move(RenderWindow &window, View& camera) {
     Vector2f targetVector = Vector2f(mousePosition.x, mousePosition.y) - position_;
     long double angleRadians = atan2(targetVector.x, -targetVector.y);
     _body->SetTransform(_body->GetPosition(), -angleRadians);
-    _gui.updateHPBar();
+
+    updateMovement(window);
+     _gui.updateHPBar();
 }
 
 /*
@@ -78,13 +71,30 @@ void Player::_move(RenderWindow &window, View& camera) {
  * Different types of projectiles are fired according to certain
  * requirements
  */
+void Player::handleAttack(RenderWindow& window) {
+    auto it = _weapon->get_cartridge().begin();
+    while(it != _weapon->get_cartridge().end()) {
+        if(auto proj = *it) {
+            proj->get_body()->SetLinearVelocity(proj->get_velocity());
+            proj->updateMovement(window);
 
-void Player::_attack() {
-    if(Keyboard::isKeyPressed(Keyboard::Space))
-        _weapon->fire(ProjectileType::NORMAL, *this);
+            if(proj->getCollisionData()->colliding || 
+               proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) ||
+               proj->_distance() >= proj->get_range()) {
+                it->reset();
+                it = _weapon->get_cartridge().erase(it);
+            } else 
+                it++;
+        } else
+            it = _weapon->get_cartridge().erase(it);
+    }
 }
 
-
+void Player::_attack(sf::RenderWindow &window) {
+    if(Keyboard::isKeyPressed(Keyboard::Space))
+        _weapon->fire(ProjectileType::NORMAL, *this);
+    handleAttack(window);
+}
 
 void PlayerGUI::initHBar() {
     sf::Vector2f size(20.f, 1.f);
@@ -105,15 +115,12 @@ PlayerGUI::PlayerGUI(const Player& player) : player_(player) {
 }
 
 void PlayerGUI::updateHPBar() {
-    this->hpBarBack.setPosition(player_.getPosition_().x + player_.velocity.x, 
-    (player_.getPosition_().y + player_.getSize_().y + player_.velocity.y));
+    this->hpBarBack.setPosition(player_.getPosition_().x, 
+    (player_.getPosition_().y + player_.getSize_().y));
     this->hpBarInner.setPosition(this->hpBarBack.getPosition());
 }
 
-std::vector<sf::Drawable*> PlayerGUI::get_gui_drawables() {
-    std::vector<sf::Drawable*> d;
-    d.push_back(&hpBarBack);
-    d.push_back(&hpBarInner);
-
-    return d;
+void PlayerGUI::renderHPBar(ZRenderer& renderer) {
+    renderer.insert(0, this->hpBarBack);
+    renderer.insert(0, this->hpBarInner);
 }

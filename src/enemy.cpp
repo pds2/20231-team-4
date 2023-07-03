@@ -20,7 +20,7 @@ Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, Color color, Enem
     default_config();
 }
 
-void Enemy::_move(sf::Vector2f& direction) {
+void Enemy::_move(Vector2f& direction, RenderWindow& window) {
 
     double angleRadians = atan2(direction.x, direction.y);
     
@@ -28,10 +28,12 @@ void Enemy::_move(sf::Vector2f& direction) {
 
     _body->SetLinearVelocity(velocity);
     _body->SetTransform(_body->GetPosition(), angleRadians);
+
+    updateMovement(window);
     this->_gui.updateHPBar();
 }
 
-void Enemy::_move(Player& player) {
+void Enemy::_move(Player& player, RenderWindow& window) {
     Vector2f thisPosition = this->getPosition_();
     Vector2f otherPosition = player.getPosition_();
 
@@ -43,7 +45,9 @@ void Enemy::_move(Player& player) {
 
     _body->SetLinearVelocity(-velocity);
     _body->SetTransform(_body->GetPosition(), -angleRadians);
+
     this->_gui.updateHPBar();
+    updateMovement(window);
 }
 
 void EnemyGUI::initHBar() {
@@ -66,8 +70,9 @@ EnemyGUI::EnemyGUI(const Enemy& player) : enemy_(player) {
 
 void EnemyGUI::updateHPBar() {
     sf::Vector2f size(20.f*(enemy_.get_properties()._health/enemy_.get_properties().get_default_health()), 1.f);
-    this->hpBarBack.setPosition(enemy_.getPosition_().x + enemy_.velocity.x, 
-    (enemy_.getPosition_().y + enemy_.getSize_().y + enemy_.velocity.y));
+    
+    this->hpBarBack.setPosition(enemy_.getPosition_().x, 
+    (enemy_.getPosition_().y + enemy_.getSize_().y));
     this->hpBarInner.setPosition(this->hpBarBack.getPosition());
     this->hpBarInner.setSize(size);
 }
@@ -119,8 +124,6 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
         sf::Vector2f pos (100 + rand()%(ws.x), 100 + rand()%(ws.y));
         while(isInsidePlayerBounds(pos) || isOutsideWindowBounds(pos))
             pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
-        //auto mp = sf::Mouse::getPosition(window);
-        //auto pos = window.mapPixelToCoords(mp);
 
         enemies_.push_back(std::make_shared<Enemy>(pos.x, pos.y, &world, new Box(8, 8, 1.f),  
         "bugol.png", EnemyProperties(30,10,10, 1+rand()%1)));

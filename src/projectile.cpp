@@ -17,6 +17,9 @@ Projectile::Projectile(float x, float y, b2World* world, Shapeb2* shape, Color c
     default_config();
 }
 
+void Projectile::set_velocity(b2Vec2 new_velocity) {
+    velocity = new_velocity;
+}
 
 double Projectile::_distance() {
     b2Vec2 pos = this->get_body()->GetPosition();
