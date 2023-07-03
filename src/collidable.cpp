@@ -138,6 +138,14 @@ void Collidable::setPosition_(sf::Vector2f& new_position) {
     this->position_ = new_position;
 }
 
+void Collidable::updateMovement(sf::RenderWindow &window) {
+	sf::Vector2f new_position (_body->GetPosition().x*PPM, 
+							   _body->GetPosition().y*PPM);
+	rotation_ = -1*_body->GetAngle() * DEG_PER_RAD;
+
+	this->setPosition_(new_position);
+}
+
 /*
  * Collision handling
  */
