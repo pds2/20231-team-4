@@ -59,6 +59,7 @@ Collidable::Collidable(float x, float y,
 
     position_ = bodyPosition;
     size_ = bodySize;
+    _sfml_shape = nullptr;
 }
 
 Collidable::Collidable(float x, float y, 

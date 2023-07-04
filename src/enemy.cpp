@@ -77,24 +77,38 @@ void EnemyGUI::updateHPBar() {
     this->hpBarInner.setSize(size);
 }
 
-void EnemyGUI::renderHPBar(ZRenderer& renderer) {
+void EnemyGUI::renderGUI(ZRenderer& renderer) {
     renderer.insert(0, this->hpBarBack);
     renderer.insert(0, this->hpBarInner);
 }
 
+XpOrb::XpOrb(Enemy& e): xp(e.get_properties()._xp), 
+    Collidable(e.getPosition_().x, e.getPosition_().y, e.get_world(), 
+    new Circle(3.f, 0), b2_staticBody, sf::Color(100,250,100,200), 
+    _categoryBits, _maskBits) {
+
+    _data->damage_do = xp;
+}
+
+void XpOrb::renderOrb(ZRenderer& renderer) {
+    renderer.insert(0, this->get_drawable());
+}
+
 Enemies::Enemies(int delay) : spawn_delay(delay), counter(0) {}
 
-void Enemies::handleEnemies(sf::RenderWindow& window) {
+void Enemies::handleEnemies() {
     auto it = enemies_.begin();
 	while(it != enemies_.end()) {
 		if(auto enemy = *it) {
 			if(enemy->getCollisionData()->colliding && 
-			   enemy->getCollisionData()->category == ((u32) CollidableType::PROJECTILE|(u32)CollidableType::DYNAMIC)) {
+			   enemy->getCollisionData()->category == 
+               ((u32) CollidableType::PROJECTILE|(u32)CollidableType::DYNAMIC)) {
 
 				enemy->get_properties()._health -= enemy->getCollisionData()->damage_take;
 				enemy->getCollisionData()->colliding = 0;
 
 				if(enemy->get_properties()._health <= 0) {
+                    xpOrbs_.push_back(std::make_shared<XpOrb>(*enemy));
 					it->reset();
 					it = enemies_.erase(it);
 				} else 
@@ -114,7 +128,7 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
 
         auto isInsidePlayerBounds = [&](sf::Vector2f pos) -> bool {
             double distance = std::sqrt(std::pow(pos.x - pp.x, 2) + std::pow(pos.y - pp.y, 2));
-            return distance > 500;
+            return distance > 250;
         };
 
         auto isOutsideWindowBounds = [&](sf::Vector2f pos) -> bool {
@@ -126,8 +140,23 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
             pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
 
         enemies_.push_back(std::make_shared<Enemy>(pos.x, pos.y, &world, new Box(8, 8, 1.f),  
-        "bugol.png", EnemyProperties(30,10,10, 1+rand()%1)));
+        "bugol.png", EnemyProperties(30,10,10, 1+rand()%1, std::make_pair(1, 5))));
         counter = 0;
     } else
         counter++;
+}
+
+void Enemies::handleOrbs() {
+    auto it = xpOrbs_.begin();
+    while(it != xpOrbs_.end()) {
+        if(auto orb = *it) {
+            if(orb->getCollisionData()->colliding && 
+			   orb->getCollisionData()->category == 
+               (u32) CollidableType::XPFIELD) {
+                it->reset();
+                it = xpOrbs_.erase(it);
+            } else  
+                it++;
+        }
+    }
 }

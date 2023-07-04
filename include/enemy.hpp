@@ -2,26 +2,37 @@
 #include <iostream>
 #include <box2d/box2d.h>
 #include <string>
+
 #include "collidable.hpp"
 #include "player.hpp"
 #include "types.hpp"
 #include "render.hpp"
 
 struct EnemyProperties {
-    private:
+private:
+    std::pair<int, int> xp_range;
+
     double default_health;
-    public:
+
+public:
     double _health;
     double _damage;
     double _defense;
     double _agility;
 
-    EnemyProperties(double health, double damage, double defense, double agility) 
-        : _health(health), _damage(damage), _defense(defense), _agility(agility), default_health(health) {};
+    double _xp;
+    
+
+    EnemyProperties(double health, double damage, double defense, double agility, std::pair<int, int> xpRange) 
+        : _health(health), _damage(damage), _defense(defense), _agility(agility),   default_health(health), xp_range(xpRange) {
+        
+        _xp = xp_range.first+(std::rand()%xp_range.second);
+    };
     EnemyProperties(const EnemyProperties &properties) 
-        : EnemyProperties(properties._health, properties._damage, properties._defense, properties._agility) {};
+        : EnemyProperties(properties._health, properties._damage, properties._defense, properties._agility, properties.getXpRange()) {};
 
     double get_default_health() const {return default_health;}
+    std::pair<int, int> getXpRange() const {return xp_range;}
 };
 
 class Enemy;
@@ -38,10 +49,27 @@ public:
     EnemyGUI(const Enemy& player);
 
     void updateHPBar();
-    void renderHPBar(ZRenderer& renderer);
+    void renderGUI(ZRenderer& renderer);
 
     ~EnemyGUI() = default;
 };
+
+class Enemy;
+class XpOrb: public Collidable {
+private:
+    using enum CollidableType;
+    static constexpr const u32 _categoryBits = 0|XPORB;
+    static constexpr const u32 _maskBits = 0|XPFIELD;
+
+    double xp;
+public:
+    XpOrb(Enemy& e);
+
+    void renderOrb(ZRenderer& renderer);
+
+    ~XpOrb() = default;
+};
+
 
 class Enemy: public Collidable {
 private:
@@ -75,8 +103,12 @@ struct Enemies {
     int spawn_delay;
     int counter;
 
+    std::vector<std::shared_ptr<XpOrb>> xpOrbs_;
+
     Enemies(int delay);
 
     void spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& camera, const Player& player);
-    void handleEnemies(sf::RenderWindow& window);
+    void handleEnemies();
+
+    void handleOrbs();
 };

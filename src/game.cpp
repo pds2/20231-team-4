@@ -19,8 +19,7 @@ Game::Game(Context& ctx):
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 	
-	player_ = std::make_unique<Player>(0,0, &ctx.world, new Box(10, 10, 100.f), "frog.png",
-	PlayerProperties(100, 10, 3), WeaponType::GUN);
+	player_ = std::make_unique<Player>(0,0, &ctx.world, new Box(10, 10, 100.f), "frog.png", WeaponType::GUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
@@ -70,23 +69,27 @@ void Game::tick() {
 			e.lock()->_move(*player_, ctx.window);
 	}
 
-	enemies_.handleEnemies(ctx.window);
+	enemies_.handleEnemies();
+	enemies_.handleOrbs();
 }
 
 void Game::render() {
 	renderer.clear();
 	map.render(renderer);
 
+	for(auto& orb: enemies_.xpOrbs_)
+		orb->renderOrb(renderer);
 	for(std::weak_ptr enemy: enemies_.enemies_) {
 		renderer.insert(0, enemy.lock()->get_drawable());
-		enemy.lock()->getGUI().renderHPBar(renderer);
+		enemy.lock()->getGUI().renderGUI(renderer);
 	}
 	
 	for(std::weak_ptr projectile: player_->get_weapon()->get_cartridge()) 	
 		renderer.insert(0, projectile.lock()->get_drawable());
 
+	
 	renderer.insert(0, player_->get_drawable());
-	player_->getGUI().renderHPBar(renderer);
+	player_->getGUI().renderGUI(renderer);
 	
 	
 	ctx.window.setView(camera);

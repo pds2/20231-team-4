@@ -22,6 +22,8 @@ enum class CollidableType {
     PLAYER = 0x0004,
     ENEMY = 0x0008,
     PROJECTILE = 0x0010,
+    XPORB = 0x0020,
+    XPFIELD = 0x0040
 };
 constexpr u32 operator|(u32 a, CollidableType b) {
     return a | (u32)b;
@@ -66,6 +68,7 @@ public:
 
 
     b2Body* get_body() {return _body;}
+    const b2Body* get_body() const {return _body;}
     b2World* get_world() {return _world;}
     
     virtual sf::Drawable& get_drawable() {
