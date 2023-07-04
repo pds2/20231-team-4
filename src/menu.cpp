@@ -14,6 +14,14 @@ Menu::Menu(Context& ctx, std::vector<Button> button_list, bool opaque):
 {
 	setButtons(buttons);
 }
+Menu::Menu(Context& ctx, Lore lore_, Subtext subtext_, bool opaque):
+	State(ctx, opaque),
+	lore(button_list),
+	subtext(subtext_),
+	selected(-1)
+{
+	setLore(lore)
+}
 
 void Menu::setButtons(std::vector<Button> buttons_) {
 	buttons = buttons_;
@@ -26,6 +34,10 @@ void Menu::setButtons(std::vector<Button> buttons_) {
 	}
 	selected = -1;
 }
+
+void setLore(Lore lore);
+
+void SetSubtext(Subtext subtext);
 
 void Menu::moveKeys(i32 delta) {
 	i32 mod = buttons.size();
@@ -143,3 +155,13 @@ void PauseMenu::handleEvent(sf::Event event) {
 		resume();
 	Menu::handleEvent(event);
 }
+
+LoreDisplay::LoreDisplay(Context& ctx_, Lore lore_, Subtext subtext_):
+	Menu(ctx_, 
+		{
+			.text = "LORE CONTENT"
+		},
+		{
+			.text = "Press space to continue..."
+		}
+	) {}

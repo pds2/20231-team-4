@@ -15,7 +15,11 @@ Game::Game(Context& ctx):
 		r.setSize({50, 50});
 		rects.push_back(r);
 	}
-	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
+	message = StateMessage::Push(std::make_unique<LoreDisplay>(ctx, this));
+
+	character_texture.loadFromFile("assets/char_texture_test.png");
+	character_sprite.setTexture(character_texture);
+	character_sprite.setTextureRect(sf::IntRect(16, 16, 32, 50));
 }
 
 void Game::restartClock() {
@@ -30,6 +34,10 @@ void Game::render() {
 	ctx.window.setView(camera);
 	for(sf::RectangleShape& r: rects)
 		ctx.window.draw(r);
+	
+	character_sprite.setPosition(0, 0);
+	character_sprite.setScale(1, 1);
+	ctx.window.draw(character_sprite);
 }
 void Game::handleEvent(sf::Event event) {}
 Game::~Game() {}

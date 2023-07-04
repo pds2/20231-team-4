@@ -10,6 +10,8 @@ class Game: public State {
 	std::vector<sf::RectangleShape> rects;
 	sf::View camera;
 	sf::Clock clock;
+	sf::Sprite character_sprite;
+	sf::Texture character_texture;
 
 	public:
 	/// Cria um novo jogo em um contexto

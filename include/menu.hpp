@@ -2,8 +2,8 @@
 #define MENU_H
 #include <SFML/Graphics.hpp>
 #include <functional>
-#include "state.h"
-#include "game.h"
+#include "state.hpp"
+#include "game.hpp"
 
 /// Uma configuração de botão, que armazena um texto e um callback
 struct Button {
@@ -13,26 +13,12 @@ struct Button {
 	std::function<void()> click;
 };
 
-/// Uma configuração de lore, que armazena o texto a ser disposto na tela
-struct Lore {
-	/// O texto a ser exibido na tela
-	std::string lore;
-};
-
-/// Uma legenda, que aparecerá na parte inferior da tela
-struct Subtext {
-	/// O texto a ser exibido na legenda
-	std::string text;
-};
-
 /// Um Menu padrão, que desenha botões na tela
 class Menu: public State {
 	private:
 	std::vector<Button> buttons;
 	std::vector<sf::Text> texts;
 	i32 selected;
-	Lore lore;
-	Subtext subtext;
 
 	void moveMouse(sf::Vector2i position);
 	void moveKeys(i32 delta);
@@ -40,14 +26,10 @@ class Menu: public State {
 	public:
 	/// Cria um novo Menu vazio
 	Menu(Context& ctx, bool opaque = 0);
-	/// Cria um novo Menu com as configurações especificadas para menus de seleção
+	/// Cria um novo Menu com as configurações especificadas
 	Menu(Context& ctx, std::vector<Button> buttons, bool opaque = 0);
-	/// Cria um novo Menu com as configurações especificadas para menus de texto
-	Menu(Context& ctx, Lore lore, Subtext subtext, bool opaque = 1);
 	/// Muda os botões do menu para os especificados
 	void setButtons(std::vector<Button> buttons);
-	void setLore(Lore lore);
-	void SetSubtext(Subtext subtext);
 	void render();
 	void handleEvent(sf::Event event);
 };
@@ -72,21 +54,6 @@ class PauseMenu: public Menu {
 	PauseMenu(Context& ctx, Game* game);
 	/// Retorna ao jogo
 	void resume();
-	void handleEvent(sf::Event event);
-};
-
-/// Conta a história do jogo para o jogador ao iniciar um novo jogo.
-class LoreDisplay: public Menu {
-	private:
-	Lore lore; 
-
-	public:
-	/// Cria uma tela de história vazia.
-	LoreDisplay(Context& ctx, bool opaque = 1);
-	/// Cria uma série de páginas que contam a história do jogo.
-	LoreDisplay(Context& ctx, Lore lore, Subtext subtext, bool opaque = 1);
-	/// Avança a página até que toda a história seja contada. 
-	void nextPage();
 	void handleEvent(sf::Event event);
 };
 
