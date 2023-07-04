@@ -13,13 +13,13 @@ Game::Game(Context& ctx):
 	State(ctx, 1),
 	map("assets/forest.tmx"),
 	avgFrame(0),
-	enemies_(500)
+	enemies_(300)
 {
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 	
-	player_ = std::make_unique<Player>(0,0, &ctx.world, new Box(10, 10, 100.f), "frog.png", WeaponType::GUN);
+	player_ = std::make_unique<Player>(ws.x*0.3f,ws.y*0.3f, &ctx.world, new Box(10, 10, 100.f), "frog.png", WeaponType::GUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));

@@ -187,13 +187,15 @@ void MyContactListener::EndContact(b2Contact* contact) {
     
     CollisionData* dataA = reinterpret_cast<CollisionData*>(bodyA->GetUserData().pointer);
     CollisionData* dataB = reinterpret_cast<CollisionData*>(bodyB->GetUserData().pointer);
-
+    
+    /*
     if(dataA) {
         dataA->colliding = 0;
     }
     if(dataB) {
         dataB->colliding = 0;
     }
+    */
 
     bodyB->SetAngularVelocity(0);
     bodyB->SetLinearVelocity(b2Vec2(0,0));
