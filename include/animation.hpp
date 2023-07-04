@@ -9,19 +9,16 @@ class Animation : public State {
     public:
     /// Cria um novo render de personagem vazio
 	Animation(Context& ctx, bool opaque = 0); 
-    /// cria a animação do personagem controlado pelo usuário, recebendo o personagem selecionado e a arma inicial selecionada
-    Animation(Context& ctx, Game& game, bool opaque = 0);
-    ///
     void render();
-    /// troca a arma do usuário
-    void switchGun(); /* deve ser chamada na implementação do "level up"
-                      ou de uma ocasional loja de itens */
     /// lida com  os inputs de mouse e teclado, alterando o estado do personagem e arma de acord com a direção do cursor e movimento
     void handleEvent(sf::Event event);
 
     private: 
+    /* !!! Tratar depois para que o máximo seja feito por referências e não cópias !!! */
+    /// Jogo do qual informações são carregadas.
+///    Game game_;
     /// contador de tempo
-    u32 tempo;
+    u32 tempo_;
     /// textura do personagem
     sf::Texture texture_;
     /// sprite do personagem com a arma
@@ -37,5 +34,12 @@ class Animation : public State {
                     limita a animação do personagem a um número
                     menor de direções paa a arma */
 };
+
+/// class GunAnimation : public State {
+///     public:
+///        /// troca a arma do usuário
+///     void switchGun(); /* deve ser chamada na implementação do "level up"
+///                         ou de uma ocasional loja de itens */
+///};
 
 #endif

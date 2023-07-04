@@ -1,27 +1,35 @@
-#include "animation.h"
+#include "animation.hpp"
 
-Animation::Animation(Context& ctx, Game& game, bool opaque):
-  game(game),
-	opaque(opaque),
-	ctx(ctx),
-	message(StateMessage::None()) {}
+Animation::Animation(Context& ctx, bool opaque):
+	State(ctx, 0) {
+		sf::Vector2u ws = ctx.window.getSize();
+	}
 
 
 void Animation::render(){
-  u32 tempo_ = 0;
-  u32 RectLeft_ = (tempo_+1)*16 + tempo*32 + (axis_*16);
-  u32 RectTop_ = character_*16 + (character_-1)*50;
-  u32 RectWidth_ = 32*(axis_*-1);
-  texture_.loadFromFile("assets/char_texture_test.png");
+	sf::Vector2u s_window = ctx.window.getSize();
+	sf::FloatRect v_rect(0, 0, s_window.x, s_window.y);
+	ctx.window.setView(sf::View(v_rect));
+
+	sf::RectangleShape backg;
+	backg.setPosition({v_rect.left, v_rect.top});
+	backg.setSize({v_rect.width, v_rect.height});
+	backg.setFillColor(sf::Color(50, 50, 50, 122));
+	ctx.window.draw(backg);
+
+	tempo_ = 0;
+	character_ = 0;
+	axis_ = 0;
+	u32 RectLeft_ = tempo_*32 + (axis_*32);
+	u32 RectTop_ = character_*50;
+	u32 RectWidth_ = 32-(axis_*64);
+	texture_.loadFromFile("assets/char_texture.png");
 	sprite_.setTexture(texture_);
 	sprite_.setTextureRect(sf::IntRect(RectLeft_, RectTop_, RectWidth_, 50));
-  sprite_.setPosition(0, 0);
+
+	sprite_.setPosition(s_window.x*0.5, s_window.y*0.5);
 	sprite_.setScale(1, 1);
 	ctx.window.draw(sprite_);
-}
- 
-void Animation::switchGun(){
-
 }
 
 void Animation::handleEvent(sf::Event event){
@@ -29,5 +37,4 @@ void Animation::handleEvent(sf::Event event){
         axis_ = 1;
     if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::D)
         axis_ = 0;
-    
 }
