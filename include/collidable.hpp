@@ -122,9 +122,15 @@ public:
     //The CollidableType of the body collided with
     bool colliding;
     u32 category;
+    //Temporary
+    CollisionData* enemy;
 
     int damage_do;
     int damage_take;
+
+    //Temporary
+    int counter{0};
+    int delay{5};
 
     CollisionData() : colliding(0), category(0), damage_do(0), damage_take(0) {};
 };

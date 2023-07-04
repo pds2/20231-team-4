@@ -12,11 +12,11 @@ void Player::default_config(WeaponType& weaponType) {
 }
 
 Player::Player(float x, float y, b2World* world, Shapeb2* shape, string texture, WeaponType weaponType) 
-    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _pProperties(100, 10, 3), _gui(*this), xp_field(*this) {
+    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _pProperties(500, 10, 3), _gui(*this), xp_field(*this) {
     default_config(weaponType);
 }
 Player::Player(float x, float y, b2World* world, Shapeb2* shape, Color color, WeaponType weaponType) 
-    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _pProperties(100, 10, 3), _gui(*this), xp_field(*this) {
+    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _pProperties(500, 10, 3), _gui(*this), xp_field(*this) {
     default_config(weaponType);
 }
 
@@ -170,4 +170,14 @@ void XpField::updateField() {
 void XpField::handleField() {
     player_.get_properties().update_xp(getCollisionData()->damage_take);
     getCollisionData()->damage_take = 0;
+}
+
+void Player::handlePlayer() {
+    if(getCollisionData()->colliding && 
+    getCollisionData()->category == (u32)CollidableType::ENEMY|(u32)CollidableType::DYNAMIC &&
+    getCollisionData()->counter >= getCollisionData()->delay) {
+        this->get_properties()._health -= getCollisionData()->damage_take;
+        getCollisionData()->counter = 0;
+    } else 
+        getCollisionData()->counter++;
 }

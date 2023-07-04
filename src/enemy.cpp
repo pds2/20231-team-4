@@ -140,7 +140,7 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
             pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
 
         enemies_.push_back(std::make_shared<Enemy>(pos.x, pos.y, &world, new Box(8, 8, 1.f),  
-        "bugol.png", EnemyProperties(30,10,10, 1+rand()%1, std::make_pair(1, 5))));
+        "bugol.png", EnemyProperties(30,1,10, 1+rand()%1, std::make_pair(1, 5))));
         counter = 0;
     } else
         counter++;

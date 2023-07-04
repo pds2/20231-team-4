@@ -104,6 +104,8 @@ public:
     void _attack(sf::RenderWindow &window);
     void handleAttack(sf::RenderWindow &window);
 
+    void handlePlayer();
+
     ~Player();
 protected:
     Weapon* _weapon;
