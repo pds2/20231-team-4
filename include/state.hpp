@@ -11,7 +11,6 @@
 struct Context {
 	/// A janela na qual o jogo está sendo exibido
 	sf::RenderWindow window;
-	b2World world;
 };
 
 enum class StateChange {

@@ -33,9 +33,10 @@ class Weapon {
 public:
     Weapon(const weaponProperties &properties);
 
-    virtual void fire(ProjectileType projectile, Player &player) {return;}
+    virtual void fire(ProjectileType projectile, b2World* world, sf::Vector2f position, sf::Vector2f target) = 0;
     
     std::vector<std::shared_ptr<Projectile>>& get_cartridge() {return cartridge;}
+	virtual ~Weapon();
 
 protected:
     std::vector<std::shared_ptr<Projectile>> cartridge;
@@ -50,7 +51,12 @@ class Gun: public Weapon {
 public:
     Gun(const weaponProperties &properties);
 
-    virtual void fire(ProjectileType projectile, Player &player) override;
+    virtual void fire(
+		ProjectileType projectile,
+		b2World* world,
+		sf::Vector2f position,
+		sf::Vector2f target
+	) override;
 private:
 };
 

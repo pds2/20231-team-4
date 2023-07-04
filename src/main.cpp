@@ -8,14 +8,10 @@ int main() {
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
 	mode.width *= 0.8, mode.height *= 0.8;
 	Context ctx = {
-		sf::RenderWindow(mode, "Hello, World!"),
-		b2Vec2(0,0)
+		sf::RenderWindow(mode, "Hello, World!")
 	};
 	ctx.window.setFramerateLimit(60);
 	ctx.window.setVerticalSyncEnabled(true);
-
-	MyContactListener contactListener;
-	ctx.world.SetContactListener(&contactListener);
 
 	try {
 		Assets::init();

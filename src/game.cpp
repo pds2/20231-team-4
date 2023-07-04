@@ -9,74 +9,37 @@
 #include "menu.hpp"
 #include "assets.hpp"
 
-
-void updateMovement(Collidable &obj, sf::RenderWindow &window) {
-	sf::Vector2f new_position (obj.get_body()->GetPosition().x*PPM, 
-							   obj.get_body()->GetPosition().y*PPM);
-	double rotation = -1*obj.get_body()->GetAngle() * DEG_PER_RAD;
-
-	obj.setPosition_(new_position, rotation);
-}
-
-void handleAttack(std::vector<std::shared_ptr<Projectile>>& cartridge, sf::RenderWindow& window) {
-	auto it = cartridge.begin();
-	while(it != cartridge.end()) {
-		if(auto proj = *it) {
-			proj->get_body()->SetLinearVelocity(proj->get_velocity());
-			updateMovement(*proj, window);
-
-			if(proj->getCollisionData()->colliding || proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) || proj->_distance() >= proj->get_range()) {
-				it->reset();
-				it = cartridge.erase(it);
-			} else
-				it++;
-		} else {
-			it = cartridge.erase(it);
-		}
-	}
-}
-
-void handleEnemies(std::vector<std::shared_ptr<Enemy>>& enemies, sf::RenderWindow& window) {
-	auto it = enemies.begin();
-	while(it != enemies.end()) {
-		if(auto enemy = *it) {
-			if(enemy->getCollisionData()->colliding && 
-			   enemy->getCollisionData()->category == ((u32) CollidableType::PROJECTILE|(u32)CollidableType::DYNAMIC)) {
-
-				enemy->get_properties()._health -= enemy->getCollisionData()->damage_take;
-				enemy->getCollisionData()->colliding = 0;
-
-				if(enemy->get_properties()._health <= 0) {
-					it->reset();
-					it = enemies.erase(it);
-				} else 
-					it++;
-			} else	
-				it++;
-		} else
-			it = enemies.erase(it);
-	}
-}
-
-
 Game::Game(Context& ctx):
 	State(ctx, 1),
 	map("assets/cave.tmx"),
-	avgFrame(0)
+	avgFrame(0),
+	world({0, 0})
 {
+	world.SetContactListener(&contactListener);
+
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
-	
-	player_ = std::make_unique<Player>(0,0,
-									  &ctx.world,
-									  new Box(10,10,100.f),
-									  b2_dynamicBody,
-									  "frog.png",
-									  PlayerProperties(100, 10, 3),
-									  WeaponType::GUN);
-	
-	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
+
+	player = std::make_unique<Player>(
+		&world,
+		sf::Vector2f(100, 100),
+		sf::Vector2f(16, 16),
+		b2_dynamicBody,
+		"assets/frog.png",
+		PlayerProperties(100, 10, 3),
+		WeaponType::GUN
+	);
+
+	for(auto& c: map.collisions()) {
+		obstacles.push_back(std::make_unique<Collidable>(
+			&world,
+			sf::Vector2f(c.left, c.top),
+			sf::Vector2f(c.width, c.height),
+			b2_staticBody
+		));
+		ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
+	}
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 }
 
@@ -91,18 +54,15 @@ void Game::tick() {
 	avgFrame = avgFrame * 0.9 + elapsed.asSeconds() * 0.1;
 	map.update(elapsed);
 
-	player_->_move(ctx.window, camera);
-	player_->_attack();
-	updateMovement(*player_, ctx.window);
-	handleAttack(player_->get_weapon()->get_cartridge(), ctx.window);
-	
+	ctx.window.setView(camera);
+	auto mp = sf::Mouse::getPosition(ctx.window);
+	sf::Vector2f mpos = ctx.window.mapPixelToCoords(mp);
+	player->move();
+	player->attack(mpos);
 
-
-
-	sf::Vector2f ps = player_->getSize_();
-	sf::Vector2f pp = player_->getPosition_(); //+ speed;
+	sf::Vector2f ps = player->getSize();
+	sf::Vector2f pp = player->getPosition();
 	sf::Vector2f pc = pp + ps * 0.5f;
-	//testPlayer.setPosition(pp);
 
 	sf::Vector2f cs = camera.getSize();
 	sf::Vector2f cc = camera.getCenter();
@@ -111,45 +71,42 @@ void Game::tick() {
 	cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
 	camera.setCenter(cc);
 
-	sf::Clock ffClock;
-	for(std::weak_ptr e: enemies_.enemies_) ff.addEnemy(e.lock()->getPosition_(), e.lock()->getSize_());
+	for(std::weak_ptr e: enemies.enemies) ff.addEnemy(e.lock()->getPosition(), e.lock()->getSize());
 	ff.calculate(pc, ps);
-	ffCalcTime = ffCalcTime * 0.9 + 0.1 * ffClock.getElapsedTime().asMilliseconds();
 
-	for(std::weak_ptr e: enemies_.enemies_) {
-		auto es = e.lock()->getSize_();
-		auto ep = e.lock()->getPosition_();
+	for(std::weak_ptr enemy: enemies.enemies) {
+		auto e = enemy.lock();
+		auto es = e->getSize();
+		auto ep = e->getPosition();
 		auto s = ff.query(ep, es);
-
-		if(s != sf::Vector2f(0,0))
-			e.lock()->_move(s);
-		else
-			e.lock()->_move(*player_);
-		
-		updateMovement(*e.lock(), ctx.window);
+		e->move(s);
 	}
 
-	handleEnemies(enemies_.enemies_, ctx.window);
+	world.Step(elapsed.asSeconds(), 6, 3);
+	player->updatePosition();
+	for(auto& e: enemies.enemies) e->updatePosition();
+	player->updateProjectiles();
+	enemies.updateHealths();
+	player->updateHealth();
 }
 
 void Game::render() {
 	renderer.clear();
 	map.render(renderer);
 
-	for(std::weak_ptr e: enemies_.enemies_) 
-		renderer.insert(0, e.lock()->get_sprite());
+	for(std::weak_ptr e: enemies.enemies)
+		renderer.insert(0, *e.lock());
 	
-	for(std::weak_ptr projectile: player_->get_weapon()->get_cartridge()) 	
-		renderer.insert(0, *projectile.lock()->get_sfml_shape());
+	for(std::weak_ptr projectile: player->get_weapon()->get_cartridge()) 	
+		renderer.insert(0, *projectile.lock());
 
-	renderer.insert(0, player_->get_sprite());
+	renderer.insert(0, *player);
 
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		ctx.window.draw(ff);
 
-	ctx.window.setView(camera);
 	auto mp = sf::Mouse::getPosition(ctx.window);
 	sf::Vector2f pos = ctx.window.mapPixelToCoords(mp);
 	sf::Text debug;
@@ -168,6 +125,7 @@ void Game::render() {
 	ctx.window.setView(v);
 	ctx.window.draw(debug);
 }
+
 void Game::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::MouseWheelScrolled) {
 		auto cs = camera.getSize();
@@ -180,12 +138,15 @@ void Game::handleEvent(sf::Event event) {
 		auto mp = sf::Mouse::getPosition(ctx.window);
 		auto pos = ctx.window.mapPixelToCoords(mp);
 
-		enemies_.enemies_.push_back(std::make_shared<Enemy>(
-									pos.x, pos.y, 
-									&ctx.world, 
-									new Box(8, 8, 1.f), 
-									b2_dynamicBody, "bugol.png", 
-									EnemyProperties(10,10,10, 1)));
+		auto enemy = std::make_shared<Enemy>(
+			&world,
+			pos,
+			sf::Vector2f(8, 8),
+			b2_dynamicBody,
+			Assets::bugol,
+			EnemyProperties(10,10,10, 1)
+		);
+		enemies.enemies.push_back(enemy);
 	}
 	if(event.type == sf::Event::Resized) {
 		sf::Vector2u ws = ctx.window.getSize();

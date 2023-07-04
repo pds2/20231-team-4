@@ -22,9 +22,12 @@ class Game: public State {
 	f64 avgFrame;
 	TileMap map;
 
-	std::unique_ptr<Player> player_;
-	Enemies enemies_;
+	MyContactListener contactListener;
+	b2World world;
+	std::vector<std::unique_ptr<Collidable>> obstacles;
 
+	std::unique_ptr<Player> player;
+	Enemies enemies;
 
 	std::vector<sf::RectangleShape> testEnemies;
 	sf::RectangleShape testPlayer;

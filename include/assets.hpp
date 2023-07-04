@@ -5,6 +5,7 @@
 namespace Assets {
 	void init();
 	extern sf::Font font;
+	extern sf::Texture bugol;
 }
 
 #endif

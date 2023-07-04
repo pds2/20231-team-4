@@ -1,0 +1,72 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "forest.tmx",
+    "expandedProjectPaths": [
+        "LPC Submissions Merged 2.0",
+        "."
+    ],
+    "fileStates": {
+        "LPC Submissions Merged 2.0/Exterior Tiles.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "LPC Submissions Merged 2.0/Outside Objects.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "LPC Submissions Merged 2.0/Terrain and Outside.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "cave.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 464.6666666666666,
+                "y": 468.66666666666674
+            }
+        },
+        "forest.tmx": {
+            "expandedObjectLayers": [
+                5
+            ],
+            "scale": 0.75,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 454,
+                "y": 309.99999999999994
+            }
+        },
+        "isle.tmx": {
+            "scale": 5.5,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 554.2727272727273,
+                "y": 57.18181818181817
+            }
+        },
+        "lpc-terrains/terrain-map-v7.tsx": {
+            "scaleInDock": 1
+        }
+    },
+    "last.imagePath": "/nobkp/code/cpp/pds2/20231-team-4/assets/LPC Submissions Merged 2.0",
+    "map.height": 30,
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "isle.tmx",
+        "forest.tmx"
+    ],
+    "project": "project.tiled-project",
+    "property.type": "int",
+    "recentFiles": [
+        "isle.tmx",
+        "forest.tmx",
+        "cave.tmx",
+        "LPC Submissions Merged 2.0/Outside Objects.tsx",
+        "LPC Submissions Merged 2.0/Terrain and Outside.tsx",
+        "LPC Submissions Merged 2.0/Exterior Tiles.tsx"
+    ]
+}

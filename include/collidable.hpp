@@ -27,77 +27,35 @@ constexpr u32 operator|(u32 a, CollidableType b) {
     return a | (u32)b;
 }
 
-
 /*
- * box2d shape structures
+ * Collidable struct
  */
-struct Shapeb2 {
-    b2BodyDef _BodyDef;
-    b2FixtureDef _FixtureDef;
-    double density;
-
-    Shapeb2(double d): density(d) {}
-    virtual b2Shape* getB2Shape() {return nullptr;}
-};
-
-struct Box: public Shapeb2 {
-    b2PolygonShape box_Shape;
-    double width;
-    double height;
-
-    Box(double w=0, double h=0, double d=0) : width(w), height(h), Shapeb2(d) {}
-    virtual b2Shape* getB2Shape() override {return &box_Shape;}
-};
-
-struct Circle: public Shapeb2 {
-    b2CircleShape circle_Shape;
-    double radius;
-
-    Circle(double r=0, double d=0) : radius(r), Shapeb2(d) {}
-    virtual b2Shape* getB2Shape() override {return &circle_Shape;}
-};
-
-
-/*
- * Collidable class
- */
-
-class Collidable {
-public:
+struct Collidable {
 
     using enum CollidableType;
-    Collidable(float x=0, float y=0, b2World *world=nullptr, Shapeb2* shape=nullptr, b2BodyType body_type=b2_staticBody, std::string texture="", sf::Color color = sf::Color::Black, u32 categoryBits = 0|STATIC, u32 maskBits = 0|DYNAMIC|STATIC);
+    Collidable(
+		b2World *world,
+		sf::Vector2f position,
+		sf::Vector2f size,
+		b2BodyType body_type=b2_staticBody,
+		u32 categoryBits = 0|STATIC,
+		u32 maskBits = 0|DYNAMIC|STATIC
+	);
 
-    b2Body* get_body() {return _body;}
-    b2World* get_world() {return _world;}
-
-    sf::Shape* get_sfml_shape() {return _sfml_shape;}
-    sf::Sprite& get_sprite() {return _sprite;}
-
-    CollisionData* getCollisionData() {return _data;}
-
-    sf::Vector2f& getPosition_() {return position_;}
-    sf::Vector2f& getSize_() {return size_;}
-
-    void setPosition_(sf::Vector2f& new_position, double rotation = 0);
- 
-    ~Collidable();
-protected:
-    //Physical properties
+    // Physical properties
     b2World *_world;
     b2Body *_body;
-    Shapeb2 *_b2_shape;
 
-    //Graphic properties
-    sf::Sprite _sprite;
-    sf::Texture _startingTexture;
-    sf::Shape *_sfml_shape; 
+    sf::Vector2f size;
 
-    sf::Vector2f position_;
-    sf::Vector2f size_;
+    // Collision properties
+    CollisionData *data;
 
-    //Collision properties
-    CollisionData *_data;
+	// Methods
+	void setVelocity(sf::Vector2f velocity);
+	sf::Vector2f getPosition() const;
+
+	~Collidable();
 };
 
 

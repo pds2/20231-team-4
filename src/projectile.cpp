@@ -3,24 +3,60 @@
 using namespace std;
 using namespace sf;
 
-Projectile::Projectile(float x, float y, b2World* world, Shapeb2* shape, string texture, Color color, float damage, float range)
-    : Collidable(x, y, world, shape, b2_dynamicBody, texture, color, _categoryBits, _maskBits), _damage(damage), _range(range), _starting_position(Vector2f(x, y)) {
-        _body->SetBullet(true);
-        _data->damage_do = _damage;
+Projectile::Projectile(
+	b2World* world,
+	sf::Vector2f position,
+	sf::Vector2f target,
+	sf::Vector2f size,
+	float damage,
+	float range
+):
+	collision(world, position, size, b2_dynamicBody, _categoryBits, _maskBits),
+	damage(damage),
+	range(range),
+	starting_position(position)
+{
+	collision._body->SetBullet(true);
+	collision.data->damage_do = damage;
+
+	sf::Vector2f v = target - position;
+	if(v.x || v.y) v *= 10 / hypot(v.x, v.y);
+	collision.setVelocity(v);
 }
 
-double Projectile::_distance() {
-    b2Vec2 pos = this->get_body()->GetPosition();
-    Vector2f current_position = Vector2f(pos.x*PPM, pos.y*PPM);
-
-    Vector2f tangentVector = current_position - _starting_position;
-    double distance = sqrt(pow(tangentVector.x,2) + pow(tangentVector.y,2));
-    
-    return distance;
+double Projectile::distance() {
+	sf::Vector2f current_position = collision.getPosition();
+	Vector2f tangentVector = current_position - starting_position;
+	return hypot(tangentVector.x, tangentVector.y);
 }
 
+sf::Vector2f Projectile::getPosition() const {
+	return collision.getPosition();
+}
 
-NormalProj::NormalProj(float x, float y, b2World* world, Shapeb2* shape, string texture, Color color, float damage, float range)
-    : Projectile(x, y, world, shape, texture, color, damage, range) {}
+bool Projectile::isAlive() {
+	return !collision.data->colliding &&
+		collision._body->GetLinearVelocity() != b2Vec2(0,0) &&
+		distance() < range;
+}
 
+NormalProj::NormalProj(
+	b2World* world,
+	sf::Vector2f position,
+	sf::Vector2f target,
+	float damage,
+	float range
+):
+	Projectile(world, position, target, {4, 4}, damage, range),
+	circle(2)
+{}
 
+void NormalProj::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+	target.draw(circle, states);
+}
+
+void NormalProj::updatePosition() {
+	auto pos = collision.getPosition();
+	circle.setPosition(collision.getPosition());
+	circle.setOrigin({ 1, 1 });
+}
