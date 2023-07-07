@@ -7,15 +7,15 @@ using namespace sf;
 /*
  * Weapon general configurations
  */
-Weapon::Weapon(const weaponProperties &properties) 
+Weapon::Weapon(const WeaponProperties &properties) 
     : _wProperties(properties), counter(_wProperties._fire_rate) {}
 
 
 /* 
  * Gun configurations
  */
-Gun::Gun(const weaponProperties &properties)
-    : Weapon(properties) {}
+Gun::Gun()
+    : Weapon(WeaponProperties(damage, speed, fireRate)) {}
 
 
 /*
@@ -34,8 +34,7 @@ void Gun::fire(ProjectileType projectile, Player &player) {
                     player.getPosition_().x,
                     player.getPosition_().y,
                     player.get_world(),
-                    new Circle(3,1),
-                    Color::Blue,
+                    new Circle(5,1),
                     (*this)._wProperties._damage,
                     1000
                 ));

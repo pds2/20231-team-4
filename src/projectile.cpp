@@ -32,9 +32,8 @@ double Projectile::_distance() {
 }
 
 
-NormalProj::NormalProj(float x, float y, b2World* world, Shapeb2* shape, string texture, float damage, float range)
-    : Projectile(x, y, world, shape, texture, damage, range) {}
-NormalProj::NormalProj(float x, float y, b2World* world, Shapeb2* shape, Color color, float damage, float range)
-    : Projectile(x, y, world, shape, color, damage, range) {}
+NormalProj::NormalProj(float x, float y, b2World* world, Shapeb2* shape, float damage, float range)
+    : Projectile(x, y, world, shape, "normalbullet.png", damage, range) {}
+
 
 

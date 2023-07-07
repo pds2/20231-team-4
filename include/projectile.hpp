@@ -39,7 +39,6 @@ protected:
 
 class NormalProj: public Projectile {
 public:
-    NormalProj(float x, float y, b2World* world, Shapeb2* shape, std::string texture, float damage, float range);
-    NormalProj(float x, float y, b2World* world, Shapeb2* shape, sf::Color texture, float damage, float range);
+    NormalProj(float x, float y, b2World* world, Shapeb2* shape, float damage, float range);
 
 };

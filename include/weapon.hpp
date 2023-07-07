@@ -18,20 +18,21 @@ enum class WeaponType {
     GUN
 };
 
-struct weaponProperties {
+struct WeaponProperties {
+public:
     double _damage;
     double _speed;
     double _fire_rate;
 
-    weaponProperties(double damage, double speed, double fireRate)
+    WeaponProperties(double damage, double speed, double fireRate)
         : _damage(damage), _speed(speed), _fire_rate(fireRate) {}
-    weaponProperties(const weaponProperties &properties) 
-        : weaponProperties(properties._damage, properties._speed, properties._fire_rate) {}
+    WeaponProperties(const WeaponProperties &properties) 
+        : WeaponProperties(properties._damage, properties._speed, properties._fire_rate) {}
 };
 
 class Weapon {
 public:
-    Weapon(const weaponProperties &properties);
+    Weapon(const WeaponProperties &properties);
 
     virtual void fire(ProjectileType projectile, Player &player) {return;}
     
@@ -39,7 +40,7 @@ public:
 
 protected:
     std::vector<std::shared_ptr<Projectile>> cartridge;
-    weaponProperties _wProperties;
+    WeaponProperties _wProperties;
     b2Vec2 velocity;
     
     double counter;
@@ -47,10 +48,14 @@ protected:
 
 
 class Gun: public Weapon {
+private:
+    static constexpr const double damage = 5;
+    static constexpr const double speed = 10;
+    static constexpr const double fireRate = 10;
+
 public:
-    Gun(const weaponProperties &properties);
+    Gun();
 
     virtual void fire(ProjectileType projectile, Player &player) override;
-private:
 };
 

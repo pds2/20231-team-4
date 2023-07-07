@@ -9,15 +9,15 @@ using namespace sf;
 
 void Enemy::default_config() {
     _data->damage_do = get_properties()._damage;
-    _data->ddelay_do = get_properties().damage_delay;
+    _data->ddelay_do = _data->counter = get_properties().damage_delay;
 }
 
 Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, string texture, EnemyProperties &&properties) 
-    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _eProperties(properties), _gui(*this) {
+    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _eProperties(std::move(properties)), _gui(*this) {
     default_config();
 }
 Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, Color color, EnemyProperties &&properties) 
-    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _eProperties(properties), _gui(*this) {
+    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _eProperties(std::move(properties)), _gui(*this) {
     default_config();
 }
 
@@ -85,7 +85,7 @@ void EnemyGUI::renderGUI(ZRenderer& renderer) {
 
 XpOrb::XpOrb(Enemy& e): xp(e.get_properties()._xp), 
     Collidable(e.getPosition_().x, e.getPosition_().y, e.get_world(), 
-    new Circle(3.f, 0), b2_staticBody, sf::Color(100,250,100,200), 
+    new Circle(5.f, 0), b2_staticBody, "xporb.png", 
     _categoryBits, _maskBits) {
 
     _data->damage_do = xp;
@@ -95,7 +95,7 @@ void XpOrb::renderOrb(ZRenderer& renderer) {
     renderer.insert(0, this->get_drawable());
 }
 
-Enemies::Enemies(int delay) : spawn_delay(delay), counter(0) {}
+Enemies::Enemies(int delay) : spawn_delay(delay), counter(delay) {}
 
 void Enemies::handleEnemies() {
     auto it = enemies_.begin();
@@ -143,7 +143,7 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
 
         auto isInsidePlayerBounds = [&](sf::Vector2f pos) -> bool {
             double distance = std::sqrt(std::pow(pos.x - pp.x, 2) + std::pow(pos.y - pp.y, 2));
-            return distance > 250;
+            return distance > 500;
         };
 
         auto isOutsideWindowBounds = [&](sf::Vector2f pos) -> bool {
@@ -154,8 +154,8 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
         while(isInsidePlayerBounds(pos) || isOutsideWindowBounds(pos))
             pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
 
-        enemies_.push_back(std::make_shared<Enemy>(pos.x, pos.y, &world, new Box(8, 8, 1.f),  
-        "bugol.png", EnemyProperties(30,30,100,10, 1+rand()%1, std::make_pair(1, 5))));
+        enemies_.push_back(std::make_shared<Bugol>(pos.x, pos.y, &world));
+
         counter = 0;
     } else
         counter++;
@@ -175,3 +175,6 @@ void Enemies::handleOrbs() {
         }
     }
 }
+
+Bugol::Bugol(float x, float y, b2World* world) 
+    : Enemy(x, y, world, new Box(8,8,1.f), "bugol.png", EnemyProperties(health, damage, damage_delay, defense, agility, xp_range)) {}

@@ -9,13 +9,12 @@
 struct PlayerProperties {
 private:
     double default_health;
-    double default_defense;
-    double default_agility;
+
 public:
-    double _xp;
+    int level;
     double level_up;
+    double _xp;
     double xpFieldRange;
-    
 
     double _health;
     double _defense;
@@ -23,22 +22,22 @@ public:
     
     PlayerProperties(double health, double defense, double agility) 
         : _health(health), _defense(defense), _agility(agility), 
-        default_health(health), default_defense(100), default_agility(1),
-        _xp(0), level_up(50), xpFieldRange(10) {
+        _xp(0), level(1), level_up(50), xpFieldRange(10), default_health(health) {
+            
+    }
+    PlayerProperties(PlayerProperties&& p) 
+        : PlayerProperties(p._health, p._defense, p._agility) {
+            std::cout << level << " " << level_up << std::endl;
     }
 
     const double get_fieldRange() const {return xpFieldRange;}
     const double get_default_health() const {return default_health;}
     
-    void update_xp(double xp) {
-        if(_xp+xp >= level_up)
-            _xp += xp-level_up;
-        else 
-            _xp += xp;
-    }
+    void levelUp();
+    void update_xp(double xp);
 };
 
-class PlayerGUI {
+struct PlayerGUI {
 private:
     const Player& player_;
 
@@ -61,7 +60,7 @@ public:
     ~PlayerGUI() = default;
 };
 
-class XpField: public Collidable {
+struct XpField: public Collidable {
 private:
     Player& player_;
 
@@ -96,8 +95,8 @@ private:
     void default_config(WeaponType& weaponType);
 
 public:
-    Player(float x, float y, b2World* world, Shapeb2* shape, std::string texture, WeaponType weaponType);
-    Player(float x, float y, b2World* world, Shapeb2* shape, sf::Color color, WeaponType weaponType);
+    Player(float x, float y, b2World* world, Shapeb2* shape, std::string texture, PlayerProperties&& properties, WeaponType weaponType);
+    Player(float x, float y, b2World* world, Shapeb2* shape, sf::Color color, PlayerProperties&& properties, WeaponType weaponType);
     
     Weapon* get_weapon() {return _weapon;}
     PlayerProperties& get_properties() {return _pProperties;}
@@ -112,4 +111,15 @@ public:
     void handlePlayer();
 
     ~Player();
+};
+
+
+class Frog: public Player {
+private:
+    static constexpr const double health = 500;
+    static constexpr const double defense = 10;
+    static constexpr const double agility = 3;
+public:
+    Frog(float x, float y, b2World* world, WeaponType weaponType);
+    
 };

@@ -14,29 +14,37 @@ private:
     double default_health;
 
 public:
+    int level;
     double _health;
-    double _damage;
-    int damage_delay;
     double _defense;
     double _agility;
 
     double _xp;
 
+    double _damage;
+    int damage_delay;
+
     EnemyProperties(double health, double damage, double damage_delay, double defense, double agility, std::pair<int, int> xpRange) 
         : _health(health), _damage(damage), damage_delay(damage_delay), 
-        _defense (defense), _agility(agility), default_health(health), xp_range(xpRange) {
+        _defense (defense), _agility(agility), default_health(health), 
+        xp_range(xpRange), level(1) {
         
         _xp = xp_range.first+(std::rand()%xp_range.second);
     };
-    EnemyProperties(const EnemyProperties &properties) 
+    EnemyProperties(EnemyProperties&& properties) 
         : EnemyProperties(properties._health, properties._damage, properties.damage_delay, properties._defense, properties._agility, properties.getXpRange()) {};
 
     double get_default_health() const {return default_health;}
     std::pair<int, int> getXpRange() const {return xp_range;}
+
+    void setXpRange(std::pair<int, int> new_range) {
+        xp_range = new_range;
+        _xp = xp_range.first+(std::rand()%xp_range.second);
+    }
 };
 
 class Enemy;
-class EnemyGUI {
+struct EnemyGUI {
 private:
     const Enemy& enemy_;
 
@@ -111,4 +119,18 @@ struct Enemies {
     void handleEnemies();
 
     void handleOrbs();
+};
+
+class Bugol: public Enemy {
+private:
+    static constexpr const std::pair<int, int> xp_range = {1, 3};
+    static constexpr const double health = 30;
+    static constexpr const double defense = 0;
+    static constexpr const double agility = 2;
+    static constexpr const int damage_delay = 100;
+    static constexpr const double damage = 10;
+
+public:
+    Bugol(float x, float y, b2World* world);
+    
 };

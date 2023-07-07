@@ -6,20 +6,19 @@ using namespace std;
 void Player::default_config(WeaponType& weaponType) {
     switch(weaponType) {
         case WeaponType::GUN:
-            _weapon = new Gun(weaponProperties(5,20,5));
+            _weapon = new Gun();
             break;
     }
 }
 
-Player::Player(float x, float y, b2World* world, Shapeb2* shape, string texture, WeaponType weaponType) 
-    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _pProperties(500, 10, 3), _gui(*this), xp_field(*this) {
+Player::Player(float x, float y, b2World* world, Shapeb2* shape, string texture, PlayerProperties&& properties, WeaponType weaponType) 
+    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _pProperties(std::move(properties)), _gui(*this), xp_field(*this) {
     default_config(weaponType);
 }
-Player::Player(float x, float y, b2World* world, Shapeb2* shape, Color color, WeaponType weaponType) 
-    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _pProperties(500, 10, 3), _gui(*this), xp_field(*this) {
+Player::Player(float x, float y, b2World* world, Shapeb2* shape, Color color, PlayerProperties&& properties, WeaponType weaponType) 
+    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _pProperties(std::move(properties)), _gui(*this), xp_field(*this) {
     default_config(weaponType);
 }
-
 
 Player::~Player() {
     delete _weapon;
@@ -193,4 +192,22 @@ void Player::handlePlayer() {
                 break;
         }
     }
+}
+
+Frog::Frog(float x, float y, b2World* world, WeaponType weaponType)
+    : Player(x, y, world, new Box(10, 10, 100.f), "frog.png", PlayerProperties(health, defense, agility), weaponType) {}
+
+
+void PlayerProperties::update_xp(double xp) {
+    if(_xp+xp >= level_up) {
+        _xp += xp-level_up;
+        levelUp();
+    } else
+        _xp += xp;
+}
+
+void PlayerProperties::levelUp() {
+    level++;
+    level_up *= 2;
+    cout << level << " " << level_up << endl;
 }
