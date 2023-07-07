@@ -180,7 +180,6 @@ void Player::handlePlayer() {
     xp_field.handleField();
     
     if(getCollisionData()->get_colliding()) {
-        cout << getCollisionData()->other_data->get_counter()  << " " << (getCollisionData()->other_data->collided == false) << endl;
         switch(getCollisionData()->get_category()) {
             case ((u32)CollidableType::ENEMY|(u32)CollidableType::DYNAMIC):
                 if(getCollisionData()->other_data->get_counter() >= getCollisionData()->get_ddelayTake() - 1 && 
