@@ -155,7 +155,7 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
             pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
 
         enemies_.push_back(std::make_shared<Enemy>(pos.x, pos.y, &world, new Box(8, 8, 1.f),  
-        "bugol.png", EnemyProperties(30,10,100,10, 1+rand()%1, std::make_pair(1, 5))));
+        "bugol.png", EnemyProperties(30,30,100,10, 1+rand()%1, std::make_pair(1, 5))));
         counter = 0;
     } else
         counter++;
@@ -165,8 +165,8 @@ void Enemies::handleOrbs() {
     auto it = xpOrbs_.begin();
     while(it != xpOrbs_.end()) {
         if(auto orb = *it) {
-            if(orb->getCollisionData()->get_colliding() && 
-			   orb->getCollisionData()->get_category() == 
+            if(orb->getCollisionData()->colliding && 
+			   orb->getCollisionData()->category == 
                (u32) CollidableType::XPFIELD) {
                 it->reset();
                 it = xpOrbs_.erase(it);

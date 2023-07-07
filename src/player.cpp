@@ -168,7 +168,7 @@ void XpField::updateField() {
 }
 
 void XpField::handleField() {
-    player_.get_properties().update_xp(getCollisionData()->get_damageTake());
+    player_.get_properties().update_xp(getCollisionData()->damage_take);
     getCollisionData()->damage_take = 0;
 }
 
@@ -179,13 +179,15 @@ void XpField::upgradeField() {
 void Player::handlePlayer() {
     xp_field.handleField();
     
-    if(getCollisionData()->get_colliding()) {
-        switch(getCollisionData()->get_category()) {
+    if(getCollisionData()->colliding) {
+        switch(getCollisionData()->category) {
             case ((u32)CollidableType::ENEMY|(u32)CollidableType::DYNAMIC):
-                if(getCollisionData()->other_data->get_counter() >= getCollisionData()->get_ddelayTake() - 1 && 
+                if(_pProperties._health < getCollisionData()->damage_take) {
+
+                } else if (getCollisionData()->other_data->counter >= getCollisionData()->ddelay_take - 1 && 
                    getCollisionData()->other_data->collided == false && 
                    _pProperties._health > 0) {
-                   _pProperties._health -= getCollisionData()->get_damageTake();
+                   _pProperties._health -= getCollisionData()->damage_take;
                   getCollisionData()->other_data->collided = true;
                 }
                 break;

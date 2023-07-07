@@ -137,14 +137,6 @@ public:
     CollisionData() : colliding(0), category(0), 
     damage_do(0), damage_take(0), counter(0), 
     ddelay_do(0), ddelay_take(0), collided(0) {};
-
-    int get_counter() const {return counter;}
-    int get_damageDo() const {return damage_do;}
-    int get_damageTake() const {return damage_take;}
-    int get_ddelayDo() const {return ddelay_do;}
-    int get_ddelayTake() const {return ddelay_take;}
-    bool get_colliding() const {return colliding;}
-    u32 get_category() const {return category;}
 };
 
 class MyContactListener: public b2ContactListener {
