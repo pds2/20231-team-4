@@ -162,17 +162,17 @@ void MyContactListener::BeginContact(b2Contact* contact) {
     CollisionData* dataB = reinterpret_cast<CollisionData*>(bodyB->GetUserData().pointer);
 
     if(dataA) {
-        dataA->enemy = dataB;
-
+        dataA->other_data = dataB;
         dataA->category = (u32) fixtureB->GetFilterData().categoryBits;
         dataA->damage_take = dataB->damage_do;
+        dataA->ddelay_take = dataB->ddelay_do;
         dataA->colliding = 1;
     }
     if(dataB) {
-        dataB->enemy = dataA;
-
+        dataB->other_data = dataA;
         dataB->category = (u32) fixtureA->GetFilterData().categoryBits;
         dataB->damage_take = dataA->damage_do;
+        dataB->ddelay_take = dataA->ddelay_do;
         dataB->colliding = 1;
     }
 }
@@ -188,14 +188,14 @@ void MyContactListener::EndContact(b2Contact* contact) {
     CollisionData* dataA = reinterpret_cast<CollisionData*>(bodyA->GetUserData().pointer);
     CollisionData* dataB = reinterpret_cast<CollisionData*>(bodyB->GetUserData().pointer);
     
-    /*
+    
     if(dataA) {
         dataA->colliding = 0;
     }
     if(dataB) {
         dataB->colliding = 0;
     }
-    */
+    
 
     bodyB->SetAngularVelocity(0);
     bodyB->SetLinearVelocity(b2Vec2(0,0));

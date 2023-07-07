@@ -21,7 +21,7 @@ class Game: public State {
 	sf::Clock clock;
 	f64 avgFrame;
 	TileMap map;
-
+	
 	std::unique_ptr<Player> player_;
 	Enemies enemies_;
 

@@ -11,25 +11,25 @@
 struct EnemyProperties {
 private:
     std::pair<int, int> xp_range;
-
     double default_health;
 
 public:
     double _health;
     double _damage;
+    int damage_delay;
     double _defense;
     double _agility;
 
     double _xp;
-    
 
-    EnemyProperties(double health, double damage, double defense, double agility, std::pair<int, int> xpRange) 
-        : _health(health), _damage(damage), _defense(defense), _agility(agility),   default_health(health), xp_range(xpRange) {
+    EnemyProperties(double health, double damage, double damage_delay, double defense, double agility, std::pair<int, int> xpRange) 
+        : _health(health), _damage(damage), damage_delay(damage_delay), 
+        _defense (defense), _agility(agility), default_health(health), xp_range(xpRange) {
         
         _xp = xp_range.first+(std::rand()%xp_range.second);
     };
     EnemyProperties(const EnemyProperties &properties) 
-        : EnemyProperties(properties._health, properties._damage, properties._defense, properties._agility, properties.getXpRange()) {};
+        : EnemyProperties(properties._health, properties._damage, properties.damage_delay, properties._defense, properties._agility, properties.getXpRange()) {};
 
     double get_default_health() const {return default_health;}
     std::pair<int, int> getXpRange() const {return xp_range;}

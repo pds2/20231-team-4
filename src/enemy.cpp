@@ -8,7 +8,8 @@ using namespace std;
 using namespace sf;
 
 void Enemy::default_config() {
-    _data->damage_do = this->get_properties()._damage;
+    _data->damage_do = get_properties()._damage;
+    _data->ddelay_do = get_properties().damage_delay;
 }
 
 Enemy::Enemy(float x, float y, b2World* world, Shapeb2* shape, string texture, EnemyProperties &&properties) 
@@ -100,23 +101,37 @@ void Enemies::handleEnemies() {
     auto it = enemies_.begin();
 	while(it != enemies_.end()) {
 		if(auto enemy = *it) {
-			if(enemy->getCollisionData()->colliding && 
-			   enemy->getCollisionData()->category == 
-               ((u32) CollidableType::PROJECTILE|(u32)CollidableType::DYNAMIC)) {
+            if(enemy->getCollisionData()->counter < enemy->get_properties().damage_delay)   
+                enemy->getCollisionData()->counter++;
 
-				enemy->get_properties()._health -= enemy->getCollisionData()->damage_take;
-				enemy->getCollisionData()->colliding = 0;
-
-				if(enemy->get_properties()._health <= 0) {
-                    xpOrbs_.push_back(std::make_shared<XpOrb>(*enemy));
-					it->reset();
-					it = enemies_.erase(it);
-				} else 
-					it++;
-			} else	
-				it++;
-		} else
-			it = enemies_.erase(it);
+            if(enemy->getCollisionData()->colliding) {
+                switch(enemy->getCollisionData()->category) {
+                    
+                    case ((u32)CollidableType::PROJECTILE|(u32)CollidableType::DYNAMIC): 
+                        enemy->get_properties()._health -= enemy->getCollisionData()->damage_take;
+                        
+                        if(enemy->get_properties()._health <= 0) {
+                            xpOrbs_.push_back(std::make_shared<XpOrb>(*enemy));
+                            it->reset();
+                        }
+                        break;
+                    
+                    case ((u32)CollidableType::PLAYER|(u32)CollidableType::DYNAMIC):
+                        if(enemy->getCollisionData()->counter >= enemy->get_properties().damage_delay)
+                            enemy->getCollisionData()->counter = 0;
+                            enemy->getCollisionData()->collided = false;
+                        break;
+                }
+                if(*it == nullptr) {
+                    it = enemies_.erase(it);
+                } else 
+                    it++;
+            
+            } else {
+                it++;
+            }
+        } else
+            it = enemies_.erase(it); 
 	}
 }
 
@@ -140,7 +155,7 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
             pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
 
         enemies_.push_back(std::make_shared<Enemy>(pos.x, pos.y, &world, new Box(8, 8, 1.f),  
-        "bugol.png", EnemyProperties(30,1,10, 1+rand()%1, std::make_pair(1, 5))));
+        "bugol.png", EnemyProperties(30,10,100,10, 1+rand()%1, std::make_pair(1, 5))));
         counter = 0;
     } else
         counter++;
@@ -150,8 +165,8 @@ void Enemies::handleOrbs() {
     auto it = xpOrbs_.begin();
     while(it != xpOrbs_.end()) {
         if(auto orb = *it) {
-            if(orb->getCollisionData()->colliding && 
-			   orb->getCollisionData()->category == 
+            if(orb->getCollisionData()->get_colliding() && 
+			   orb->getCollisionData()->get_category() == 
                (u32) CollidableType::XPFIELD) {
                 it->reset();
                 it = xpOrbs_.erase(it);

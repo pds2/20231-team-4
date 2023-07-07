@@ -6,7 +6,7 @@ using namespace std;
 void Player::default_config(WeaponType& weaponType) {
     switch(weaponType) {
         case WeaponType::GUN:
-            _weapon = new Gun(weaponProperties(5,20,10));
+            _weapon = new Gun(weaponProperties(5,20,5));
             break;
     }
 }
@@ -66,7 +66,6 @@ void Player::_move(RenderWindow &window, View& camera) {
     _gui.updateHPBar();
     _gui.updateXPBar();
     xp_field.updateField();
-    xp_field.handleField();
 }
 
 /*
@@ -74,29 +73,30 @@ void Player::_move(RenderWindow &window, View& camera) {
  * Different types of projectiles are fired according to certain
  * requirements
  */
+void Player::_attack(sf::RenderWindow &window) {
+    if(Keyboard::isKeyPressed(Keyboard::Space))
+        _weapon->fire(ProjectileType::NORMAL, *this);
+}
+
 void Player::handleAttack(RenderWindow& window) {
     auto it = _weapon->get_cartridge().begin();
     while(it != _weapon->get_cartridge().end()) {
         if(auto proj = *it) {
             proj->get_body()->SetLinearVelocity(proj->get_velocity());
             proj->updateMovement(window);
-
+            
             if(proj->getCollisionData()->colliding || 
                proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) ||
                proj->_distance() >= proj->get_range()) {
                 it->reset();
                 it = _weapon->get_cartridge().erase(it);
+            
             } else 
                 it++;
+
         } else
             it = _weapon->get_cartridge().erase(it);
     }
-}
-
-void Player::_attack(sf::RenderWindow &window) {
-    if(Keyboard::isKeyPressed(Keyboard::Space))
-        _weapon->fire(ProjectileType::NORMAL, *this);
-    handleAttack(window);
 }
 
 PlayerGUI::PlayerGUI(const Player& player) : player_(player) {
@@ -158,7 +158,7 @@ void PlayerGUI::renderGUI(ZRenderer& renderer) {
 }
 
 XpField::XpField(Player& p) : Collidable(p.getPosition_().x, p.getPosition_().y,
-p.get_world(), new Circle(10.f, 1.f), b2_dynamicBody,
+p.get_world(), new Circle(p.get_properties().xpFieldRange, 1.f), b2_dynamicBody,
 _categoryBits, _maskBits), player_(p) {}
 
 void XpField::updateField() {
@@ -168,16 +168,28 @@ void XpField::updateField() {
 }
 
 void XpField::handleField() {
-    player_.get_properties().update_xp(getCollisionData()->damage_take);
+    player_.get_properties().update_xp(getCollisionData()->get_damageTake());
     getCollisionData()->damage_take = 0;
 }
 
+void XpField::upgradeField() {
+    
+}
+
 void Player::handlePlayer() {
-    if(getCollisionData()->colliding && 
-    getCollisionData()->category == (u32)CollidableType::ENEMY|(u32)CollidableType::DYNAMIC &&
-    getCollisionData()->counter >= getCollisionData()->delay) {
-        this->get_properties()._health -= getCollisionData()->damage_take;
-        getCollisionData()->counter = 0;
-    } else 
-        getCollisionData()->counter++;
+    xp_field.handleField();
+    
+    if(getCollisionData()->get_colliding()) {
+        cout << getCollisionData()->other_data->get_counter()  << " " << (getCollisionData()->other_data->collided == false) << endl;
+        switch(getCollisionData()->get_category()) {
+            case ((u32)CollidableType::ENEMY|(u32)CollidableType::DYNAMIC):
+                if(getCollisionData()->other_data->get_counter() >= getCollisionData()->get_ddelayTake() - 1 && 
+                   getCollisionData()->other_data->collided == false && 
+                   _pProperties._health > 0) {
+                   _pProperties._health -= getCollisionData()->get_damageTake();
+                  getCollisionData()->other_data->collided = true;
+                }
+                break;
+        }
+    }
 }

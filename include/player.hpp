@@ -6,10 +6,11 @@
 #include "assets.hpp"
 #include "render.hpp"
 
-class PlayerProperties {
+struct PlayerProperties {
 private:
     double default_health;
-    
+    double default_defense;
+    double default_agility;
 public:
     double _xp;
     double level_up;
@@ -21,16 +22,17 @@ public:
     double _agility;
     
     PlayerProperties(double health, double defense, double agility) 
-        : _health(health), _defense(defense), _agility(agility), default_health(health),
-         _xp(0), level_up(50), xpFieldRange(100) {
+        : _health(health), _defense(defense), _agility(agility), 
+        default_health(health), default_defense(100), default_agility(1),
+        _xp(0), level_up(50), xpFieldRange(10) {
     }
 
-    double get_fieldRange() const {return xpFieldRange;}
-    double get_default_health() const {return default_health;}
+    const double get_fieldRange() const {return xpFieldRange;}
+    const double get_default_health() const {return default_health;}
     
     void update_xp(double xp) {
         if(_xp+xp >= level_up)
-            _xp = _xp+xp-level_up;
+            _xp += xp-level_up;
         else 
             _xp += xp;
     }
@@ -72,11 +74,16 @@ public:
 
     void updateField();
     void handleField();
+    void upgradeField();
 
     ~XpField() = default;
 };
 
 class Player: public Collidable {
+protected:
+    Weapon* _weapon;
+    PlayerProperties _pProperties;
+
 private:
     using enum CollidableType;
     static constexpr const u32 _categoryBits = 0|PLAYER|DYNAMIC;
@@ -84,13 +91,11 @@ private:
 
     b2Vec2 velocity;
     PlayerGUI _gui;
-    
-
-    void default_config(WeaponType& weaponType);
-    
-public:
     XpField xp_field;
+    
+    void default_config(WeaponType& weaponType);
 
+public:
     Player(float x, float y, b2World* world, Shapeb2* shape, std::string texture, WeaponType weaponType);
     Player(float x, float y, b2World* world, Shapeb2* shape, sf::Color color, WeaponType weaponType);
     
@@ -107,7 +112,4 @@ public:
     void handlePlayer();
 
     ~Player();
-protected:
-    Weapon* _weapon;
-    PlayerProperties _pProperties;
 };
