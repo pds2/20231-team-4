@@ -27,7 +27,6 @@ public:
     }
     PlayerProperties(PlayerProperties&& p) 
         : PlayerProperties(p._health, p._defense, p._agility) {
-            std::cout << level << " " << level_up << std::endl;
     }
 
     const double get_fieldRange() const {return xpFieldRange;}

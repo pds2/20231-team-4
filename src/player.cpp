@@ -12,18 +12,19 @@ void Player::default_config(WeaponType& weaponType) {
 }
 
 Player::Player(float x, float y, b2World* world, Shapeb2* shape, string texture, PlayerProperties&& properties, WeaponType weaponType) 
-    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), _pProperties(std::move(properties)), _gui(*this), xp_field(*this) {
+    : Collidable(x, y, world, shape, b2_dynamicBody, texture, _categoryBits, _maskBits), 
+    _pProperties(std::move(properties)), _gui(*this), xp_field(*this) {
     default_config(weaponType);
 }
 Player::Player(float x, float y, b2World* world, Shapeb2* shape, Color color, PlayerProperties&& properties, WeaponType weaponType) 
-    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), _pProperties(std::move(properties)), _gui(*this), xp_field(*this) {
+    : Collidable(x, y, world, shape, b2_dynamicBody, color, _categoryBits, _maskBits), 
+    _pProperties(std::move(properties)), _gui(*this), xp_field(*this) {
     default_config(weaponType);
 }
 
 Player::~Player() {
     delete _weapon;
 }
-
 
 /*
  * Player movement configurations
@@ -65,6 +66,10 @@ void Player::_move(RenderWindow &window, View& camera) {
     _gui.updateHPBar();
     _gui.updateXPBar();
     xp_field.updateField();
+    if(velocity!=b2Vec2(0,0))
+        _animation->update(1);
+    else 
+        _animation->reset();
 }
 
 /*
@@ -83,16 +88,15 @@ void Player::handleAttack(RenderWindow& window) {
         if(auto proj = *it) {
             proj->get_body()->SetLinearVelocity(proj->get_velocity());
             proj->updateMovement(window);
+            proj->_animation->update(1);
             
             if(proj->getCollisionData()->colliding || 
                proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) ||
                proj->_distance() >= proj->get_range()) {
                 it->reset();
                 it = _weapon->get_cartridge().erase(it);
-            
             } else 
                 it++;
-
         } else
             it = _weapon->get_cartridge().erase(it);
     }
@@ -195,7 +199,9 @@ void Player::handlePlayer() {
 }
 
 Frog::Frog(float x, float y, b2World* world, WeaponType weaponType)
-    : Player(x, y, world, new Box(10, 10, 100.f), "frog.png", PlayerProperties(health, defense, agility), weaponType) {}
+    : Player(x, y, world, new Box(10, 10, 100.f), "frog.png", PlayerProperties(health, defense, agility), weaponType) {
+    _animation = new Animation(_sprite, _texture, 10, sf::Vector2u(0,0), 23, 18, size_);
+}
 
 
 void PlayerProperties::update_xp(double xp) {
@@ -209,5 +215,4 @@ void PlayerProperties::update_xp(double xp) {
 void PlayerProperties::levelUp() {
     level++;
     level_up *= 2;
-    cout << level << " " << level_up << endl;
 }

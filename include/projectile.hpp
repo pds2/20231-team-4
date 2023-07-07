@@ -23,7 +23,7 @@ private:
     void default_config();
 public:
     Projectile(float x, float y, b2World* world, Shapeb2* shape, std::string texture, float damage, float range);
-    Projectile(float x, float y, b2World* world, Shapeb2* shape, sf::Color texture, float damage, float range);
+    Projectile(float x, float y, b2World* world, Shapeb2* shape, sf::Color color, float damage, float range);
 
     const b2Vec2& get_velocity() const {return velocity;}
     void set_velocity(b2Vec2 new_velocity);

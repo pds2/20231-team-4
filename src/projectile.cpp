@@ -33,7 +33,6 @@ double Projectile::_distance() {
 
 
 NormalProj::NormalProj(float x, float y, b2World* world, Shapeb2* shape, float damage, float range)
-    : Projectile(x, y, world, shape, "normalbullet.png", damage, range) {}
-
-
-
+    : Projectile(x, y, world, shape, "normalbullets.png", damage, range) {
+    _animation = new Animation(_sprite, _texture, 30, sf::Vector2u(1,0), 50, 50, size_);
+}

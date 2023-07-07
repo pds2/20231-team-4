@@ -7,6 +7,7 @@
 #include "player.hpp"
 #include "types.hpp"
 #include "render.hpp"
+#include "tilemap.hpp"
 
 struct EnemyProperties {
 private:
@@ -92,7 +93,7 @@ private:
 public:
 
     Enemy(float x, float y, b2World* world, Shapeb2* shape, std::string texture, EnemyProperties &&properties);
-    Enemy(float x, float y, b2World* world, Shapeb2* shape, sf::Color texture, EnemyProperties &&properties); 
+    Enemy(float x, float y, b2World* world, Shapeb2* shape, sf::Color color, EnemyProperties &&properties); 
     
     void _move(sf::Vector2f& direction, sf::RenderWindow& window);
     void _move(Player& player, sf::RenderWindow& window);
@@ -117,7 +118,6 @@ struct Enemies {
 
     void spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& camera, const Player& player);
     void handleEnemies();
-
     void handleOrbs();
 };
 

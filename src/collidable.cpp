@@ -9,7 +9,7 @@ using namespace sf;
 Collidable::Collidable(float x, float y, 
            b2World* world, Shapeb2* shape, 
            b2BodyType body_type, u32 categoryBits, u32 maskBits)
-    : _world(world), _data(new CollisionData) {
+    : _world(world), _data(new CollisionData), _sfml_shape(nullptr), _animation(nullptr) {
     /*
      * Creating body
      */
@@ -59,32 +59,23 @@ Collidable::Collidable(float x, float y,
 
     position_ = bodyPosition;
     size_ = bodySize;
-    _sfml_shape = nullptr;
 }
 
 Collidable::Collidable(float x, float y, 
                     b2World* world, Shapeb2* shape,
-                    b2BodyType body_type, string texture, 
+                    b2BodyType body_type, string texture,
                     u32 categoryBits, u32 maskBits)
     : Collidable(x, y, world, shape, body_type, categoryBits, maskBits) {
 
     rotation_ = -1*_body->GetAngle() * DEG_PER_RAD;
 
     //Obtaining and setting texture path
-    _defaultTexture.loadFromFile("assets/" + texture);
-    _sprite.setTexture(_defaultTexture);
-
-    //Setting sprite's scale
-    Vector2f spriteSize (_sprite.getTexture()->getSize());
-    
-    _sprite.setScale(size_.x/spriteSize.x, size_.y/spriteSize.y);
+    _texture.loadFromFile("assets/" + texture);
+    _sprite.setTexture(_texture, true);
         
     //Setting sprites's origin and initial rotation and position
-    _sprite.setOrigin(_sprite.getTexture()->getSize().x/2.0f, _sprite.getTexture()->getSize().y/2.0f);
     _sprite.setRotation(rotation_);
     _sprite.setPosition(position_.x, position_.y);
-
-    _sfml_shape = nullptr;
 }
 
 Collidable::Collidable(float x, float y, 
@@ -125,6 +116,7 @@ Collidable::~Collidable() {
     delete _b2_shape;
     delete _sfml_shape;
     delete _data;
+    delete _animation;
 }
 
 void Collidable::setPosition_(sf::Vector2f& new_position) {

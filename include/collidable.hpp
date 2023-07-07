@@ -58,6 +58,58 @@ struct Circle: public Shapeb2 {
     virtual b2Shape* getB2Shape() override {return &circle_Shape;}
 };
 
+struct Animation {
+    sf::Texture& _texture;
+    sf::Sprite& _sprite;
+
+    sf::Vector2f body_size;
+
+    int _width;
+    int _height;
+    sf::IntRect startRect;
+    sf::IntRect currRect;
+    sf::IntRect endRect;
+
+    float _animationTimer;
+    float _timer;
+    
+    Animation(sf::Sprite& sp, sf::Texture& tx, float animationTimer, 
+                         sf::Vector2u end_f, int width, int height, 
+                         sf::Vector2f bodySize)
+    :_texture(tx), _sprite(sp),
+     _animationTimer(animationTimer), _timer(0),
+     startRect(0, 0, width, height), 
+     endRect(end_f.x*width, end_f.y*height, width, height), currRect(startRect),
+     _width(width), _height(height), body_size(bodySize) {
+
+        sp.setTextureRect(startRect);
+
+        _sprite.setScale(body_size.x/_width, body_size.y/_height);
+        _sprite.setOrigin(_width/2.0f, _height/2.0f);
+     }
+
+    void update(const float& dt) {
+        _timer += 10.f * dt;
+        if(_timer >= _animationTimer) {
+            _timer = 0;
+           
+            if(currRect != endRect) {
+                currRect.left += _width;
+            } else {
+                currRect = startRect;
+            }
+
+            _sprite.setTextureRect(currRect);
+
+            _sprite.setScale(body_size.x/_width, body_size.y/_height);
+        }
+    }
+
+    void reset() {
+        _timer = 0;
+        currRect = startRect;
+    }
+};
 
 class Collidable {
 public:
@@ -66,12 +118,13 @@ public:
     Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, std::string texture, u32 categoryBits, u32 maskBits);
     Collidable(float x, float y, b2World* world, Shapeb2* shape, b2BodyType body_type, sf::Color color, u32 categoryBits, u32 maskBits);
 
+    Animation* _animation;
 
     b2Body* get_body() {return _body;}
     const b2Body* get_body() const {return _body;}
     b2World* get_world() {return _world;}
     
-    virtual sf::Drawable& get_drawable() {
+    sf::Drawable& get_drawable() {
         if(_sfml_shape != nullptr)
             return *_sfml_shape;
         else    
@@ -98,13 +151,11 @@ protected:
     b2Body *_body;
     Shapeb2 *_b2_shape;
 
+    //Graphic properties
     sf::Vector2f position_;
     sf::Vector2f size_;
     double rotation_;
-
-    //Graphic properties
-    std::string _texture;
-    sf::Texture _defaultTexture;
+    sf::Texture _texture;
     sf::Sprite _sprite;
 
     sf::Shape *_sfml_shape; 

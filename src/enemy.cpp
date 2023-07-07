@@ -49,6 +49,11 @@ void Enemy::_move(Player& player, RenderWindow& window) {
 
     this->_gui.updateHPBar();
     updateMovement(window);
+
+    if(velocity != b2Vec2(0,0))
+        _animation->update(1);
+    else
+        _animation->reset();
 }
 
 void EnemyGUI::initHBar() {
@@ -85,10 +90,9 @@ void EnemyGUI::renderGUI(ZRenderer& renderer) {
 
 XpOrb::XpOrb(Enemy& e): xp(e.get_properties()._xp), 
     Collidable(e.getPosition_().x, e.getPosition_().y, e.get_world(), 
-    new Circle(5.f, 0), b2_staticBody, "xporb.png", 
-    _categoryBits, _maskBits) {
-
+    new Circle(5.f, 0), b2_staticBody, "xporbs.png", _categoryBits, _maskBits) {
     _data->damage_do = xp;
+    _animation = new Animation(_sprite, _texture, 30, sf::Vector2u(1,0), 1024, 1024, size_);
 }
 
 void XpOrb::renderOrb(ZRenderer& renderer) {
@@ -101,6 +105,7 @@ void Enemies::handleEnemies() {
     auto it = enemies_.begin();
 	while(it != enemies_.end()) {
 		if(auto enemy = *it) {
+
             if(enemy->getCollisionData()->counter < enemy->get_properties().damage_delay)   
                 enemy->getCollisionData()->counter++;
 
@@ -165,6 +170,7 @@ void Enemies::handleOrbs() {
     auto it = xpOrbs_.begin();
     while(it != xpOrbs_.end()) {
         if(auto orb = *it) {
+            orb->_animation->update(1);
             if(orb->getCollisionData()->colliding && 
 			   orb->getCollisionData()->category == 
                (u32) CollidableType::XPFIELD) {
@@ -177,4 +183,6 @@ void Enemies::handleOrbs() {
 }
 
 Bugol::Bugol(float x, float y, b2World* world) 
-    : Enemy(x, y, world, new Box(8,8,1.f), "bugol.png", EnemyProperties(health, damage, damage_delay, defense, agility, xp_range)) {}
+    : Enemy(x, y, world, new Box(8,8,1.f), "bugol.png", EnemyProperties(health, damage, damage_delay, defense, agility, xp_range)) {
+    _animation = new Animation(_sprite, _texture, 10, sf::Vector2u(0,0), 11, 10, size_);
+}

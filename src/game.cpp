@@ -72,7 +72,6 @@ void Game::tick() {
 	enemies_.handleEnemies();
 	enemies_.handleOrbs();
 	player_->handleAttack(ctx.window);
-	
 }
 
 void Game::render() {
