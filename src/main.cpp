@@ -6,8 +6,13 @@ using namespace std;
 
 int main() {
 	Context ctx = {
-		sf::RenderWindow(sf::VideoMode(800, 600), "Hello, World!")
+		sf::RenderWindow(sf::VideoMode(800, 600), "Semester's End (v.1)")
 	};
+
+	sf::Image icon;
+	icon.loadFromFile("assets/game_icon.png");
+	ctx.window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+
 	ctx.window.setFramerateLimit(60);
 	ctx.window.setVerticalSyncEnabled(true);
 

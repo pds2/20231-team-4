@@ -16,13 +16,14 @@ Game::Game(Context& ctx):
 		r.setSize({50, 50});
 		rects.push_back(r);
 	} */
-	message = StateMessage::Push(std::make_unique<Animation>(ctx, 0));
-///	message = StateMessage::Push(std::make_unique<GunAnimation>(ctx, 0));
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 
 	character_texture.loadFromFile("assets/char_texture.png");
 	character_sprite.setTexture(character_texture);
 	character_sprite.setTextureRect(sf::IntRect(0, 0, 32, 50));
+	gun_texture.loadFromFile("assets/gun_texture.png");
+	gun_sprite.setTexture(gun_texture);
+	gun_sprite.setTextureRect(sf::IntRect(0, 0, 15, 8));
 }
 
 void Game::restartClock() {
@@ -38,9 +39,13 @@ void Game::render() {
 	for(sf::RectangleShape& r: rects)
 		ctx.window.draw(r);
 	
-	character_sprite.setPosition(0, 0);
+	character_sprite.setPosition(50, 40);
 	character_sprite.setScale(1, 1);
 	ctx.window.draw(character_sprite);
+	gun_sprite.setPosition(66, 65);
+	gun_sprite.setScale(1, 1);
+	gun_sprite.setRotation(-45.f);
+	ctx.window.draw(gun_sprite);
 }
 void Game::handleEvent(sf::Event event) {}
 Game::~Game() {}

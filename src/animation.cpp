@@ -20,12 +20,11 @@ void Animation::render(){
 	tempo_ = 0;
 	character_ = 0;
 	axis_ = 0;
-	u32 RectLeft_ = tempo_*32 + (axis_*32);
-	u32 RectTop_ = character_*50;
-	u32 RectWidth_ = 32-(axis_*64);
+	u32 RectLeft_ = tempo_*32;
+	u32 RectTop_ = character_*50 + axis_*50;
 	texture_.loadFromFile("assets/char_texture.png");
 	sprite_.setTexture(texture_);
-	sprite_.setTextureRect(sf::IntRect(RectLeft_, RectTop_, RectWidth_, 50));
+	sprite_.setTextureRect(sf::IntRect(RectLeft_, RectTop_, 32, 50));
 
 	sprite_.setPosition(s_window.x*0.5, s_window.y*0.5);
 	sprite_.setScale(1, 1);

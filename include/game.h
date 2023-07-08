@@ -12,6 +12,8 @@ class Game: public State {
 	sf::Clock clock;
 	sf::Sprite character_sprite;
 	sf::Texture character_texture;
+	sf::Sprite gun_sprite;
+	sf::Texture gun_texture;
 
 	public:
 	/// Cria um novo jogo em um contexto
