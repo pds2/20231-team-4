@@ -47,9 +47,9 @@ void Game::tick() {
 
 	sf::Vector2f cs = camera.getSize();
 	sf::Vector2f cc = camera.getCenter();
-	sf::Vector2f tol = (cs - ps) * 0.5f - sf::Vector2f(32, 32);
-	// cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
-	// cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
+	sf::Vector2f tol = (cs - ps) * 0.5f - sf::Vector2f(100, 100);
+	//cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
+	//cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
 	camera.setCenter(sf::Vector2f(pp.x, pp.y));
 
 	sf::Clock ffClock;

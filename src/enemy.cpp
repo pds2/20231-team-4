@@ -90,9 +90,9 @@ void EnemyGUI::renderGUI(ZRenderer& renderer) {
 
 XpOrb::XpOrb(Enemy& e): xp(e.get_properties()._xp), 
     Collidable(e.getPosition_().x, e.getPosition_().y, e.get_world(), 
-    new Circle(5.f, 0), b2_staticBody, "xporbs.png", _categoryBits, _maskBits) {
+    new Circle(2.f, 0), b2_staticBody, "xporbs.png", _categoryBits, _maskBits) {
     _data->damage_do = xp;
-    _animation = new Animation(_sprite, _texture, 30, sf::Vector2u(1,0), 1024, 1024, size_);
+    _animation = new Animation(_sprite, _texture, 30, sf::Vector2u(1,0), 16, 16, size_);
 }
 
 void XpOrb::renderOrb(ZRenderer& renderer) {
@@ -182,7 +182,18 @@ void Enemies::handleOrbs() {
     }
 }
 
+int Bugol::level = 0;
 Bugol::Bugol(float x, float y, b2World* world) 
-    : Enemy(x, y, world, new Box(8,8,1.f), "bugol.png", EnemyProperties(health, damage, damage_delay, defense, agility, xp_range)) {
+    : Enemy(x, y, world, new Box(8,8,1.f), "bugol.png", 
+    EnemyProperties(health + (level * health_buff), 
+                    damage + (level * damage_buff), 
+                    damage_delay - (level * damage_delay_buff), 
+                    defense + (level * defense_buff), 
+                    agility, 
+                    std::make_pair(xp_range.first, xp_range.second + level*xp_range_buff))) {
     _animation = new Animation(_sprite, _texture, 10, sf::Vector2u(0,0), 11, 10, size_);
+}
+
+void Bugol::level_up() {
+    level++;
 }

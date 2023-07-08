@@ -22,7 +22,7 @@ public:
     
     PlayerProperties(double health, double defense, double agility) 
         : _health(health), _defense(defense), _agility(agility), 
-        _xp(0), level(1), level_up(50), xpFieldRange(10), default_health(health) {
+        _xp(0), level(0), level_up(50), xpFieldRange(10), default_health(health) {
             
     }
     PlayerProperties(PlayerProperties&& p) 
@@ -115,10 +115,12 @@ public:
 
 class Frog: public Player {
 private:
-    static constexpr const double health = 500;
-    static constexpr const double defense = 10;
-    static constexpr const double agility = 3;
+    static constexpr const double health = 100;
+    //range of 0-70% less damage
+    static constexpr const double defense = 1;
+    static constexpr const double agility = 1.5;
 public:
     Frog(float x, float y, b2World* world, WeaponType weaponType);
-    
+
+    ~Frog() = default;
 };

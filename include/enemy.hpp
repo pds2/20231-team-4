@@ -15,7 +15,6 @@ private:
     double default_health;
 
 public:
-    int level;
     double _health;
     double _defense;
     double _agility;
@@ -28,7 +27,7 @@ public:
     EnemyProperties(double health, double damage, double damage_delay, double defense, double agility, std::pair<int, int> xpRange) 
         : _health(health), _damage(damage), damage_delay(damage_delay), 
         _defense (defense), _agility(agility), default_health(health), 
-        xp_range(xpRange), level(1) {
+        xp_range(xpRange) {
         
         _xp = xp_range.first+(std::rand()%xp_range.second);
     };
@@ -91,7 +90,6 @@ private:
     
     void default_config();
 public:
-
     Enemy(float x, float y, b2World* world, Shapeb2* shape, std::string texture, EnemyProperties &&properties);
     Enemy(float x, float y, b2World* world, Shapeb2* shape, sf::Color color, EnemyProperties &&properties); 
     
@@ -102,10 +100,14 @@ public:
     const EnemyProperties& get_properties() const {return _eProperties;}
     const b2Vec2& get_velocity() const {return velocity;}
     EnemyGUI& getGUI() {return _gui;}
-    
+
+    virtual void level_up() {};
+
+    ~Enemy() = default;
 protected:
     EnemyProperties _eProperties;
 };
+
 
 struct Enemies {
     std::vector<std::shared_ptr<Enemy>> enemies_;
@@ -121,16 +123,30 @@ struct Enemies {
     void handleOrbs();
 };
 
+
 class Bugol: public Enemy {
 private:
-    static constexpr const std::pair<int, int> xp_range = {1, 3};
+    static constexpr const std::pair<double, double> xp_range = {1, 2};
     static constexpr const double health = 30;
-    static constexpr const double defense = 0;
-    static constexpr const double agility = 2;
+    static constexpr const double defense = 1;
+    static constexpr const double agility = 1;
     static constexpr const int damage_delay = 100;
-    static constexpr const double damage = 10;
+    static constexpr const double damage = 3;
 
+    static constexpr const double xp_range_buff = 0.5;
+    static constexpr const double health_buff = 0.2;
+    static constexpr const double defense_buff = 0.1;
+    static constexpr const double damage_delay_buff = 0.1;
+    static constexpr const double damage_buff = 0.1;
+
+    static int level;
+    
 public:
     Bugol(float x, float y, b2World* world);
     
+    virtual void level_up() override;
+
+    ~Bugol() = default;
+protected:
+
 };
