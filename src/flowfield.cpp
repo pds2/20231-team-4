@@ -154,13 +154,12 @@ template <>
 sf::Vector2f FlowField::query<f32>(sf::Vector2f pos, sf::Vector2f size) const {
 	pos /= (f32)SCALE, size /= (f32)SCALE;
 	sf::Vector2f v;
-	for(i32 i = pos.x; i < pos.x + size.x; i += 1) {
-		for(i32 j = pos.y; j < pos.y + size.y; j += 1) {
+
+	for(i32 i = pos.x; i < pos.x + size.x; i += 1)
+		for(i32 j = pos.y; j < pos.y + size.y; j += 1)
 			v += direction({i, j});
-		}
-	}
 	if(v.x || v.y) v /= hypotf(v.x, v.y);
-	
+
 	return v;
 }
 template <>

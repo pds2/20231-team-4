@@ -107,6 +107,7 @@ void Game::render() {
 	ctx.window.setView(camera);
 	auto mp = sf::Mouse::getPosition(ctx.window);
 	sf::Vector2f pos = ctx.window.mapPixelToCoords(mp);
+
 	sf::Text debug;
 	debug.setPosition(20, 20);
 	debug.setFont(Assets::font);
@@ -136,10 +137,12 @@ void Game::handleEvent(sf::Event event) {
 		sf::Vector2u ws = ctx.window.getSize();
 		camera.setSize(ws.x, ws.y);
 	}
+
 }
 Game::~Game() {
 	delete tts;
 }
+
 
 UserInterface::UserInterface(Context& ctx, Game* game):
 	game(game),

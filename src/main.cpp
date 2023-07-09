@@ -8,6 +8,7 @@ int main() {
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
 	mode.width *= 0.8, mode.height *= 0.8;
 	Context ctx = {
+
 		sf::RenderWindow(mode, "Semester's End (v.1)"),
 		b2Vec2(0,0)
 	};
