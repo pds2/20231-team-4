@@ -6,6 +6,13 @@
 #include "state.hpp"
 #include "flowfield.hpp"
 #include "tilemap.hpp"
+#include "texttags.hpp"
+
+#include "player.hpp"
+#include "collidable.hpp"
+#include "weapon.hpp"
+#include "projectile.hpp"
+#include "enemy.hpp"
 
 /// Armazena dados sobre um estado de jogo
 class Game: public State {
@@ -15,8 +22,11 @@ class Game: public State {
 	sf::Clock clock;
 	f64 avgFrame;
 	TileMap map;
-	std::vector<sf::RectangleShape> testEnemies;
-	sf::RectangleShape testPlayer;
+	
+	std::unique_ptr<Player> player_;
+	Enemies enemies_;
+
+	TextTagSystem* tts;
 	FlowField ff;
 
 	public:

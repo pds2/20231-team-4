@@ -11,15 +11,20 @@
 
 Game::Game(Context& ctx):
 	State(ctx, 1),
-	map("assets/isle.tmx"),
-	avgFrame(0)
+	map("assets/forest.tmx"),
+	avgFrame(0),
+	enemies_(500)
 {
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
-	testPlayer.setSize({ 32, 64 });
+
+	player_ = std::make_unique<Frog>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::GUN);
+	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
+
+	this->tts = new TextTagSystem();
 }
 
 void Game::restartClock() {
@@ -31,54 +36,71 @@ void Game::tick() {
 	auto elapsed = clock.getElapsedTime();
 	clock.restart();
 	avgFrame = avgFrame * 0.9 + elapsed.asSeconds() * 0.1;
+	tts->update(elapsed.asSeconds());
 	map.update(elapsed);
 
-	sf::Vector2f speed;
-	auto isPressed = sf::Keyboard::isKeyPressed;
-	using Key = sf::Keyboard::Key;
-	if(isPressed(Key::Up) || isPressed(Key::W))
-		speed.y -= 1;
-	if(isPressed(Key::Down) || isPressed(Key::S))
-		speed.y += 1;
-	if(isPressed(Key::Left) || isPressed(Key::A))
-		speed.x -= 1;
-	if(isPressed(Key::Right) || isPressed(Key::D))
-		speed.x += 1;
-	if(speed.x || speed.y) speed *= 128 * elapsed.asSeconds() / hypotf(speed.x, speed.y);
+	player_->_move(ctx.window, camera);
+	player_->_attack(ctx.window);
+	
+	enemies_.spawnEnemy(ctx.window, ctx.world, camera, *player_);
 
-	sf::Vector2f ps = testPlayer.getSize();
-	sf::Vector2f pp = testPlayer.getPosition() + speed;
+	sf::Vector2f ps = player_->getSize_();
+	sf::Vector2f pp = player_->getPosition_();
 	sf::Vector2f pc = pp + ps * 0.5f;
-	testPlayer.setPosition(pp);
+	
 
 	sf::Vector2f cs = camera.getSize();
 	sf::Vector2f cc = camera.getCenter();
-	sf::Vector2f tol = (cs - ps) * 0.5f - sf::Vector2f(32, 32);
-	cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
-	cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
-	camera.setCenter(cc);
-
+	sf::Vector2f tol = (cs - ps) * 0.5f - sf::Vector2f(100, 100);
+	//cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
+	//cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
+	camera.setCenter(sf::Vector2f(pp.x, pp.y));
+	
 	sf::Clock ffClock;
-	for(auto& e: testEnemies) ff.addEnemy(e.getPosition(), e.getSize());
+	for(std::weak_ptr e: enemies_.enemies_) ff.addEnemy(e.lock()->getPosition_(), e.lock()->getSize_());
 	ff.calculate(pc, ps);
 	ffCalcTime = ffCalcTime * 0.9 + 0.1 * ffClock.getElapsedTime().asMilliseconds();
-	for(auto& e: testEnemies) {
-		auto es = e.getSize();
-		auto ep = e.getPosition();
+
+	for(std::weak_ptr e: enemies_.enemies_) {
+		auto es = e.lock()->getSize_();
+		auto ep = e.lock()->getPosition_();
 		auto s = ff.query(ep, es);
-		s *= 64 * elapsed.asSeconds();
-		e.setPosition(ep + s);
+
+		if(s != sf::Vector2f(0,0))
+			e.lock()->_move(s, ctx.window);
+		else
+			e.lock()->_move(*player_, ctx.window);
 	}
+	
+	player_->handlePlayer(*tts);
+	enemies_.handleEnemies(*tts);
+	enemies_.handleOrbs();
+	player_->handleAttack(ctx.window);
 }
 
 void Game::render() {
 	renderer.clear();
 	map.render(renderer);
-	for(auto& e: testEnemies) renderer.insert(0, e);
-	renderer.insert(0, testPlayer);
 
+	for(auto& orb: enemies_.xpOrbs_)
+		orb->renderOrb(renderer);
+	for(std::weak_ptr enemy: enemies_.enemies_) {
+		renderer.insert(0, enemy.lock()->get_drawable());
+		enemy.lock()->getGUI().renderGUI(renderer);
+	}
+	
+	for(std::weak_ptr projectile: player_->get_weapon()->get_cartridge()) 	
+		renderer.insert(0, projectile.lock()->get_drawable());
+
+	
+	renderer.insert(0, player_->get_drawable());
+	player_->getGUI().renderGUI(renderer);
+	
+	
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
+	tts->render(ctx.window);
+
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		ctx.window.draw(ff);
 
@@ -110,20 +132,17 @@ void Game::handleEvent(sf::Event event) {
 		camera.setSize(cs);
 	}
 	if(event.type == sf::Event::MouseButtonPressed) {
-		ctx.window.setView(camera);
-		auto mp = sf::Mouse::getPosition(ctx.window);
-		auto pos = ctx.window.mapPixelToCoords(mp);
-		sf::RectangleShape rect;
-		rect.setPosition(pos);
-		rect.setSize({32, 32});
-		testEnemies.push_back(rect);
 	}
 	if(event.type == sf::Event::Resized) {
 		sf::Vector2u ws = ctx.window.getSize();
 		camera.setSize(ws.x, ws.y);
 	}
+
 }
-Game::~Game() {}
+Game::~Game() {
+	delete tts;
+}
+
 
 UserInterface::UserInterface(Context& ctx, Game* game):
 	game(game),

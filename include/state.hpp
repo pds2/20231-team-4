@@ -1,6 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 #include <SFML/Graphics.hpp>
+#include <box2d/box2d.h>
 #include <vector>
 #include <memory>
 #include "types.hpp"
@@ -10,6 +11,7 @@
 struct Context {
 	/// A janela na qual o jogo está sendo exibido
 	sf::RenderWindow window;
+	b2World world;
 };
 
 enum class StateChange {
