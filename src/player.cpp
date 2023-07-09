@@ -29,7 +29,7 @@ Player::~Player() {
 /*
  * Player movement configurations
  */
-void Player::_move(RenderWindow &window, View& camera) {
+void Player::_move(RenderWindow& window, View& camera) {
     /*
      * Vertical and Horizontal movements
      */
@@ -66,10 +66,33 @@ void Player::_move(RenderWindow &window, View& camera) {
     _gui.updateHPBar();
     _gui.updateXPBar();
     xp_field.updateField();
+
     if(velocity!=b2Vec2(0,0))
         _animation->update(1);
     else 
         _animation->reset();
+}
+
+void Player::handlePlayer(TextTagSystem& tts) {
+    xp_field.handleField(tts);
+    
+    if(getCollisionData()->colliding) {
+        switch(getCollisionData()->category) {
+            case ((u32)CollidableType::ENEMY|(u32)CollidableType::DYNAMIC):
+                if(_pProperties._health < getCollisionData()->damage_take) {
+
+                } else if (getCollisionData()->other_data->counter >= getCollisionData()->ddelay_take - 1 && 
+                   getCollisionData()->other_data->collided == false && 
+                   _pProperties._health > 0) {
+                    double damageTake = getCollisionData()->damage_take*(1 - _pProperties._defense);
+                    _pProperties._health -= damageTake;
+                    getCollisionData()->other_data->collided = true;
+
+                    tts.addTextTag(ENEMYDAMAGE_TAG, position_.x-size_.x, position_.y-size_.y, "-", damageTake, "");
+                }
+                break;
+        }
+    }
 }
 
 /*
@@ -78,8 +101,7 @@ void Player::_move(RenderWindow &window, View& camera) {
  * requirements
  */
 void Player::_attack(sf::RenderWindow &window) {
-    if(Keyboard::isKeyPressed(Keyboard::Space))
-        _weapon->fire(ProjectileType::NORMAL, *this);
+    _weapon->fire(ProjectileType::NORMAL, *this);
 }
 
 void Player::handleAttack(RenderWindow& window) {
@@ -90,7 +112,7 @@ void Player::handleAttack(RenderWindow& window) {
             proj->updateMovement(window);
             proj->_animation->update(1);
             
-            if(proj->getCollisionData()->colliding || 
+            if(proj->getCollisionData()->collided || 
                proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) ||
                proj->_distance() >= proj->get_range()) {
                 it->reset();
@@ -170,32 +192,21 @@ void XpField::updateField() {
         _body->SetTransform(player_.get_body()->GetPosition(), 0);
 }
 
-void XpField::handleField() {
-    player_.get_properties().update_xp(getCollisionData()->damage_take);
-    getCollisionData()->damage_take = 0;
+void XpField::handleField(TextTagSystem& tts) {
+    if(getCollisionData()->collided) {
+        sf::Vector2f pp = player_.getPosition_();
+        sf::Vector2f ps = player_.getSize_();
+
+        player_.get_properties().update_xp(getCollisionData()->damage_take);
+
+        tts.addTextTag(EXPERIENCE_TAG, pp.x-ps.x, pp.y-ps.y, "+", getCollisionData()->damage_take, "XP");
+
+        getCollisionData()->collided = false;
+    }
 }
 
 void XpField::upgradeField() {
     
-}
-
-void Player::handlePlayer() {
-    xp_field.handleField();
-    
-    if(getCollisionData()->colliding) {
-        switch(getCollisionData()->category) {
-            case ((u32)CollidableType::ENEMY|(u32)CollidableType::DYNAMIC):
-                if(_pProperties._health < getCollisionData()->damage_take) {
-
-                } else if (getCollisionData()->other_data->counter >= getCollisionData()->ddelay_take - 1 && 
-                   getCollisionData()->other_data->collided == false && 
-                   _pProperties._health > 0) {
-                   _pProperties._health -= getCollisionData()->damage_take;
-                  getCollisionData()->other_data->collided = true;
-                }
-                break;
-        }
-    }
 }
 
 Frog::Frog(float x, float y, b2World* world, WeaponType weaponType)
@@ -207,12 +218,6 @@ Frog::Frog(float x, float y, b2World* world, WeaponType weaponType)
 void PlayerProperties::update_xp(double xp) {
     if(_xp+xp >= level_up) {
         _xp += xp-level_up;
-        levelUp();
     } else
         _xp += xp;
-}
-
-void PlayerProperties::levelUp() {
-    level++;
-    level_up *= 2;
 }

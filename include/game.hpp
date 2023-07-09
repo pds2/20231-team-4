@@ -6,6 +6,7 @@
 #include "state.hpp"
 #include "flowfield.hpp"
 #include "tilemap.hpp"
+#include "texttags.hpp"
 
 #include "player.hpp"
 #include "collidable.hpp"
@@ -25,6 +26,7 @@ class Game: public State {
 	std::unique_ptr<Player> player_;
 	Enemies enemies_;
 
+	TextTagSystem* tts;
 	FlowField ff;
 
 	public:

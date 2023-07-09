@@ -5,6 +5,7 @@
 #include "weapon.hpp"
 #include "assets.hpp"
 #include "render.hpp"
+#include "texttags.hpp"
 
 struct PlayerProperties {
 private:
@@ -32,7 +33,6 @@ public:
     const double get_fieldRange() const {return xpFieldRange;}
     const double get_default_health() const {return default_health;}
     
-    void levelUp();
     void update_xp(double xp);
 };
 
@@ -71,7 +71,7 @@ public:
     XpField(Player& p); 
 
     void updateField();
-    void handleField();
+    void handleField(TextTagSystem& tts);
     void upgradeField();
 
     ~XpField() = default;
@@ -107,17 +107,16 @@ public:
     void _attack(sf::RenderWindow &window);
     void handleAttack(sf::RenderWindow &window);
 
-    void handlePlayer();
+    void handlePlayer(TextTagSystem& tts);
 
-    ~Player();
+    virtual ~Player();
 };
 
 
 class Frog: public Player {
 private:
-    static constexpr const double health = 100;
-    //range of 0-70% less damage
-    static constexpr const double defense = 1;
+    static constexpr const double health = 10;
+    static constexpr const double defense = 0.01;
     static constexpr const double agility = 1.5;
 public:
     Frog(float x, float y, b2World* world, WeaponType weaponType);

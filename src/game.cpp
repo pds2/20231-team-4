@@ -13,15 +13,18 @@ Game::Game(Context& ctx):
 	State(ctx, 1),
 	map("assets/forest.tmx"),
 	avgFrame(0),
-	enemies_(100)
+	enemies_(500)
 {
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
+
 	player_ = std::make_unique<Frog>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::GUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
+
+	this->tts = new TextTagSystem();
 }
 
 void Game::restartClock() {
@@ -33,11 +36,12 @@ void Game::tick() {
 	auto elapsed = clock.getElapsedTime();
 	clock.restart();
 	avgFrame = avgFrame * 0.9 + elapsed.asSeconds() * 0.1;
+	tts->update(elapsed.asSeconds());
 	map.update(elapsed);
 
 	player_->_move(ctx.window, camera);
 	player_->_attack(ctx.window);
-
+	
 	enemies_.spawnEnemy(ctx.window, ctx.world, camera, *player_);
 
 	sf::Vector2f ps = player_->getSize_();
@@ -51,7 +55,7 @@ void Game::tick() {
 	//cc.x = std::clamp(cc.x, pc.x - tol.x, pc.x + tol.x);
 	//cc.y = std::clamp(cc.y, pc.y - tol.y, pc.y + tol.y);
 	camera.setCenter(sf::Vector2f(pp.x, pp.y));
-
+	
 	sf::Clock ffClock;
 	for(std::weak_ptr e: enemies_.enemies_) ff.addEnemy(e.lock()->getPosition_(), e.lock()->getSize_());
 	ff.calculate(pc, ps);
@@ -68,8 +72,8 @@ void Game::tick() {
 			e.lock()->_move(*player_, ctx.window);
 	}
 	
-	player_->handlePlayer();
-	enemies_.handleEnemies();
+	player_->handlePlayer(*tts);
+	enemies_.handleEnemies(*tts);
 	enemies_.handleOrbs();
 	player_->handleAttack(ctx.window);
 }
@@ -95,6 +99,8 @@ void Game::render() {
 	
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
+	tts->render(ctx.window);
+
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		ctx.window.draw(ff);
 
@@ -131,7 +137,9 @@ void Game::handleEvent(sf::Event event) {
 		camera.setSize(ws.x, ws.y);
 	}
 }
-Game::~Game() {}
+Game::~Game() {
+	delete tts;
+}
 
 UserInterface::UserInterface(Context& ctx, Game* game):
 	game(game),

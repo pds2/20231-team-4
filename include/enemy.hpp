@@ -10,37 +10,19 @@
 #include "tilemap.hpp"
 
 struct EnemyProperties {
-private:
-    std::pair<int, int> xp_range;
-    double default_health;
+    int level;
 
-public:
+    std::pair<double, double> xp_range;
     double _health;
-    double _defense;
     double _agility;
-
-    double _xp;
-
     double _damage;
     int damage_delay;
 
-    EnemyProperties(double health, double damage, double damage_delay, double defense, double agility, std::pair<int, int> xpRange) 
+    EnemyProperties(double health, double damage, double damage_delay, double agility, std::pair<int, int> xpRange) 
         : _health(health), _damage(damage), damage_delay(damage_delay), 
-        _defense (defense), _agility(agility), default_health(health), 
-        xp_range(xpRange) {
-        
-        _xp = xp_range.first+(std::rand()%xp_range.second);
+        _agility(agility), 
+        xp_range(xpRange), level(0) {
     };
-    EnemyProperties(EnemyProperties&& properties) 
-        : EnemyProperties(properties._health, properties._damage, properties.damage_delay, properties._defense, properties._agility, properties.getXpRange()) {};
-
-    double get_default_health() const {return default_health;}
-    std::pair<int, int> getXpRange() const {return xp_range;}
-
-    void setXpRange(std::pair<int, int> new_range) {
-        xp_range = new_range;
-        _xp = xp_range.first+(std::rand()%xp_range.second);
-    }
 };
 
 class Enemy;
@@ -88,24 +70,26 @@ private:
     b2Vec2 velocity;
     EnemyGUI _gui;
     
-    void default_config();
 public:
-    Enemy(float x, float y, b2World* world, Shapeb2* shape, std::string texture, EnemyProperties &&properties);
-    Enemy(float x, float y, b2World* world, Shapeb2* shape, sf::Color color, EnemyProperties &&properties); 
+    int level;
+    double _health;
+    double _xp;
+
+    Enemy(float x, float y, b2World* world, Shapeb2* shape, std::string texture);
+    Enemy(float x, float y, b2World* world, Shapeb2* shape, sf::Color color); 
     
+    virtual EnemyProperties& get_properties() = 0;
+    virtual const EnemyProperties& get_properties() const = 0;
+    virtual void level_up() = 0;
+
     void _move(sf::Vector2f& direction, sf::RenderWindow& window);
     void _move(Player& player, sf::RenderWindow& window);
 
-    EnemyProperties& get_properties() {return _eProperties;}
-    const EnemyProperties& get_properties() const {return _eProperties;}
     const b2Vec2& get_velocity() const {return velocity;}
     EnemyGUI& getGUI() {return _gui;}
 
-    virtual void level_up() {};
 
-    ~Enemy() = default;
-protected:
-    EnemyProperties _eProperties;
+   virtual ~Enemy() = default;
 };
 
 
@@ -119,7 +103,7 @@ struct Enemies {
     Enemies(int delay);
 
     void spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& camera, const Player& player);
-    void handleEnemies();
+    void handleEnemies(TextTagSystem& tts);
     void handleOrbs();
 };
 
@@ -127,23 +111,23 @@ struct Enemies {
 class Bugol: public Enemy {
 private:
     static constexpr const std::pair<double, double> xp_range = {1, 2};
-    static constexpr const double health = 30;
-    static constexpr const double defense = 1;
+    static constexpr const double health = 5;
     static constexpr const double agility = 1;
     static constexpr const int damage_delay = 100;
-    static constexpr const double damage = 3;
+    static constexpr const double damage = 1;
 
     static constexpr const double xp_range_buff = 0.5;
-    static constexpr const double health_buff = 0.2;
-    static constexpr const double defense_buff = 0.1;
-    static constexpr const double damage_delay_buff = 0.1;
-    static constexpr const double damage_buff = 0.1;
+    static constexpr const double health_buff = 1;
+    static constexpr const double damage_delay_buff = 0.8;
+    static constexpr const double damage_buff = 0.25;
 
-    static int level;
-    
+    static EnemyProperties _bProperties;
 public:
     Bugol(float x, float y, b2World* world);
     
+    virtual EnemyProperties& get_properties() override {return _bProperties;}
+    virtual const EnemyProperties& get_properties() const override {return _bProperties;}
+
     virtual void level_up() override;
 
     ~Bugol() = default;
