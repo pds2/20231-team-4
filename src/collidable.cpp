@@ -1,4 +1,5 @@
 #include "collidable.hpp"
+#include "error.hpp"
 
 using namespace std;
 using namespace sf;
@@ -70,7 +71,9 @@ Collidable::Collidable(float x, float y,
     rotation_ = -1*_body->GetAngle() * DEG_PER_RAD;
 
     //Obtaining and setting texture path
-    _texture.loadFromFile("assets/" + texture);
+    
+    if(!_texture.loadFromFile("assets/" + texture))
+        throw ImageLoadError();
     _sprite.setTexture(_texture, true);
         
     //Setting sprites's origin and initial rotation and position
