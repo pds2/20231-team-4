@@ -13,7 +13,7 @@ Game::Game(Context& ctx):
 	State(ctx, 1),
 	map("assets/forest.tmx"),
 	avgFrame(0),
-	enemies_(500)
+	enemies_(100)
 {
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });

@@ -174,8 +174,8 @@ public:
     bool colliding;
     u32 category;
 
-    int damage_do;
-    int damage_take;
+    double damage_do;
+    double damage_take;
     int ddelay_do;
     int ddelay_take;
 
