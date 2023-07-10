@@ -11,38 +11,48 @@
 struct GameSettings {
     std::unique_ptr<Player> player;
     std::unique_ptr<TileMap> map;
-    std::unique_ptr<Weapon> weapon;
+    WeaponType weapon;
 };
 
-class CharacterSelection : public State {
-	private:
+class SelectionMenu : public State {
+	protected:
 	sf::Texture texture;
-	sf::Sprite sprites[6];
+	std::vector<sf::Sprite> sprites;
 	i32 selected = -1;
     GameSettings settings;
 	void moveMouse(sf::Vector2i position);
 	void moveKeys(i32 delta);
+	virtual void click() = 0;
+	f32 scale = 1;
+
+	public:
+	SelectionMenu(Context& ctx, GameSettings settings);
+	void render();
+	void handleEvent(sf::Event event);
+};
+
+class CharacterSelection : public SelectionMenu {
+	protected:
+	void click() override;
 
 	public:
 	CharacterSelection(Context& ctx, GameSettings settings);
-	void render();
-	void handleEvent(sf::Event event);
 };
 
-class MapSelection : public State {
-	private:
-	sf::Texture texture;
-	sf::Sprite sprites[3];
-	i32 selected = -1;
-	void moveMouse(sf::Vector2i position);
-	void moveKeys(i32 delta);
-    GameSettings settings;
+class MapSelection : public SelectionMenu {
+	protected:
+	void click() override;
+
 	public:
 	MapSelection(Context& ctx);
-	void render();
-	void handleEvent(sf::Event event);
 };
 
-//class GunSelection
+class WeaponSelection : public SelectionMenu {
+	protected:
+	void click() override;
+
+	public:
+	WeaponSelection(Context& ctx, GameSettings settings);
+};
 
 #endif
