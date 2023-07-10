@@ -4,6 +4,7 @@
 #include "types.hpp"
 #include "assets.hpp"
 #include "game.hpp"
+#include "characters.hpp"
 
 Menu::Menu(Context& ctx, bool opaque):
 	Menu(ctx, {}, opaque) {}
@@ -206,7 +207,30 @@ void CharacterSelection::handleEvent(sf::Event event){
 	}
 
 	bool enter = event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter;
-	if(event.type == sf::Event::MouseButtonPressed || enter){}
+	if((event.type == sf::Event::MouseButtonPressed || enter) && selected != -1){
+		std::unique_ptr<Player> character;
+		switch(selected) {
+			case 0:
+			character = std::make_unique<CVince>(0, 0, &ctx.world, WeaponType::GUN);
+			break;
+			case 1:
+			character = std::make_unique<CNate>(0, 0, &ctx.world, WeaponType::GUN);
+			break;
+			case 2:
+			character = std::make_unique<CMatt>(0, 0, &ctx.world, WeaponType::GUN);
+			break;
+			case 3:
+			character = std::make_unique<CLena>(0, 0, &ctx.world, WeaponType::GUN);
+			break;
+			case 4:
+			character = std::make_unique<CJoy>(0, 0, &ctx.world, WeaponType::GUN);
+			break;
+			case 5:
+			character = std::make_unique<CDany>(0, 0, &ctx.world, WeaponType::GUN);
+			break;
+		}
+		message = StateMessage::Set(std::make_unique<Game>(ctx, std::move(character)));
+	}
 }
 
 void CharacterSelection::moveMouse(sf::Vector2i position){

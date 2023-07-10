@@ -35,7 +35,7 @@ class Game: public State {
 
 	public:
 	/// Cria um novo jogo em um contexto
-	Game(Context& ctx);
+	Game(Context& ctx, std::unique_ptr<Player> player);
 	/// Reinicia o relógio do jogo. Deve ser usado após despausar.
 	void restartClock();
 	void tick();

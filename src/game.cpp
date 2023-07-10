@@ -11,9 +11,10 @@
 #include "error.hpp"
 #include "characters.hpp"
 
-Game::Game(Context& ctx):
+Game::Game(Context& ctx, std::unique_ptr<Player> player):
 	State(ctx, 1),
 	map("assets/cave.tmx"),
+	player_(std::move(player)),
 	avgFrame(0),
 	enemies_(500)
 {
@@ -22,8 +23,6 @@ Game::Game(Context& ctx):
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
-
-	player_ = std::make_unique<CVince>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::MACHINEGUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 
