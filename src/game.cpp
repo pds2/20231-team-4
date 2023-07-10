@@ -24,8 +24,16 @@ Game::Game(Context& ctx):
 
 	player_ = std::make_unique<CDany>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::MACHINEGUN);
 	
-	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
-
+	for(auto& c: map.collisions()) {
+		ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
+		obstacles.push_back(std::make_unique<Collidable>(c.left+c.width*0.5, 
+														c.top+c.height*0.5, 
+														&ctx.world, 
+														new Box(c.width, c.height, 100.f), 
+														b2_staticBody, 
+														(u32) 0 | CollidableType::STATIC,
+														(u32) 0 | CollidableType::DYNAMIC));
+	}
 	this->tts = new TextTagSystem();
 }
 
@@ -60,7 +68,7 @@ void Game::tick() {
 	
 	sf::Clock ffClock;
 	for(std::weak_ptr e: enemies_.enemies_) ff.addEnemy(e.lock()->getPosition_(), e.lock()->getSize_());
-	ff.calculate(pc, ps);
+	ff.calculate(pp, ps);
 	ffCalcTime = ffCalcTime * 0.9 + 0.1 * ffClock.getElapsedTime().asMilliseconds();
 
 	for(std::weak_ptr e: enemies_.enemies_) {
@@ -97,7 +105,8 @@ void Game::render() {
 	
 	renderer.insert(0, player_->get_drawable());
 	player_->getGUI().renderGUI(renderer);
-	
+	renderer.insert(0, player_->get_weapon_sprite());
+
 	
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);

@@ -10,7 +10,7 @@ private:
     Character _character;
     static constexpr const double health = 100;
     //range of 0-70% less damage
-    static constexpr const double defense = 1.20;
+    static constexpr const double defense = 0.012;
     static constexpr const double agility = 1.5;
 public:
     CVince(float x, float y, b2World* world, WeaponType weaponType);
@@ -24,7 +24,7 @@ private:
     Character _character;
     static constexpr const double health = 150;
     //range of 0-70% less damage
-    static constexpr const double defense = 1.4;
+    static constexpr const double defense = 0.014;
     static constexpr const double agility = 1.27;
 public:
     CNate(float x, float y, b2World* world, WeaponType weaponType);
@@ -38,7 +38,7 @@ private:
     Character _character;
     static constexpr const double health = 100;
     //range of 0-70% less damage
-    static constexpr const double defense = 0.85;
+    static constexpr const double defense = 0.0085;
     static constexpr const double agility = 2.1;
 public:
     CMatt(float x, float y, b2World* world, WeaponType weaponType);
@@ -52,7 +52,7 @@ private:
     Character _character;
     static constexpr const double health = 95;
     //range of 0-70% less damage
-    static constexpr const double defense = 1;
+    static constexpr const double defense = 0.01;
     static constexpr const double agility = 1.80;
 public:
     CDany(float x, float y, b2World* world, WeaponType weaponType);
@@ -66,7 +66,7 @@ private:
     Character _character;
     static constexpr const double health = 85;
     //range of 0-70% less damage
-    static constexpr const double defense = 0.95;
+    static constexpr const double defense = 0.0095;
     static constexpr const double agility = 2.2;
 public:
     CJoy(float x, float y, b2World* world, WeaponType weaponType);
@@ -80,7 +80,7 @@ private:
     Character _character;
     static constexpr const double health = 125;
     //range of 0-70% less damage
-    static constexpr const double defense = 1.4;
+    static constexpr const double defense = 0.014;
     static constexpr const double agility = 1.45;
 public:
     CLena(float x, float y, b2World* world, WeaponType weaponType);

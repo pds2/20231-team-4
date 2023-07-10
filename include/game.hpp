@@ -29,6 +29,7 @@ class Game: public State {
 	
 	std::unique_ptr<Player> player_;
 	Enemies enemies_;
+	std::vector<std::unique_ptr<Collidable>> obstacles;
 
 	TextTagSystem* tts;
 	FlowField ff;

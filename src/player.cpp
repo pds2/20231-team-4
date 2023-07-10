@@ -4,17 +4,26 @@ using namespace sf;
 using namespace std;
 
 void Player::default_config(WeaponType& weaponType) {
+    std::string _directory;
     switch(weaponType) {
         case WeaponType::GUN:
             _weapon = new Gun();
+            _directory = "gun.png";
             break;
         case WeaponType::MACHINEGUN:
             _weapon = new MachineGun();
+            _directory = "machine_gun.png";
             break;
         case WeaponType::SHOTGUN:
             _weapon = new ShotGun();
+            _directory = "shotgun.png";
             break;
     }
+    _texture.loadFromFile("assets/guns/" + _directory);
+    weapon.setTexture(_texture);
+    weapon.setPosition(position_);
+    weapon.setScale(0.5f, 0.5f);
+    weapon.setOrigin(_texture.getSize().x*0.5, _texture.getSize().y*0.5);
 }
 
 Player::Player(float x, float y, b2World* world, Shapeb2* shape, string texture, PlayerProperties&& properties, WeaponType weaponType) 
@@ -76,6 +85,7 @@ void Player::_move(RenderWindow& window, View& camera) {
         _sprite.setPosition(newPosition);
     }
     this->position_ = newPosition;
+    weapon.setPosition(position_);
     _gui.updateHPBar();
     _gui.updateXPBar();
     xp_field.updateField();
