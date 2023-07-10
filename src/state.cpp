@@ -1,5 +1,5 @@
 #include <iostream>
-#include "state.h"
+#include "state.hpp"
 
 State::State(Context& ctx, bool opaque):
 	opaque(opaque),
@@ -91,6 +91,7 @@ void StateManager::render() {
 		return;
 	}
 	ctx.window.clear(sf::Color::Black);
+	ctx.world.Step(1/60.f, 6, 3);
 
 	u32 i = stack.size() - 1;
 	while(i && !stack[i]->opaque) i -= 1;

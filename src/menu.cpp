@@ -1,9 +1,9 @@
 #include <iostream>
-#include "state.h"
-#include "menu.h"
-#include "types.h"
-#include "assets.h"
-#include "game.h"
+#include "state.hpp"
+#include "menu.hpp"
+#include "types.hpp"
+#include "assets.hpp"
+#include "game.hpp"
 
 Menu::Menu(Context& ctx, bool opaque):
 	Menu(ctx, {}, opaque) {}

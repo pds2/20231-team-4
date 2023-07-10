@@ -1,16 +1,18 @@
 ifeq (,$(filter -j%,$(MAKEFLAGS)))
     MAKEFLAGS += -j$(shell nproc || echo 1)
 endif
-LIB = box2d Candle-s sfml-graphics sfml-window sfml-system
+LIB = tmxlite box2d Candle-s sfml-graphics sfml-window sfml-system
 IDIR = /usr/include /usr/local/include deps/include include
 LDIR = deps/lib /usr/lib /usr/local/lib
 
-SRCS = $(filter-out $(SDIR)/$(EXE).cpp,$(wildcard $(SDIR)/*.cpp))
-FLAG += std=c++20
-OBJS += $(SRCS:$(SDIR)/%.cpp=$(ODIR)/%.o)
-DEPS = $(OBJS:%.o=%.d)
-LINK = -Wl,-rpath='$$ORIGIN/lib'
--include $(DEPS)
+ifneq (,$(SDIR))
+	SRCS = $(shell find "$(SDIR)" -type f -name "*.cpp" | xargs grep -L "int main")
+	FLAG += std=c++2a
+	OBJS += $(SRCS:$(SDIR)/%.cpp=$(ODIR)/%.o)
+	DEPS = $(OBJS:%.o=%.d)
+	LINK = -Wl,-rpath='$$ORIGIN/lib'
+	-include $(DEPS)
+endif
 
 define compile
 	$(CXX) $1 $(addprefix -,$(FLAG)) $(addprefix -I,$(IDIR)) $(addprefix -L,$(LDIR)) $(addprefix -l,$(LIB))
@@ -23,6 +25,9 @@ all: debug release docs
 test: debug
 	@$(call submake,O0 g,tests,target/test,tester,$(wildcard target/debug/*.o))
 	target/test/tester
+flamegraph: debug
+	perf record -g -o target/perf.data -F997 --call-graph=dwarf,16000 target/debug/main
+	flamegraph --perfdata target/perf.data -o target/flamegraph.svg
 debug:
 	@$(call submake,O0 g,src,target/debug,main)
 release:
@@ -48,4 +53,4 @@ clean:
 	$(info Cleaning targets)
 	@$(RM) -r target
 
-.PHONY: all test debug release docs clean
+.PHONY: all test flamegraph debug release docs clean
