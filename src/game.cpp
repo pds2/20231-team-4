@@ -22,12 +22,6 @@ Game::Game(Context& ctx):
 
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 
-	character_texture.loadFromFile("assets/char_texture.png");
-	character_sprite.setTexture(character_texture);
-	character_sprite.setTextureRect(sf::IntRect(0, 0, 32, 50));
-	gun_texture.loadFromFile("assets/gun_texture.png");
-	gun_sprite.setTexture(gun_texture);
-	gun_sprite.setTextureRect(sf::IntRect(0, 0, 15, 8));
 	player_ = std::make_unique<CVince>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::MACHINEGUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
@@ -106,13 +100,6 @@ void Game::render() {
 	
 	
 	ctx.window.setView(camera);
-	character_sprite.setPosition(50, 40);
-	character_sprite.setScale(1, 1);
-	ctx.window.draw(character_sprite);
-	gun_sprite.setPosition(66, 65);
-	gun_sprite.setScale(1, 1);
-	gun_sprite.setRotation(-45.f);
-	ctx.window.draw(gun_sprite);
 	ctx.window.draw(renderer);
 	tts->render(ctx.window);
 
