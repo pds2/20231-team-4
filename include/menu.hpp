@@ -58,4 +58,24 @@ class PauseMenu: public Menu {
 	void handleEvent(sf::Event event);
 };
 
+class GameOver: public State {
+	public:
+	GameOver(Context& ctx);
+	void render();
+	void handleEvent(sf::Event event);
+
+	private:
+	sf::Text text;
+};
+
+class Story: public State {
+	public:
+	Story(Context& ctx);
+	void render();
+	void handleEvent(sf::Event event);
+
+	private:
+	sf::Text text;
+};
+
 #endif

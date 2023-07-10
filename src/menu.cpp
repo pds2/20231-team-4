@@ -162,3 +162,45 @@ void PauseMenu::handleEvent(sf::Event event) {
 		resume();
 	Menu::handleEvent(event);
 }
+
+GameOver::GameOver(Context& ctx):
+	State(ctx, false)
+{
+	text.setCharacterSize(72);
+	text.setFont(Assets::terminal);
+	text.setString("Game Over!");
+}
+
+void GameOver::render(){
+	sf::FloatRect bound = text.getLocalBounds();
+	sf::Vector2u wsize = ctx.window.getSize();
+	ctx.window.setView(sf::View(sf::FloatRect(0, 0, wsize.x, wsize.y)));
+	text.setPosition((wsize.x- bound.width)/2, (wsize.y-bound.height)/2);
+	ctx.window.draw(text);
+}
+
+void GameOver::handleEvent(sf::Event event){
+	if(event.type == sf::Event::KeyPressed || event.type == sf::Event::MouseButtonPressed)
+		message	= StateMessage::Set(std::make_unique<MainMenu>(ctx)); 
+}
+
+Story::Story(Context& ctx):
+	State(ctx, false)
+{
+	text.setFont(Assets::terminal);
+	text.setString("Uma estrondosa explosao te ensurdeceu,\ne diversos monstros comecaram a sair do chao...\n\
+Agora, lhe resta sobreviver ao caos\ne aos perigos que o fim do semestre o trara!");
+}
+
+void Story::render(){
+	sf::FloatRect bound = text.getLocalBounds();
+	sf::Vector2u wsize = ctx.window.getSize();
+	ctx.window.setView(sf::View(sf::FloatRect(0, 0, wsize.x, wsize.y)));
+	text.setPosition((wsize.x- bound.width)/2, (wsize.y-bound.height)/2);
+	ctx.window.draw(text);
+}
+
+void Story::handleEvent(sf::Event event){
+	if(event.type == sf::Event::KeyPressed || event.type == sf::Event::MouseButtonPressed)
+		message	= StateMessage::Set(std::make_unique<MainMenu>(ctx)); 
+}
