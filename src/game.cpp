@@ -20,12 +20,6 @@ Game::Game(Context& ctx):
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 
-/*	for(int i = 0; i < 10; i += 1) {
-		sf::RectangleShape r;
-		r.setPosition(i*50, i*50);
-		r.setSize({50, 50});
-		rects.push_back(r);
-	} */
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 
 	character_texture.loadFromFile("assets/char_texture.png");
