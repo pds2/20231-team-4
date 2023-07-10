@@ -117,7 +117,7 @@ MainMenu::MainMenu(Context& ctx_):
 		{
 			.text = "new game",
 			.click = [this]() {
-				message = StateMessage::Into(std::make_unique<Game>(ctx));
+				message = StateMessage::Into(std::make_unique<CharacterSelection>(ctx));
 			}
 		},
 		{
@@ -160,4 +160,67 @@ void PauseMenu::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) 
 		resume();
 	Menu::handleEvent(event);
+}
+
+CharacterSelection::CharacterSelection(Context& ctx):
+	State(ctx, true)
+{
+	texture.loadFromFile("assets/character_icons.png");
+	for(int x=0; x < 6; x++) {
+		sprites[x].setTexture(texture);
+		sprites[x].setTextureRect({x*64, 0, 64, 64});
+	}
+}
+
+void CharacterSelection::render(){
+	int size_x = 0;
+	int offset[6];
+	for(int i = 0; i<6; i++) {
+		offset[i] = size_x;
+		size_x +=128+8;
+	}
+	size_x -= 8;
+
+	sf::Vector2f pos;
+	sf::Vector2u wsize = ctx.window.getSize();
+	sf::FloatRect v_rect(0, 0, wsize.x, wsize.y);
+	ctx.window.setView(sf::View(v_rect));
+	pos.x = (wsize.x - size_x) / 2;
+	pos.y = (wsize.y - 128) / 2;
+
+	for(int i=0; i<6; i++){
+		sprites[i].setScale(2,2);
+		sprites[i].setPosition(pos.x + offset[i], pos.y);
+		ctx.window.draw(sprites[i]);
+	}
+}
+
+void CharacterSelection::handleEvent(sf::Event event){
+	if(event.type == sf::Event::MouseMoved) {
+		sf::Event::MouseMoveEvent p = event.mouseMove;
+		moveMouse({p.x, p.y});
+	}
+	if(event.type == sf::Event::KeyPressed) {
+		if(event.key.code == sf::Keyboard::Up) moveKeys(-1);
+		if(event.key.code == sf::Keyboard::Down) moveKeys(1);
+	}
+
+	bool enter = event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter;
+	if(event.type == sf::Event::MouseButtonPressed || enter){}
+}
+
+void CharacterSelection::moveMouse(sf::Vector2i position){
+	selected = -1;
+	for(u32 i = 0; i < 6; i += 1) {
+		sf::Sprite& sprite = sprites[i];
+		sf::FloatRect rect = sprite.getGlobalBounds();
+		if(rect.contains(position.x, position.y)) {
+			selected = i;
+			break;
+		}
+	}
+}
+
+void CharacterSelection::moveKeys(i32 delta) {
+	selected = (delta + selected + 6) % 6;
 }

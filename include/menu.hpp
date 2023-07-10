@@ -58,4 +58,18 @@ class PauseMenu: public Menu {
 	void handleEvent(sf::Event event);
 };
 
+class CharacterSelection : public State {
+	private:
+	sf::Texture texture;
+	sf::Sprite sprites[6];
+	i32 selected = -1;
+	void moveMouse(sf::Vector2i position);
+	void moveKeys(i32 delta);
+
+	public:
+	CharacterSelection(Context& ctx);
+	void render();
+	void handleEvent(sf::Event event);
+};
+
 #endif
