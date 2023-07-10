@@ -53,7 +53,7 @@ private:
     static constexpr const double health = 95;
     //range of 0-70% less damage
     static constexpr const double defense = 1;
-    static constexpr const double agility = 1.75;
+    static constexpr const double agility = 1.80;
 public:
     CDany(float x, float y, b2World* world, WeaponType weaponType);
     Character getCharacter() {return _character;}

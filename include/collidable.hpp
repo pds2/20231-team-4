@@ -95,7 +95,7 @@ struct Animation {
     }
 
     void update(const float& dt) {
-        _timer += 10.f * dt;
+        _timer += 1.f * dt;
         if(_timer >= _animationTimer) {
             _timer = 0;
            
