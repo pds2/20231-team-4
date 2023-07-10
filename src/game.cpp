@@ -165,7 +165,7 @@ UserInterface::UserInterface(Context& ctx, Game* game):
 }
 void UserInterface::tick() {
 	game->tick();
-	if(game->getPlayerProperties()._health>=0)
+	if(game->getPlayerProperties()._health<=0)
 		message = StateMessage::Into(std::make_unique<GameOver>(ctx));
 }
 void UserInterface::render() {
