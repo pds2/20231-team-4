@@ -13,6 +13,7 @@
 #include "weapon.hpp"
 #include "projectile.hpp"
 #include "enemy.hpp"
+#include "selection.hpp"
 
 /// Armazena dados sobre um estado de jogo
 class Game: public State {
@@ -25,7 +26,7 @@ class Game: public State {
 	sf::Sprite gun_sprite;
 	sf::Texture gun_texture;
 	f64 avgFrame;
-	TileMap map;
+	std::unique_ptr<TileMap> map;
 	
 	std::unique_ptr<Player> player_;
 	Enemies enemies_;
@@ -35,12 +36,13 @@ class Game: public State {
 
 	public:
 	/// Cria um novo jogo em um contexto
-	Game(Context& ctx, std::unique_ptr<Player> player);
+	Game(Context& ctx, GameSettings settings);
 	/// Reinicia o relógio do jogo. Deve ser usado após despausar.
 	void restartClock();
 	void tick();
 	void render();
 	void handleEvent(sf::Event event);
+	const PlayerProperties& getPlayerProperties();
 	~Game();
 };
 

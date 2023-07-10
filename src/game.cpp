@@ -11,10 +11,10 @@
 #include "error.hpp"
 #include "characters.hpp"
 
-Game::Game(Context& ctx, std::unique_ptr<Player> player):
+Game::Game(Context& ctx, GameSettings settings):
 	State(ctx, 1),
-	map("assets/cave.tmx"),
-	player_(std::move(player)),
+	map(std::move(settings.map)),
+	player_(std::move(settings.player)),
 	avgFrame(0),
 	enemies_(500)
 {
@@ -24,7 +24,7 @@ Game::Game(Context& ctx, std::unique_ptr<Player> player):
 
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 	
-	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
+	for(auto& c: map->collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 
 	this->tts = new TextTagSystem();
 }
@@ -39,7 +39,7 @@ void Game::tick() {
 	clock.restart();
 	avgFrame = avgFrame * 0.9 + elapsed.asSeconds() * 0.1;
 	tts->update(elapsed.asSeconds());
-	map.update(elapsed);
+	map->update(elapsed);
 
 	player_->_move(ctx.window, camera);
 	player_->_attack(ctx.window);
@@ -82,7 +82,7 @@ void Game::tick() {
 
 void Game::render() {
 	renderer.clear();
-	map.render(renderer);
+	map->render(renderer);
 
 	for(auto& orb: enemies_.xpOrbs_)
 		orb->renderOrb(renderer);
@@ -141,6 +141,9 @@ void Game::handleEvent(sf::Event event) {
 	}
 
 }
+const PlayerProperties& Game::getPlayerProperties() {
+	return player_->get_properties();
+}
 Game::~Game() {
 	delete tts;
 }
@@ -165,7 +168,8 @@ void UserInterface::render() {
 		s.setScale(2,2);
 		ctx.window.draw(s);
 	}
-	f32 hp = 0.6;
+	auto& props = game->getPlayerProperties();
+	f32 hp = props._health/props.get_default_health();
 	for(u32 i = 0; i < 10*hp; i += 1)
 		hearts[i].setColor(sf::Color::White);
 	for(u32 i = 10*hp; i < 10; i += 1)
