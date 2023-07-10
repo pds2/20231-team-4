@@ -52,8 +52,8 @@ protected:
 class Gun: public Weapon {
 private:
     static constexpr const double damage = 2;
-    static constexpr const double speed = 20;
-    static constexpr const double fireRate = 25;
+    static constexpr const double speed = 10;
+    static constexpr const double fireRate = 5;
 
 public:
     Gun();

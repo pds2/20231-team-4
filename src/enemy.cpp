@@ -155,7 +155,7 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
         sf::Vector2f pos (100 + rand()%(ws.x), 100 + rand()%(ws.y));
         while(isInsidePlayerBounds(pos) || isOutsideWindowBounds(pos))
             pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
-        
+
         enemies_.push_back(std::make_shared<Bugol>(pos.x, pos.y, &world));
         
         counter = 0;

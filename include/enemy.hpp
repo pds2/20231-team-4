@@ -110,11 +110,11 @@ struct Enemies {
 
 class Bugol: public Enemy {
 private:
-    static constexpr const std::pair<double, double> xp_range = {1, 2};
-    static constexpr const double health = 5;
-    static constexpr const double agility = 1;
+    static constexpr const std::pair<double, double> xp_range = {1, 5};
+    static constexpr const double health = 30;
+    static constexpr const double agility = 1.5;
     static constexpr const int damage_delay = 100;
-    static constexpr const double damage = 1;
+    static constexpr const double damage = 1.5;
 
     static constexpr const double xp_range_buff = 0.5;
     static constexpr const double health_buff = 1;
