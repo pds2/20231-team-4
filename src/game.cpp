@@ -9,6 +9,7 @@
 #include "menu.hpp"
 #include "assets.hpp"
 #include "error.hpp"
+#include "characters.hpp"
 
 Game::Game(Context& ctx):
 	State(ctx, 1),
@@ -20,10 +21,11 @@ Game::Game(Context& ctx):
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
 
-	player_ = std::make_unique<Frog>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::GUN);
+	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
+
+	player_ = std::make_unique<CVince>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::MACHINEGUN);
 	
 	for(auto& c: map.collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
-	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
 
 	this->tts = new TextTagSystem();
 }

@@ -20,6 +20,10 @@ class Game: public State {
 	ZRenderer renderer;
 	sf::View camera;
 	sf::Clock clock;
+	sf::Sprite character_sprite;
+	sf::Texture character_texture;
+	sf::Sprite gun_sprite;
+	sf::Texture gun_texture;
 	f64 avgFrame;
 	TileMap map;
 	

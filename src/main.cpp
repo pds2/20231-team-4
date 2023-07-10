@@ -12,14 +12,16 @@ int main() {
 		sf::RenderWindow(mode, "Semester's End (v.1)"),
 		b2Vec2(0,0)
 	};
+
+	sf::Image icon;
+	icon.loadFromFile("assets/game_icon.png");
+	ctx.window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+
 	ctx.window.setFramerateLimit(60);
 	ctx.window.setVerticalSyncEnabled(true);
 
 	MyContactListener contactListener;
 	ctx.world.SetContactListener(&contactListener);
-	sf::Image icon;
-	icon.loadFromFile("assets/game_icon.png");
-	ctx.window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
 	try {
 		Assets::init();

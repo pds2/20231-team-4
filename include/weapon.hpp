@@ -15,7 +15,7 @@
 class Player;
 
 enum class WeaponType {
-    GUN
+    GUN, MACHINEGUN, SHOTGUN
 };
 
 struct WeaponProperties {
@@ -32,6 +32,8 @@ public:
 
 class Weapon {
 public:
+    WeaponType _type;
+
     Weapon(const WeaponProperties &properties);
 
     virtual void fire(ProjectileType projectile, Player &player) {return;}
@@ -49,12 +51,36 @@ protected:
 
 class Gun: public Weapon {
 private:
+    static constexpr const double damage = 2;
+    static constexpr const double speed = 20;
+    static constexpr const double fireRate = 25;
+
+public:
+    Gun();
+
+    virtual void fire(ProjectileType projectile, Player &player) override;
+};
+
+class MachineGun: public Weapon {
+private:
     static constexpr const double damage = 1;
+    static constexpr const double speed = 15;
+    static constexpr const double fireRate = 8;
+
+public:
+    MachineGun();
+
+    virtual void fire(ProjectileType projectile, Player &player) override;
+};
+
+class ShotGun: public Weapon {
+private:
+    static constexpr const double damage = 4;
     static constexpr const double speed = 10;
     static constexpr const double fireRate = 50;
 
 public:
-    Gun();
+    ShotGun();
 
     virtual void fire(ProjectileType projectile, Player &player) override;
 };
