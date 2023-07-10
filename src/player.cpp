@@ -43,18 +43,18 @@ void Player::_move(RenderWindow& window, View& camera) {
     auto isPressed = sf::Keyboard::isKeyPressed;
     using Key = sf::Keyboard::Key;
     if(isPressed(Key::Up) || isPressed(Key::W))
-		velocity.y = -_pProperties._agility;
-	else if(isPressed(Key::Down) || isPressed(Key::S))
-		velocity.y = _pProperties._agility;
+        velocity.y = -_pProperties._agility;
+    else if(isPressed(Key::Down) || isPressed(Key::S))
+        velocity.y = _pProperties._agility;
     else 
         velocity.y = 0;
-	if(isPressed(Key::Left) || isPressed(Key::A))
-		velocity.x = -_pProperties._agility;
-	else if(isPressed(Key::Right) || isPressed(Key::D))
-		velocity.x = _pProperties._agility;
+    if(isPressed(Key::Left) || isPressed(Key::A))
+        velocity.x = -_pProperties._agility;
+    else if(isPressed(Key::Right) || isPressed(Key::D))
+        velocity.x = _pProperties._agility;
     else
         velocity.x = 0;
-	
+    
 
     _body->SetLinearVelocity(velocity);
     
@@ -66,9 +66,16 @@ void Player::_move(RenderWindow& window, View& camera) {
     Vector2f mousePosition = window.mapPixelToCoords(mp);
     Vector2f targetVector = Vector2f(mousePosition.x, mousePosition.y) - position_;
     long double angleRadians = atan2(targetVector.x, -targetVector.y);
-    _body->SetTransform(_body->GetPosition(), -angleRadians);
 
-    updateMovement(window);
+    rotation_ = angleRadians*DEG_PER_RAD;
+    sf::Vector2f newPosition(_body->GetPosition().x*PPM, _body->GetPosition().y*PPM);
+    if(_sfml_shape != nullptr) {
+        _sfml_shape->setPosition(newPosition);
+    }
+    else {
+        _sprite.setPosition(newPosition);
+    }
+    this->position_ = newPosition;
     _gui.updateHPBar();
     _gui.updateXPBar();
     xp_field.updateField();
