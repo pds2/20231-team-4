@@ -130,10 +130,12 @@ void Game::render() {
 		<< ffCalcTime << "ms ff calc" << std::endl;
 	debug.setString(ss.str());
 
-	sf::View v;
-	v.setViewport({{0, 0}, {1, 1}});
-	ctx.window.setView(v);
-	ctx.window.draw(debug);
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
+		sf::View v;
+		v.setViewport({{0, 0}, {1, 1}});
+		ctx.window.setView(v);
+		ctx.window.draw(debug);
+	}
 }
 void Game::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::MouseWheelScrolled) {
@@ -161,30 +163,14 @@ Game::~Game() {
 UserInterface::UserInterface(Context& ctx, Game* game):
 	game(game),
 	State(ctx, 0)
-{
-	if(!heart.loadFromFile("assets/GUI/PNG/HUD/CHARACTER HUD/HP Icon.png"))
-		throw ImageLoadError();
-	for(sf::Sprite& s: hearts) s.setTexture(heart);
-}
+{}
 void UserInterface::tick() {
 	game->tick();
 	if(game->getPlayerProperties()._health<=0)
 		message = StateMessage::Into(std::make_unique<GameOver>(ctx));
 }
 void UserInterface::render() {
-	f32 x = 10;
-	for(sf::Sprite& s: hearts) {
-		s.setPosition(x, 10);
-		x += 28;
-		s.setScale(2,2);
-		ctx.window.draw(s);
-	}
-	auto& props = game->getPlayerProperties();
-	f32 hp = props._health/props.get_default_health();
-	for(u32 i = 0; i < 10*hp; i += 1)
-		hearts[i].setColor(sf::Color::White);
-	for(u32 i = 10*hp; i < 10; i += 1)
-		hearts[i].setColor(sf::Color(0,0,0));
+	
 }
 void UserInterface::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
