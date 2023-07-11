@@ -136,7 +136,7 @@ public:
         else    
             return _sprite;
     }
-    void setPosition_(sf::Vector2f& new_position);
+    void setPosition_(const sf::Vector2f& new_position);
     void updateMovement(sf::RenderWindow &window);
 
 
@@ -180,8 +180,8 @@ public:
     bool colliding;
     u32 category;
 
-    int damage_do;
-    int damage_take;
+    double damage_do;
+    double damage_take;
     int ddelay_do;
     int ddelay_take;
 

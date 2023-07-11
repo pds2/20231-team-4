@@ -118,9 +118,9 @@ public:
 
 class Frog: public Player {
 private:
-    static constexpr const double health = 10;
+    static constexpr const double health = 100;
     static constexpr const double defense = 0.01;
-    static constexpr const double agility = 1.5;
+    static constexpr const double agility = 2.5;
 public:
     Frog(float x, float y, b2World* world, WeaponType weaponType);
 

@@ -31,7 +31,7 @@ int main() {
 		return 1;
 	}
 	try {
-		StateManager manager(ctx, std::make_unique<MainMenu>(ctx));
+		StateManager manager(ctx, std::make_unique<Story>(ctx));
 		sf::Clock clock;
 		while(ctx.window.isOpen()) {
 			manager.tick();

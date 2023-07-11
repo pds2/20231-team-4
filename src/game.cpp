@@ -8,23 +8,23 @@
 #include "game.hpp"
 #include "menu.hpp"
 #include "assets.hpp"
+#include "error.hpp"
 #include "characters.hpp"
 
-Game::Game(Context& ctx):
+Game::Game(Context& ctx, GameSettings settings):
 	State(ctx, 1),
-	map("assets/forest.tmx"),
+	map(std::move(settings.map)),
+	player_(std::move(settings.player)),
 	avgFrame(0),
-	enemies_(500)
+	enemies_(100)
 {
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
-
+		
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
-
-	player_ = std::make_unique<CDany>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::SHOTGUN);
 	
-	for(auto& c: map.collisions()) {
+	for(auto& c: map->collisions()) {
 		ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 		obstacles.push_back(std::make_unique<Collidable>(c.left+c.width*0.5, 
 														c.top+c.height*0.5, 
@@ -47,7 +47,7 @@ void Game::tick() {
 	clock.restart();
 	avgFrame = avgFrame * 0.9 + elapsed.asSeconds() * 0.1;
 	tts->update(elapsed.asSeconds());
-	map.update(elapsed);
+	map->update(elapsed);
 
 	player_->_move(ctx.window, camera);
 	player_->_attack(ctx.window);
@@ -90,7 +90,7 @@ void Game::tick() {
 
 void Game::render() {
 	renderer.clear();
-	map.render(renderer);
+	map->render(renderer);
 
 	for(auto& orb: enemies_.xpOrbs_)
 		orb->renderOrb(renderer);
@@ -150,6 +150,9 @@ void Game::handleEvent(sf::Event event) {
 	}
 
 }
+const PlayerProperties& Game::getPlayerProperties() {
+	return player_->get_properties();
+}
 Game::~Game() {
 	delete tts;
 }
@@ -157,11 +160,32 @@ Game::~Game() {
 
 UserInterface::UserInterface(Context& ctx, Game* game):
 	game(game),
-	State(ctx, 0) {}
+	State(ctx, 0)
+{
+	if(!heart.loadFromFile("assets/GUI/PNG/HUD/CHARACTER HUD/HP Icon.png"))
+		throw ImageLoadError();
+	for(sf::Sprite& s: hearts) s.setTexture(heart);
+}
 void UserInterface::tick() {
 	game->tick();
+	if(game->getPlayerProperties()._health<=0)
+		message = StateMessage::Into(std::make_unique<GameOver>(ctx));
 }
-void UserInterface::render() {}
+void UserInterface::render() {
+	f32 x = 10;
+	for(sf::Sprite& s: hearts) {
+		s.setPosition(x, 10);
+		x += 28;
+		s.setScale(2,2);
+		ctx.window.draw(s);
+	}
+	auto& props = game->getPlayerProperties();
+	f32 hp = props._health/props.get_default_health();
+	for(u32 i = 0; i < 10*hp; i += 1)
+		hearts[i].setColor(sf::Color::White);
+	for(u32 i = 10*hp; i < 10; i += 1)
+		hearts[i].setColor(sf::Color(0,0,0));
+}
 void UserInterface::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
 		message = StateMessage::Into(std::make_unique<PauseMenu>(ctx, game));
