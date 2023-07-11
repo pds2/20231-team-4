@@ -85,7 +85,7 @@ XpOrb::XpOrb(Enemy& e): xp(e._xp),
     Collidable(e.getPosition_().x, e.getPosition_().y, e.get_world(), 
     new Circle(2.f, 0), b2_staticBody, "xporbs.png", _categoryBits, _maskBits) {
     _data->damage_do = xp;
-    _animation = new Animation(_sprite, _texture, 30, sf::Vector2u(1,0), 16, 16, size_);
+    _animation = new Animation(_sprite, _texture, 0, sf::Vector2u(1,0), 16, 16, size_);
 }
 
 void XpOrb::renderOrb(ZRenderer& renderer) {
@@ -149,12 +149,12 @@ void Enemies::spawnEnemy(sf::RenderWindow& window, b2World& world, sf::View& cam
         };
 
         auto isOutsideWindowBounds = [&](sf::Vector2f pos) -> bool {
-            return (pos.x < (100) || pos.x > (ws.x) || pos.y < (100) || pos.y > (ws.y));
+            return (pos.x < (100) || pos.x > (860) || pos.y < (100) || pos.y > (860));
         };
 
-        sf::Vector2f pos (100 + rand()%(ws.x), 100 + rand()%(ws.y));
+        sf::Vector2f pos (100 + rand()%(860), 100 + rand()%(860));
         while(isInsidePlayerBounds(pos) || isOutsideWindowBounds(pos))
-            pos = Vector2f(100 + rand()%(ws.x), 100 + rand()%(ws.y));
+            pos = Vector2f(100 + rand()%(860), 100 + rand()%(860));
 
         enemies_.push_back(std::make_shared<Bugol>(pos.x, pos.y, &world));
         

@@ -36,7 +36,7 @@ public:
 
     Weapon(const WeaponProperties &properties);
 
-    virtual void fire(ProjectileType projectile, Player &player) {return;}
+    virtual void fire(ProjectileType projectile, Player &player);
     
     std::vector<std::shared_ptr<Projectile>>& get_cartridge() {return cartridge;}
 
@@ -51,9 +51,9 @@ protected:
 
 class Gun: public Weapon {
 private:
-    static constexpr const double damage = 2;
-    static constexpr const double speed = 10;
-    static constexpr const double fireRate = 5;
+    static constexpr const double damage = 8;
+    static constexpr const double speed = 15;
+    static constexpr const double fireRate = 16;
 
 public:
     Gun();
@@ -64,8 +64,8 @@ public:
 class MachineGun: public Weapon {
 private:
     static constexpr const double damage = 1;
-    static constexpr const double speed = 15;
-    static constexpr const double fireRate = 8;
+    static constexpr const double speed = 20;
+    static constexpr const double fireRate = 2;
 
 public:
     MachineGun();
@@ -75,9 +75,9 @@ public:
 
 class ShotGun: public Weapon {
 private:
-    static constexpr const double damage = 4;
+    static constexpr const double damage = 16;
     static constexpr const double speed = 10;
-    static constexpr const double fireRate = 50;
+    static constexpr const double fireRate = 32;
 
 public:
     ShotGun();

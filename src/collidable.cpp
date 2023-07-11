@@ -122,7 +122,7 @@ Collidable::~Collidable() {
     delete _animation;
 }
 
-void Collidable::setPosition_(sf::Vector2f& new_position) {
+void Collidable::setPosition_(const sf::Vector2f& new_position) {
    
     if(_sfml_shape != nullptr) {
         _sfml_shape->setPosition(new_position);

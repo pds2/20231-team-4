@@ -81,6 +81,8 @@ class Player: public Collidable {
 protected:
     Weapon* _weapon;
     PlayerProperties _pProperties;
+    sf::Sprite weapon;
+    sf::Texture _texture;
 
 private:
     using enum CollidableType;
@@ -98,6 +100,7 @@ public:
     Player(float x, float y, b2World* world, Shapeb2* shape, sf::Color color, PlayerProperties&& properties, WeaponType weaponType);
     
     Weapon* get_weapon() {return _weapon;}
+    sf::Sprite& get_weapon_sprite() {return weapon;}
     PlayerProperties& get_properties() {return _pProperties;}
     const PlayerProperties& get_properties() const {return _pProperties;}
     PlayerGUI& getGUI() {return _gui;}

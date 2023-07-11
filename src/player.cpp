@@ -4,17 +4,26 @@ using namespace sf;
 using namespace std;
 
 void Player::default_config(WeaponType& weaponType) {
+    std::string _directory;
     switch(weaponType) {
         case WeaponType::GUN:
             _weapon = new Gun();
+            _directory = "gun.png";
             break;
         case WeaponType::MACHINEGUN:
             _weapon = new MachineGun();
+            _directory = "machine_gun.png";
             break;
         case WeaponType::SHOTGUN:
             _weapon = new ShotGun();
+            _directory = "shotgun.png";
             break;
     }
+    _texture.loadFromFile("assets/guns/" + _directory);
+    weapon.setTexture(_texture);
+    weapon.setPosition(position_);
+    weapon.setScale(0.5f, 0.5f);
+    weapon.setOrigin(_texture.getSize().x*0.5, _texture.getSize().y*0.5);
 }
 
 Player::Player(float x, float y, b2World* world, Shapeb2* shape, string texture, PlayerProperties&& properties, WeaponType weaponType) 
@@ -43,18 +52,18 @@ void Player::_move(RenderWindow& window, View& camera) {
     auto isPressed = sf::Keyboard::isKeyPressed;
     using Key = sf::Keyboard::Key;
     if(isPressed(Key::Up) || isPressed(Key::W))
-		velocity.y = -_pProperties._agility;
-	else if(isPressed(Key::Down) || isPressed(Key::S))
-		velocity.y = _pProperties._agility;
+        velocity.y = -_pProperties._agility;
+    else if(isPressed(Key::Down) || isPressed(Key::S))
+        velocity.y = _pProperties._agility;
     else 
         velocity.y = 0;
-	if(isPressed(Key::Left) || isPressed(Key::A))
-		velocity.x = -_pProperties._agility;
-	else if(isPressed(Key::Right) || isPressed(Key::D))
-		velocity.x = _pProperties._agility;
+    if(isPressed(Key::Left) || isPressed(Key::A))
+        velocity.x = -_pProperties._agility;
+    else if(isPressed(Key::Right) || isPressed(Key::D))
+        velocity.x = _pProperties._agility;
     else
         velocity.x = 0;
-	
+    
 
     _body->SetLinearVelocity(velocity);
     
@@ -66,9 +75,17 @@ void Player::_move(RenderWindow& window, View& camera) {
     Vector2f mousePosition = window.mapPixelToCoords(mp);
     Vector2f targetVector = Vector2f(mousePosition.x, mousePosition.y) - position_;
     long double angleRadians = atan2(targetVector.x, -targetVector.y);
-    _body->SetTransform(_body->GetPosition(), -angleRadians);
 
-    updateMovement(window);
+    rotation_ = angleRadians*DEG_PER_RAD;
+    sf::Vector2f newPosition(_body->GetPosition().x*PPM, _body->GetPosition().y*PPM);
+    if(_sfml_shape != nullptr) {
+        _sfml_shape->setPosition(newPosition);
+    }
+    else {
+        _sprite.setPosition(newPosition);
+    }
+    this->position_ = newPosition;
+    weapon.setPosition(position_.x, position_.y+3);
     _gui.updateHPBar();
     _gui.updateXPBar();
     xp_field.updateField();
@@ -118,7 +135,8 @@ void Player::handleAttack(RenderWindow& window) {
             proj->updateMovement(window);
             proj->_animation->update(1);
             
-            if(proj->getCollisionData()->collided || 
+            if(proj->getCollisionData()->collided ||
+               proj->getCollisionData()->colliding ||
                proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) ||
                proj->_distance() >= proj->get_range()) {
                 it->reset();

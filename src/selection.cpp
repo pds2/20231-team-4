@@ -25,22 +25,22 @@ CharacterSelection::CharacterSelection(Context& ctx, GameSettings settings):
 void CharacterSelection::click(){
 	switch(selected) {
 		case 0:
-		settings.player = std::make_unique<CVince>(0, 0, &ctx.world, settings.weapon);
+		settings.player = std::make_unique<CVince>(50, 50, &ctx.world, settings.weapon);
 		break;
 		case 1:
-		settings.player = std::make_unique<CNate>(0, 0, &ctx.world, settings.weapon);
+		settings.player = std::make_unique<CNate>(50, 50, &ctx.world, settings.weapon);
 		break;
 		case 2:
-		settings.player = std::make_unique<CMatt>(0, 0, &ctx.world, settings.weapon);
+		settings.player = std::make_unique<CMatt>(50, 50, &ctx.world, settings.weapon);
 		break;
 		case 3:
-		settings.player = std::make_unique<CLena>(0, 0, &ctx.world, settings.weapon);
+		settings.player = std::make_unique<CLena>(50, 50, &ctx.world, settings.weapon);
 		break;
 		case 4:
-		settings.player = std::make_unique<CJoy>(0, 0, &ctx.world, settings.weapon);
+		settings.player = std::make_unique<CJoy>(50, 50, &ctx.world, settings.weapon);
 		break;
 		case 5:
-		settings.player = std::make_unique<CDany>(0, 0, &ctx.world, settings.weapon);
+		settings.player = std::make_unique<CDany>(50, 50, &ctx.world, settings.weapon);
 		break;
 	}
 	message = StateMessage::Set(std::make_unique<Game>(ctx, std::move(settings)));

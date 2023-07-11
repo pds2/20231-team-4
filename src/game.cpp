@@ -21,17 +21,19 @@ Game::Game(Context& ctx, GameSettings settings):
 	sf::Vector2u ws = ctx.window.getSize();
 	camera.setCenter({ ws.x * 0.5f, ws.y * 0.5f });
 	camera.setSize(256.0f * ws.x / ws.y, 256.0f);
-
-	try {
-		player_ = std::make_unique<Frog>(ws.x*0.3f,ws.y*0.3f, &ctx.world, WeaponType::GUN);
-	} catch(std::exception& e) {
-		std::cerr << "Error creating player" << std::endl;
-		std::cerr << e.what() << std::endl;
-	}
 		
-	for(auto& c: map->collisions()) ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
 	message = StateMessage::Push(std::make_unique<UserInterface>(ctx, this));
-
+	
+	for(auto& c: map->collisions()) {
+		ff.addObstacle<f32>({c.left, c.top}, {c.width, c.height});
+		obstacles.push_back(std::make_unique<Collidable>(c.left+c.width*0.5, 
+														c.top+c.height*0.5, 
+														&ctx.world, 
+														new Box(c.width, c.height, 100.f), 
+														b2_staticBody, 
+														(u32) 0 | CollidableType::STATIC,
+														(u32) 0 | CollidableType::DYNAMIC));
+	}
 	this->tts = new TextTagSystem();
 }
 
@@ -66,7 +68,7 @@ void Game::tick() {
 	
 	sf::Clock ffClock;
 	for(std::weak_ptr e: enemies_.enemies_) ff.addEnemy(e.lock()->getPosition_(), e.lock()->getSize_());
-	ff.calculate(pc, ps);
+	ff.calculate(pp, ps);
 	ffCalcTime = ffCalcTime * 0.9 + 0.1 * ffClock.getElapsedTime().asMilliseconds();
 
 	for(std::weak_ptr e: enemies_.enemies_) {
@@ -103,7 +105,8 @@ void Game::render() {
 	
 	renderer.insert(0, player_->get_drawable());
 	player_->getGUI().renderGUI(renderer);
-	
+	renderer.insert(0, player_->get_weapon_sprite());
+
 	
 	ctx.window.setView(camera);
 	ctx.window.draw(renderer);
@@ -127,10 +130,12 @@ void Game::render() {
 		<< ffCalcTime << "ms ff calc" << std::endl;
 	debug.setString(ss.str());
 
-	sf::View v;
-	v.setViewport({{0, 0}, {1, 1}});
-	ctx.window.setView(v);
-	ctx.window.draw(debug);
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
+		sf::View v;
+		v.setViewport({{0, 0}, {1, 1}});
+		ctx.window.setView(v);
+		ctx.window.draw(debug);
+	}
 }
 void Game::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::MouseWheelScrolled) {
@@ -158,30 +163,14 @@ Game::~Game() {
 UserInterface::UserInterface(Context& ctx, Game* game):
 	game(game),
 	State(ctx, 0)
-{
-	if(!heart.loadFromFile("assets/GUI/PNG/HUD/CHARACTER HUD/HP Icon.png"))
-		throw ImageLoadError();
-	for(sf::Sprite& s: hearts) s.setTexture(heart);
-}
+{}
 void UserInterface::tick() {
 	game->tick();
 	if(game->getPlayerProperties()._health<=0)
 		message = StateMessage::Into(std::make_unique<GameOver>(ctx));
 }
 void UserInterface::render() {
-	f32 x = 10;
-	for(sf::Sprite& s: hearts) {
-		s.setPosition(x, 10);
-		x += 28;
-		s.setScale(2,2);
-		ctx.window.draw(s);
-	}
-	auto& props = game->getPlayerProperties();
-	f32 hp = props._health/props.get_default_health();
-	for(u32 i = 0; i < 10*hp; i += 1)
-		hearts[i].setColor(sf::Color::White);
-	for(u32 i = 10*hp; i < 10; i += 1)
-		hearts[i].setColor(sf::Color(0,0,0));
+	
 }
 void UserInterface::handleEvent(sf::Event event) {
 	if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)

@@ -30,6 +30,7 @@ class Game: public State {
 	
 	std::unique_ptr<Player> player_;
 	Enemies enemies_;
+	std::vector<std::unique_ptr<Collidable>> obstacles;
 
 	TextTagSystem* tts;
 	FlowField ff;
@@ -50,8 +51,6 @@ class Game: public State {
 class UserInterface: public State {
 	private:
 	Game* game;
-	sf::Texture heart;
-	sf::Sprite hearts[10];
 
 	public:
 	/// Cria uma interface de usuário para um estado de jogo

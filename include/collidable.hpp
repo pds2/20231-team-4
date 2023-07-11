@@ -95,7 +95,7 @@ struct Animation {
     }
 
     void update(const float& dt) {
-        _timer += 10.f * dt;
+        _timer += 1.f * dt;
         if(_timer >= _animationTimer) {
             _timer = 0;
            
@@ -136,7 +136,7 @@ public:
         else    
             return _sprite;
     }
-    void setPosition_(sf::Vector2f& new_position);
+    void setPosition_(const sf::Vector2f& new_position);
     void updateMovement(sf::RenderWindow &window);
 
 
