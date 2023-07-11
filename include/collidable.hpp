@@ -70,6 +70,7 @@ struct Animation {
     sf::IntRect currRect;
     sf::IntRect endRect;
 
+    int _axis = 1;
     float _animationTimer;
     float _timer;
     
@@ -88,6 +89,11 @@ struct Animation {
         _sprite.setOrigin(_width/2.0f, _height/2.0f);
      }
 
+    void axis_uptade(){
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {_axis = -1;}
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {_axis = 1;}
+    }
+
     void update(const float& dt) {
         _timer += 10.f * dt;
         if(_timer >= _animationTimer) {
@@ -99,9 +105,9 @@ struct Animation {
                 currRect = startRect;
             }
 
+            axis_uptade();
             _sprite.setTextureRect(currRect);
-
-            _sprite.setScale(body_size.x/_width, body_size.y/_height);
+            _sprite.setScale(_axis*body_size.x/_width, body_size.y/_height);
         }
     }
 

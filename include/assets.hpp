@@ -5,6 +5,8 @@
 namespace Assets {
 	void init();
 	extern sf::Font font;
+	extern sf::Font terminal;
+	extern sf::Texture buttonBackground;
 }
 
 #endif

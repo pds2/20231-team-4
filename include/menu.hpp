@@ -18,6 +18,7 @@ class Menu: public State {
 	private:
 	std::vector<Button> buttons;
 	std::vector<sf::Text> texts;
+	std::vector<sf::Sprite> backgrounds;
 	i32 selected;
 
 	void moveMouse(sf::Vector2i position);
@@ -55,6 +56,26 @@ class PauseMenu: public Menu {
 	/// Retorna ao jogo
 	void resume();
 	void handleEvent(sf::Event event);
+};
+
+class GameOver: public State {
+	public:
+	GameOver(Context& ctx);
+	void render();
+	void handleEvent(sf::Event event);
+
+	private:
+	sf::Text text;
+};
+
+class Story: public State {
+	public:
+	Story(Context& ctx);
+	void render();
+	void handleEvent(sf::Event event);
+
+	private:
+	sf::Text text;
 };
 
 #endif

@@ -8,6 +8,12 @@ void Player::default_config(WeaponType& weaponType) {
         case WeaponType::GUN:
             _weapon = new Gun();
             break;
+        case WeaponType::MACHINEGUN:
+            _weapon = new MachineGun();
+            break;
+        case WeaponType::SHOTGUN:
+            _weapon = new ShotGun();
+            break;
     }
 }
 
