@@ -59,6 +59,12 @@ void SelectionMenu::render(){
 
 	sf::Vector2f pos;
 	sf::Vector2u wsize = ctx.window.getSize();
+	sf::RectangleShape bckg;
+
+	bckg.setFillColor(sf::Color(50, 50, 50));
+	bckg.setSize({wsize.x*1.0f, wsize.y*1.0f});
+	ctx.window.draw(bckg);
+
 	sf::FloatRect v_rect(0, 0, wsize.x, wsize.y);
 	ctx.window.setView(sf::View(v_rect));
 	pos.x = (wsize.x - size_x) / 2;

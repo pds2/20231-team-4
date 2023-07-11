@@ -90,8 +90,8 @@ struct Animation {
      }
 
     void axis_uptade(){
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {_axis = -1;}
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {_axis = 1;}
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {_axis = -1;}
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {_axis = 1;}
     }
 
     void update(const float& dt) {

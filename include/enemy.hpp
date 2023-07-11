@@ -113,7 +113,7 @@ private:
     static constexpr const std::pair<double, double> xp_range = {1, 5};
     static constexpr const double health = 30;
     static constexpr const double agility = 1.5;
-    static constexpr const int damage_delay = 100;
+    static constexpr const int damage_delay = 50;
     static constexpr const double damage = 1.5;
 
     static constexpr const double xp_range_buff = 0.5;

@@ -103,7 +103,7 @@ void Player::handlePlayer(TextTagSystem& tts) {
         switch(getCollisionData()->category) {
             case ((u32)CollidableType::ENEMY|(u32)CollidableType::DYNAMIC):
                 if(_pProperties._health < getCollisionData()->damage_take) {
-
+                    _pProperties._health = 0;
                 } else if (getCollisionData()->other_data->counter >= getCollisionData()->ddelay_take - 1 && 
                    getCollisionData()->other_data->collided == false && 
                    _pProperties._health > 0) {
