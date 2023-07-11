@@ -36,7 +36,7 @@ public:
 
     Weapon(const WeaponProperties &properties);
 
-    virtual void fire(ProjectileType projectile, Player &player) {return;}
+    virtual void fire(ProjectileType projectile, Player &player);
     
     std::vector<std::shared_ptr<Projectile>>& get_cartridge() {return cartridge;}
 

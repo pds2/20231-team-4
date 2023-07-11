@@ -85,7 +85,7 @@ void Player::_move(RenderWindow& window, View& camera) {
         _sprite.setPosition(newPosition);
     }
     this->position_ = newPosition;
-    weapon.setPosition(position_);
+    weapon.setPosition(position_.x, position_.y+3);
     _gui.updateHPBar();
     _gui.updateXPBar();
     xp_field.updateField();
@@ -135,7 +135,8 @@ void Player::handleAttack(RenderWindow& window) {
             proj->updateMovement(window);
             proj->_animation->update(1);
             
-            if(proj->getCollisionData()->collided || 
+            if(proj->getCollisionData()->collided ||
+               proj->getCollisionData()->colliding ||
                proj->get_body()->GetLinearVelocity() == b2Vec2(0,0) ||
                proj->_distance() >= proj->get_range()) {
                 it->reset();
